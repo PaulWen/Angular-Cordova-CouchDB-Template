@@ -13,7 +13,7 @@ var tsProject = tsc.createProject('tsconfig.json');
 var browserSync = require('browser-sync').create();
 var htmlreplace = require('gulp-html-replace');
 var fileLoader = require('fs');
-
+var sass = require('gulp-sass');
 
 // is used in order to control if tasks should be run parallel or in sequenze
 var gulpSequence = require('gulp-sequence');
@@ -73,27 +73,48 @@ gulp.task('typescript-own-dev', function(cb) {
         .pipe(tsc(tsProject));
 
     return tscResult.js
-        .pipe(sourcemaps.write('maps')) // Now the sourcemaps are added to the .js file
+        .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
         .pipe(gulp.dest(devOutputPath, cb));
 });
 
 // ////////////////////////////////////////////////
-// HTML & CSS Tasks
-// ///////////////////////////////////////////////
+// SASS Tasks
+// ////////////////////////////////////////////////
+
+// the task compiles all the own SASS files to CSS files and saves them in the dist folder
+gulp.task('sass-dev', function() {
+    return gulp.src('src/**/*.scss')
+        .pipe(sourcemaps.init())
+        .pipe(sass().on('error', sass.logError))
+        .pipe(sourcemaps.write())
+        .pipe(gulp.dest(devOutputPath, {overwrite: true}));
+});
+
+// the task compiles all the own SASS files to CSS files and saves them in the build folder
+gulp.task('sass-prod', function() {
+    return gulp.src('src/**/*.scss')
+        .pipe(sass().on('error', sass.logError))
+        .pipe(gulp.dest(prodOutputPath, {overwrite: true}));
+});
+
+
+// ////////////////////////////////////////////////
+// HTML Tasks
+// ////////////////////////////////////////////////
 var viewElementsToCopy = [
-    "src/**/*.+(htm|html|css)",
+    "src/**/*.+(htm|html)",
     "!src/index.html",
     "!src/index-js-dev.html",
     "!src/index-js-prod.html"
 ];
 
-// copies all HTML and CSS files into the build folder
+// copies all HTML files into the build folder
 gulp.task('view-prod', function() {
     return gulp.src(viewElementsToCopy)
         .pipe(gulp.dest(prodOutputPath, {overwrite: true}));
 });
 
-// copies all HTML and CSS files into the development folder
+// copies all HTML files into the development folder
 gulp.task('view-dev', function() {
     return gulp.src(viewElementsToCopy)
         .pipe(gulp.dest(devOutputPath, {overwrite: true}));
@@ -154,6 +175,7 @@ gulp.task('serve-dev', function(cb) {
     });
 
     gulp.watch(["src/**/*.ts"], ["browserSync-typescript-own-dev"], cb);
+    gulp.watch(["src/**/*.scss"], ["browserSync-sass-own-dev"], cb);
     gulp.watch(viewElementsToCopy, ["browserSync-view-dev"], cb);
     gulp.watch(["src/index.html", "src/index-js-dev.html"], ["browserSync-index-dev"], cb);
 });
@@ -162,6 +184,12 @@ gulp.task('serve-dev', function(cb) {
 
 // the task reloads all browsers using browserSync after compiling and deploying all the TypeScript files
 gulp.task('browserSync-typescript-own-dev', ["typescript-own-dev"], function(cb) {
+    browserSync.reload();
+    cb();
+});
+
+// the task reloads all browsers using browserSync after compiling and deploying all the Sass files
+gulp.task('browserSync-sass-own-dev', ["sass-dev"], function(cb) {
     browserSync.reload();
     cb();
 });
@@ -194,10 +222,10 @@ gulp.task('clear-dev', function (cb) {
 });
 
 // build process for production
-gulp.task('deploy', gulpSequence('clear-prod', ['typescript-prod', 'view-prod', 'index-prod'], 'serve-prod'));
+gulp.task('deploy', gulpSequence('clear-prod', ['typescript-prod', 'view-prod', 'index-prod', 'sass-prod'], 'serve-prod'));
 
 // build process for production
-gulp.task('develop', gulpSequence('clear-dev', 'typescript-own-dev', ['typescript-libs-dev', 'view-dev', 'index-dev'], 'serve-dev'));
+gulp.task('develop', gulpSequence('clear-dev', 'typescript-own-dev', ['typescript-libs-dev', 'view-dev', 'index-dev', 'sass-dev'], 'serve-dev'));
 
 
 // ////////////////////////////////////////////////
