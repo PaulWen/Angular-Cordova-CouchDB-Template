@@ -4,7 +4,7 @@
             map: {
                 'rxjs': 'node_modules/rxjs',
                 '@angular': 'node_modules/@angular',
-                'src': './'
+                'app': './'
             },
 
             packages: {
@@ -40,7 +40,7 @@
                     main: 'index.js',
                     defaultExtension: 'js'
                 },
-                'src': {
+                'app': {
                     main: 'main.js',
                     defaultExtension: 'js'
                 }
@@ -53,5 +53,5 @@
 
     <!-- Entry Point of the Application -->
     <script>
-        System.import("src").catch(function(err){ console.error(err); });
+        System.import("app").catch(function(err){ console.error(err); });
     </script>

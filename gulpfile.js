@@ -1,12 +1,27 @@
+// File Paths
 var prodOutputPath = "build";
 var devOutputPath = "dist";
+var srcFolderPath = "app";
+var typeScriptFiles = srcFolderPath + "/**/*.ts";
+var typeScriptCompilerFiles = [typeScriptFiles, 'typings/browser/**/*.ts', 'typings/browser.d.ts'];
+var sassFiles = srcFolderPath + "/**/*.scss";
+var htmlFiles = [
+    srcFolderPath + "/**/*.+(htm|html)",
+    "!" + srcFolderPath + "/index.html",
+    "!" + srcFolderPath + "/index-js-dev.html",
+    "!" + srcFolderPath + "/index-js-prod.html"
+];
+var indexHtmlFilesDev = [
+    srcFolderPath + "/index.html",
+    srcFolderPath + "/index-js-dev.html"
+];
 
+// Gulp Tools
 var gulp = require('gulp');
 var SystemJsBuilder = require('systemjs-builder');
 var builder = new SystemJsBuilder();
 var del = require('del');
 var rename = require('gulp-rename');
-var replace = require('gulp-replace');
 var tsc = require('gulp-typescript');
 var sourcemaps = require('gulp-sourcemaps');
 var tsProject = tsc.createProject('tsconfig.json');
@@ -29,20 +44,11 @@ gulp.task('typescript-prod', ['typescript-own-dev'], function(cb) {
     builder.loadConfig('./systemjs.config.js')
         .then(function() {
             // combines ALL JavaScript files into one file - the systemjs.config.js is not needed anymore afterwards!
-            return builder.buildStatic("src", prodOutputPath + "/script.js", { minify: true, sourceMaps: false});
+            return builder.buildStatic(srcFolderPath, prodOutputPath + "/script.js", { minify: true, sourceMaps: false});
         })
         .then(function(){
             console.log('library bundles built successfully!');
-        })
-        .then(function () {
-            // Changes all path references inside the scripts to the view,
-            // since the views are no longer stored under /app/view/ but instead
-            // under /view/
-            gulp.src(prodOutputPath + '/script.js')
-                .pipe(replace('src/view/', 'view/'))
-                .pipe(gulp.dest(prodOutputPath, {overwrite: true}));
         });
-
     cb();
 });
 
@@ -52,7 +58,7 @@ gulp.task('typescript-libs-dev', function(cb) {
     builder.loadConfig('./systemjs.config.js')
         .then(function(){
             return builder.bundle(
-                'src - [src/**/*]', // build app and remove the app code - this leaves only 3rd party dependencies
+                srcFolderPath + ' - [' + srcFolderPath + '/**/*]', // build app and remove the app code - this leaves only 3rd party dependencies
                 devOutputPath + '/libs-bundle.js', { minify: true });
         })
         .then(function(){
@@ -64,11 +70,7 @@ gulp.task('typescript-libs-dev', function(cb) {
 
 // the task compiles all the own TypeScript files of the project to JavaScript files
 gulp.task('typescript-own-dev', function(cb) {
-    var tscResult = gulp.src(['src/**/*.ts', 'typings/browser/**/*.ts', 'typings/browser.d.ts']) // instead of "tsProject.src()" because the other one slows down the transpile process
-        // Changes all path references inside the scripts to the view,
-        // since the views are no longer stored under /app/view/ but instead
-        // under /view/
-        .pipe(replace('src/view/', 'view/'))
+    var tscResult = gulp.src(typeScriptCompilerFiles) // instead of "tsProject.src()" because the other one slows down the transpile process
         .pipe(sourcemaps.init()) // This means sourcemaps will be generated
         .pipe(tsc(tsProject));
 
@@ -83,7 +85,7 @@ gulp.task('typescript-own-dev', function(cb) {
 
 // the task compiles all the own SASS files to CSS files and saves them in the dist folder
 gulp.task('sass-dev', function() {
-    return gulp.src('src/**/*.scss')
+    return gulp.src(sassFiles)
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
         .pipe(sourcemaps.write())
@@ -92,7 +94,7 @@ gulp.task('sass-dev', function() {
 
 // the task compiles all the own SASS files to CSS files and saves them in the build folder
 gulp.task('sass-prod', function() {
-    return gulp.src('src/**/*.scss')
+    return gulp.src(sassFiles)
         .pipe(sass().on('error', sass.logError))
         .pipe(gulp.dest(prodOutputPath, {overwrite: true}));
 });
@@ -101,31 +103,25 @@ gulp.task('sass-prod', function() {
 // ////////////////////////////////////////////////
 // HTML Tasks
 // ////////////////////////////////////////////////
-var viewElementsToCopy = [
-    "src/**/*.+(htm|html)",
-    "!src/index.html",
-    "!src/index-js-dev.html",
-    "!src/index-js-prod.html"
-];
 
 // copies all HTML files into the build folder
 gulp.task('view-prod', function() {
-    return gulp.src(viewElementsToCopy)
+    return gulp.src(htmlFiles)
         .pipe(gulp.dest(prodOutputPath, {overwrite: true}));
 });
 
 // copies all HTML files into the development folder
 gulp.task('view-dev', function() {
-    return gulp.src(viewElementsToCopy)
+    return gulp.src(htmlFiles)
         .pipe(gulp.dest(devOutputPath, {overwrite: true}));
 });
 
 // copies the index.html file in the dist folder after inculding the JavaScript
 gulp.task('index-dev', function() {
     // load the index-js-dev.html file
-    fileLoader.readFile('src/index-js-dev.html', "utf-8", function(err, data) {
-            // place the conent of the index-js-dev.html inside the inde.html template
-            return gulp.src('src/index.html')
+    fileLoader.readFile(srcFolderPath + '/index-js-dev.html', "utf-8", function(err, data) {
+            // place the content of the index-js-dev.html inside the index.html template
+            return gulp.src(srcFolderPath + '/index.html')
                 .pipe(htmlreplace({
                     'js': data
                 }))
@@ -136,9 +132,9 @@ gulp.task('index-dev', function() {
 // copies the index.html file in the build folder after inculding the JavaScript
 gulp.task('index-prod', function() {
     // load the index-js-prod.html file
-    fileLoader.readFile('src/index-js-prod.html', "utf-8", function(err, data) {
+    fileLoader.readFile(srcFolderPath + '/index-js-prod.html', "utf-8", function(err, data) {
             // place the conent of the index-js-prod.html inside the inde.html template
-            return gulp.src('src/index.html')
+            return gulp.src(srcFolderPath + '/index.html')
                 .pipe(htmlreplace({
                     'js': data
                 }))
@@ -174,10 +170,10 @@ gulp.task('serve-dev', function(cb) {
         }
     });
 
-    gulp.watch(["src/**/*.ts"], ["browserSync-typescript-own-dev"], cb);
-    gulp.watch(["src/**/*.scss"], ["browserSync-sass-own-dev"], cb);
-    gulp.watch(viewElementsToCopy, ["browserSync-view-dev"], cb);
-    gulp.watch(["src/index.html", "src/index-js-dev.html"], ["browserSync-index-dev"], cb);
+    gulp.watch(typeScriptFiles, ["browserSync-typescript-own-dev"], cb);
+    gulp.watch(sassFiles, ["browserSync-sass-own-dev"], cb);
+    gulp.watch(htmlFiles, ["browserSync-view-dev"], cb);
+    gulp.watch(indexHtmlFilesDev, ["browserSync-index-dev"], cb);
 });
 
 

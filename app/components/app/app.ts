@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router-deprecated';
-import {TestComponent} from "./test";
+import {TestComponent} from "../test/test";
 
 @Component({
     selector: 'my-app',
-    templateUrl: 'src/view/app.html',
+    templateUrl: './components/app/app.html',
     directives: [ROUTER_DIRECTIVES],
     providers: [ROUTER_PROVIDERS]
 })
@@ -17,6 +17,7 @@ import {TestComponent} from "./test";
 ])
 export class AppComponent {
 ////////////////////////////////////////////Properties////////////////////////////////////////////
+
     private test: string = 'Hallo Paul :D!';
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
@@ -26,5 +27,9 @@ export class AppComponent {
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
+
+    public testM(test: string) {
+        this.test = test;
+    }
 
 }
