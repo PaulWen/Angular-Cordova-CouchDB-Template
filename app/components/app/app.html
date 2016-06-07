@@ -1,6 +1,6 @@
 <!-- The drawer is always open in large screens. The header is always shown,
   even in small screens. -->
-<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer
+<div mdl class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer
             mdl-layout--fixed-header">
     <header class="mdl-layout__header">
         <div class="mdl-layout__header-row">
@@ -30,7 +30,11 @@
     <main class="mdl-layout__content">
         <div class="page-content">
             <h1>{{test}}</h1>
+            <input class="mdl-textfield__input" type="text" name="sample"
+                    #search2 (keyup)="testM(search2.value)">
             <a [routerLink]="['Test']">Test</a>
+
+            <div id="p2" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
         </div>
     </main>
 </div>
