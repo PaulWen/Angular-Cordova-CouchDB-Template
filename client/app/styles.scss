@@ -1,6 +1,9 @@
+// set colors for the MDL variables
 $color-primary: "156,39,176";
 $color-primary-dark: "49,27,146";
 $color-accent: "100,221,23";
 $color-primary-contrast: "255,253,232";
 $color-accent-contrast: "36,0,0";
 
+// import the MDL design
+@import '../../node_modules/material-design-lite/src/material-design-lite';

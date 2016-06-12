@@ -1,30 +1,40 @@
 // File Paths
-var prodOutputPath = "build";
-var devOutputPath = "dist";
-var srcFolderPath = "app";
-var typeScriptFiles = srcFolderPath + "/**/*.ts";
-var typeScriptCompilerFiles = [typeScriptFiles, 'typings/browser/**/*.ts', 'typings/browser.d.ts'];
-var sassFiles = srcFolderPath + "/**/*.scss";
-var htmlFiles = [
-    srcFolderPath + "/**/*.+(htm|html)",
-    "!" + srcFolderPath + "/index.html",
-    "!" + srcFolderPath + "/index-js-dev.html",
-    "!" + srcFolderPath + "/index-js-prod.html"
+var prodOutputPathApp = "build/app";
+var devOutputPathApp = "dist/app";
+var prodOutputPathServer = "build";
+var devOutputPathServer = "dist";
+var devServerFiles = [devOutputPathServer + "/server.js", devOutputPathServer + "backend"];
+
+var appSrcFolderPath = "client/app";
+var appTypeScriptFiles = appSrcFolderPath + "/**/*.ts";
+var appTypeScriptCompilerFiles = [appTypeScriptFiles, 'typings/browser/**/*.ts', 'typings/browser.d.ts'];
+var appSassFiles = appSrcFolderPath + "/**/*.scss";
+var appHtmlFiles = [
+    appSrcFolderPath + "/**/*.+(htm|html)",
+    "!" + appSrcFolderPath + "/../index.html",
+    "!" + appSrcFolderPath + "/../index-js-dev.html",
+    "!" + appSrcFolderPath + "/../index-js-prod.html"
 ];
-var indexHtmlFilesDev = [
-    srcFolderPath + "/index.html",
-    srcFolderPath + "/index-js-dev.html"
+var appIndexHtmlFilesDev = [
+    appSrcFolderPath + "/../index.html",
+    appSrcFolderPath + "/../index-js-dev.html"
 ];
+
+var serverSrcFolderPath = "server";
+var serverTypeScriptFiles = serverSrcFolderPath + "/**/*.ts";
+var serverTypeScriptCompilerFiles = [serverTypeScriptFiles, 'typings/browser/**/*.ts', 'typings/browser.d.ts'];
+
 
 // Gulp Tools
 var gulp = require('gulp');
-var SystemJsBuilder = require('systemjs-builder');
-var builder = new SystemJsBuilder();
+var nodemon = require('gulp-nodemon');
+var systemJsBuilder = new (require('systemjs-builder'))();
 var del = require('del');
 var rename = require('gulp-rename');
 var tsc = require('gulp-typescript');
 var sourcemaps = require('gulp-sourcemaps');
-var tsProject = tsc.createProject('tsconfig.json');
+var appTsProject = tsc.createProject('tsconfigApp.json');
+var serverTsProject = tsc.createProject('tsconfigServer.json');
 var browserSync = require('browser-sync').create();
 var htmlreplace = require('gulp-html-replace');
 var fileLoader = require('fs');
@@ -41,10 +51,10 @@ var gulpSequence = require('gulp-sequence');
 // this will is also mimimized
 // this will is perfect for deploying the application
 gulp.task('typescript-prod', ['typescript-own-dev'], function(cb) {
-    builder.loadConfig('./systemjs.config.js')
+    systemJsBuilder.loadConfig('./systemjs.config.js')
         .then(function() {
             // combines ALL JavaScript files into one file - the systemjs.config.js is not needed anymore afterwards!
-            return builder.buildStatic(srcFolderPath, prodOutputPath + "/script.js", { minify: true, sourceMaps: false});
+            return systemJsBuilder.buildStatic(appSrcFolderPath, prodOutputPathApp + "/script.js", { minify: true, sourceMaps: false});
         })
         .then(function(){
             console.log('library bundles built successfully!');
@@ -55,11 +65,11 @@ gulp.task('typescript-prod', ['typescript-own-dev'], function(cb) {
 // the task bundels all the libraries that are used in the project into one
 // JavaScript file
 gulp.task('typescript-libs-dev', function(cb) {
-    builder.loadConfig('./systemjs.config.js')
+    systemJsBuilder.loadConfig('./systemjs.config.js')
         .then(function(){
-            return builder.bundle(
-                srcFolderPath + ' - [' + srcFolderPath + '/**/*]', // build app and remove the app code - this leaves only 3rd party dependencies
-                devOutputPath + '/libs-bundle.js', { minify: true });
+            return systemJsBuilder.bundle(
+                appSrcFolderPath + ' - [' + appSrcFolderPath + '/**/*]', // build app and remove the app code - this leaves only 3rd party dependencies
+                devOutputPathApp + '/libs-bundle.js', { minify: true });
         })
         .then(function(){
             console.log('library bundles built successfully!');
@@ -70,13 +80,13 @@ gulp.task('typescript-libs-dev', function(cb) {
 
 // the task compiles all the own TypeScript files of the project to JavaScript files
 gulp.task('typescript-own-dev', function(cb) {
-    var tscResult = gulp.src(typeScriptCompilerFiles) // instead of "tsProject.src()" because the other one slows down the transpile process
+    var tscResult = gulp.src(appTypeScriptCompilerFiles) // instead of "appTsProject.src()" because the other one slows down the transpile process
         .pipe(sourcemaps.init()) // This means sourcemaps will be generated
-        .pipe(tsc(tsProject));
+        .pipe(tsc(appTsProject));
 
     return tscResult.js
         .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
-        .pipe(gulp.dest(devOutputPath, cb));
+        .pipe(gulp.dest(devOutputPathApp, cb));
 });
 
 // ////////////////////////////////////////////////
@@ -85,18 +95,18 @@ gulp.task('typescript-own-dev', function(cb) {
 
 // the task compiles all the own SASS files to CSS files and saves them in the dist folder
 gulp.task('sass-dev', function() {
-    return gulp.src(sassFiles)
+    return gulp.src(appSassFiles)
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
         .pipe(sourcemaps.write())
-        .pipe(gulp.dest(devOutputPath, {overwrite: true}));
+        .pipe(gulp.dest(devOutputPathApp, {overwrite: true}));
 });
 
 // the task compiles all the own SASS files to CSS files and saves them in the build folder
 gulp.task('sass-prod', function() {
-    return gulp.src(sassFiles)
+    return gulp.src(appSassFiles)
         .pipe(sass().on('error', sass.logError))
-        .pipe(gulp.dest(prodOutputPath, {overwrite: true}));
+        .pipe(gulp.dest(prodOutputPathApp, {overwrite: true}));
 });
 
 
@@ -106,40 +116,66 @@ gulp.task('sass-prod', function() {
 
 // copies all HTML files into the build folder
 gulp.task('view-prod', function() {
-    return gulp.src(htmlFiles)
-        .pipe(gulp.dest(prodOutputPath, {overwrite: true}));
+    return gulp.src(appHtmlFiles)
+        .pipe(gulp.dest(prodOutputPathApp, {overwrite: true}));
 });
 
 // copies all HTML files into the development folder
 gulp.task('view-dev', function() {
-    return gulp.src(htmlFiles)
-        .pipe(gulp.dest(devOutputPath, {overwrite: true}));
+    return gulp.src(appHtmlFiles)
+        .pipe(gulp.dest(devOutputPathApp, {overwrite: true}));
 });
 
 // copies the index.html file in the dist folder after inculding the JavaScript
 gulp.task('index-dev', function() {
     // load the index-js-dev.html file
-    fileLoader.readFile(srcFolderPath + '/index-js-dev.html', "utf-8", function(err, data) {
+    fileLoader.readFile(appSrcFolderPath + '/../index-js-dev.html', "utf-8", function(err, data) {
             // place the content of the index-js-dev.html inside the index.html template
-            return gulp.src(srcFolderPath + '/index.html')
+            return gulp.src(appSrcFolderPath + '/../index.html')
                 .pipe(htmlreplace({
                     'js': data
                 }))
-                .pipe(gulp.dest(devOutputPath));
+                .pipe(gulp.dest(devOutputPathApp + "/.."));
         });
 });
 
 // copies the index.html file in the build folder after inculding the JavaScript
 gulp.task('index-prod', function() {
     // load the index-js-prod.html file
-    fileLoader.readFile(srcFolderPath + '/index-js-prod.html', "utf-8", function(err, data) {
+    fileLoader.readFile(appSrcFolderPath + '/../index-js-prod.html', "utf-8", function(err, data) {
             // place the conent of the index-js-prod.html inside the inde.html template
-            return gulp.src(srcFolderPath + '/index.html')
+            return gulp.src(appSrcFolderPath + '/../index.html')
                 .pipe(htmlreplace({
                     'js': data
                 }))
-                .pipe(gulp.dest(prodOutputPath));
+                .pipe(gulp.dest(prodOutputPathApp + "/.."));
         });
+});
+
+// ////////////////////////////////////////////////
+// Server TypeScript Files Tasks
+// // /////////////////////////////////////////////
+
+// the task compiles all the own TypeScript files of the project to JavaScript files
+gulp.task('server-typescript-own-dev', function(cb) {
+    var tscResult = gulp.src(serverTypeScriptCompilerFiles) // instead of "appTsProject.src()" because the other one slows down the transpile process
+        .pipe(sourcemaps.init()) // This means sourcemaps will be generated
+        .pipe(tsc(serverTsProject));
+
+    return tscResult.js
+        .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
+        .pipe(gulp.dest(devOutputPathServer, cb));
+});
+
+// the task compiles all the own TypeScript files of the project to JavaScript files
+gulp.task('server-typescript-own-prod', function(cb) {
+    var tscResult = gulp.src(serverTypeScriptCompilerFiles) // instead of "appTsProject.src()" because the other one slows down the transpile process
+        .pipe(sourcemaps.init()) // This means sourcemaps will be generated
+        .pipe(tsc(serverTsProject));
+
+    return tscResult.js
+        .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
+        .pipe(gulp.dest(prodOutputPathServer, cb));
 });
 
 // ////////////////////////////////////////////////
@@ -151,14 +187,48 @@ gulp.task('serve-prod', function(cb) {
     browserSync.init({
         port: 8000,
         server: {
-            baseDir: prodOutputPath
+            baseDir: prodOutputPathApp + "/.."
         }
     });
 });
 
 // ////////////////////////////////////////////////
 // Development Tasks
-// // /////////////////////////////////////////////
+// ////////////////////////////////////////////////
+
+// starts the node.js server and also watches if the server files change
+// in case a server file changes, the node.js server gets restarted
+gulp.task('nodemon', function () {
+    var started = false;
+
+    return nodemon({
+        script: 'dist/server.js',
+        watch: devServerFiles
+    }).on('start', function () {
+        // to avoid nodemon being started multiple times
+        if (!started) {
+            started = true;
+        }
+    }).on('restart', function () {
+        // reload browser-sync once the server restarted
+        browserSync.reload();
+        console.log("restart");
+    });
+
+});
+
+gulp.task('browser-sync', ['nodemon'], function(cb) {
+    browserSync.init({
+        proxy: "localhost:3000",  // local node app address
+        port: 5000,  // use *different* port than above
+        notify: true
+    });
+
+    gulp.watch(appTypeScriptFiles, ["browserSync-typescript-own-dev"], cb);
+    gulp.watch(appSassFiles, ["browserSync-sass-own-dev"], cb);
+    gulp.watch(appHtmlFiles, ["browserSync-view-dev"], cb);
+    gulp.watch(appIndexHtmlFilesDev, ["browserSync-index-dev"], cb);
+});
 
 // this tasks starts a simple HTTP web server with browser sync functionality
 // this means that when ever the content inside web browser changes, all browsers are getting refreshed automatically
@@ -166,14 +236,14 @@ gulp.task('serve-dev', function(cb) {
     browserSync.init({
         port: 8000,
         server: {
-            baseDir: devOutputPath
+            baseDir: devOutputPathApp + "/.."
         }
     });
 
-    gulp.watch(typeScriptFiles, ["browserSync-typescript-own-dev"], cb);
-    gulp.watch(sassFiles, ["browserSync-sass-own-dev"], cb);
-    gulp.watch(htmlFiles, ["browserSync-view-dev"], cb);
-    gulp.watch(indexHtmlFilesDev, ["browserSync-index-dev"], cb);
+    gulp.watch(appTypeScriptFiles, ["browserSync-typescript-own-dev"], cb);
+    gulp.watch(appSassFiles, ["browserSync-sass-own-dev"], cb);
+    gulp.watch(appHtmlFiles, ["browserSync-view-dev"], cb);
+    gulp.watch(appIndexHtmlFilesDev, ["browserSync-index-dev"], cb);
 });
 
 
@@ -209,19 +279,21 @@ gulp.task('browserSync-index-dev', ["index-dev"], function(cb) {
 
 // clean out all files and folders from build folder
 gulp.task('clear-prod', function (cb) {
-    return del([prodOutputPath + '/**'], cb);
+    del([prodOutputPathApp + '/**']);
+    del([prodOutputPathServer + '/**'], cb);
 });
 
 // clean out all files and folders from build folder
 gulp.task('clear-dev', function (cb) {
-    return del([devOutputPath + '/**'], cb);
+    del([devOutputPathApp + '/**']);
+    del([devOutputPathServer + '/**'], cb);
 });
 
 // build process for production
-gulp.task('deploy', gulpSequence('clear-prod', ['typescript-prod', 'view-prod', 'index-prod', 'sass-prod'], 'serve-prod'));
+gulp.task('deploy', gulpSequence('clear-prod', 'typescript-prod', ['server-typescript-own-prod', 'view-prod', 'index-prod', 'sass-prod'], 'serve-prod'));
 
 // build process for production
-gulp.task('develop', gulpSequence('clear-dev', 'typescript-own-dev', ['typescript-libs-dev', 'view-dev', 'index-dev', 'sass-dev'], 'serve-dev'));
+gulp.task('develop', gulpSequence('clear-dev', 'typescript-own-dev', ['server-typescript-own-dev', 'typescript-libs-dev', 'view-dev', 'index-dev', 'sass-dev'], 'serve-dev'));
 
 
 // ////////////////////////////////////////////////

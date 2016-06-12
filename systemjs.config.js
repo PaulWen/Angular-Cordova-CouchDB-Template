@@ -7,7 +7,7 @@ System.config({
   map: {
     'rxjs': 'node_modules/rxjs',
     '@angular': 'node_modules/@angular',
-    'app': 'dist'
+    'client/app': 'dist/app'
   },
   
   packages: {
@@ -43,7 +43,7 @@ System.config({
       main: 'index.js',
       defaultExtension: 'js'
     },
-    'app': {
+    'client/app': {
       main: 'main.js',
       defaultExtension: 'js'
     }
