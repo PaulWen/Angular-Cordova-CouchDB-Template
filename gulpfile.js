@@ -3,7 +3,6 @@ var prodOutputPathApp = "build/app";
 var devOutputPathApp = "dist/app";
 var prodOutputPathServer = "build";
 var devOutputPathServer = "dist";
-var devServerFiles = [devOutputPathServer + "/server.js", devOutputPathServer + "backend"];
 
 var appSrcFolderPath = "client/app";
 var appTypeScriptFiles = appSrcFolderPath + "/**/*.ts";
@@ -27,7 +26,7 @@ var serverTypeScriptCompilerFiles = [serverTypeScriptFiles, 'typings/browser/**/
 
 // Gulp Tools
 var gulp = require('gulp');
-var nodemon = require('gulp-nodemon');
+var server = require( 'gulp-develop-server' );
 var systemJsBuilder = new (require('systemjs-builder'))();
 var del = require('del');
 var rename = require('gulp-rename');
@@ -182,42 +181,23 @@ gulp.task('server-typescript-own-prod', function(cb) {
 // Deployment Tasks
 // // /////////////////////////////////////////////
 
-// this tasks starts a simple HTTP web server for testing the build
-gulp.task('serve-prod', function(cb) {
-    browserSync.init({
-        port: 8000,
-        server: {
-            baseDir: prodOutputPathApp + "/.."
-        }
-    });
+// starts the node.js server to test the build
+gulp.task('serve-prod', function () {
+    server.listen( { path: prodOutputPathServer + '/server.js' });
 });
 
 // ////////////////////////////////////////////////
 // Development Tasks
 // ////////////////////////////////////////////////
 
-// starts the node.js server and also watches if the server files change
-// in case a server file changes, the node.js server gets restarted
-gulp.task('nodemon', function () {
-    var started = false;
-
-    return nodemon({
-        script: 'dist/server.js',
-        watch: devServerFiles
-    }).on('start', function () {
-        // to avoid nodemon being started multiple times
-        if (!started) {
-            started = true;
-        }
-    }).on('restart', function () {
-        // reload browser-sync once the server restarted
-        browserSync.reload();
-        console.log("restart");
-    });
-
+// starts the node.js server for development
+gulp.task('start-dev-server', function () {
+    server.listen( { path: devOutputPathServer + '/server.js' });
 });
 
-gulp.task('browser-sync', ['nodemon'], function(cb) {
+// this tasks starts a simple HTTP web server with browser sync functionality
+// this means that when ever the content inside web browser changes, all browsers are getting refreshed automatically
+gulp.task('serve-dev', ['start-dev-server'], function(cb) {
     browserSync.init({
         proxy: "localhost:3000",  // local node app address
         port: 5000,  // use *different* port than above
@@ -228,25 +208,8 @@ gulp.task('browser-sync', ['nodemon'], function(cb) {
     gulp.watch(appSassFiles, ["browserSync-sass-own-dev"], cb);
     gulp.watch(appHtmlFiles, ["browserSync-view-dev"], cb);
     gulp.watch(appIndexHtmlFilesDev, ["browserSync-index-dev"], cb);
+    gulp.watch(serverTypeScriptFiles, ["browserSync-server-typescript-dev"], cb);
 });
-
-// this tasks starts a simple HTTP web server with browser sync functionality
-// this means that when ever the content inside web browser changes, all browsers are getting refreshed automatically
-gulp.task('serve-dev', function(cb) {
-    browserSync.init({
-        port: 8000,
-        server: {
-            baseDir: devOutputPathApp + "/.."
-        }
-    });
-
-    gulp.watch(appTypeScriptFiles, ["browserSync-typescript-own-dev"], cb);
-    gulp.watch(appSassFiles, ["browserSync-sass-own-dev"], cb);
-    gulp.watch(appHtmlFiles, ["browserSync-view-dev"], cb);
-    gulp.watch(appIndexHtmlFilesDev, ["browserSync-index-dev"], cb);
-});
-
-
 
 // the task reloads all browsers using browserSync after compiling and deploying all the TypeScript files
 gulp.task('browserSync-typescript-own-dev', ["typescript-own-dev"], function(cb) {
@@ -269,6 +232,17 @@ gulp.task('browserSync-view-dev', ["view-dev"], function(cb) {
 // the task reloads all browsers using browserSync after generating and copying the index.html file elements to the server
 gulp.task('browserSync-index-dev', ["index-dev"], function(cb) {
     browserSync.reload();
+    cb();
+});
+
+// the task reloads all browsers using browserSync after compiling all TypeScript server files to JavaScript files and copying the files to the server
+// and finally also restarting the server
+gulp.task('browserSync-server-typescript-dev', ["server-typescript-own-dev"], function(cb) {
+    // restart the server
+    server.restart(function() {
+        // reload all browser windows
+        browserSync.reload();
+    });
     cb();
 });
 
