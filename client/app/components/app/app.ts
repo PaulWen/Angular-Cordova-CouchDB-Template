@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router-deprecated';
 import {TestComponent} from "../test/test";
 import {MDL} from "../../directives/MaterialDesignLiteUpgradeElement";
+import {SuperLoginClient} from "../../shared/superlogin/SuperLoginClient";
 
 @Component({
     selector: 'my-app',
@@ -19,18 +20,19 @@ import {MDL} from "../../directives/MaterialDesignLiteUpgradeElement";
 export class AppComponent {
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
-    private test: string = 'Hallo Paul :D!';
+    private superLoginClient: SuperLoginClient;
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
     constructor() {
-
+        this.superLoginClient = new SuperLoginClient();
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
 
-    public testM(test: string) {
-        this.test = test;
+    public register(name: string, email:string, password: string) {
+        this.superLoginClient.register(name, email, password);
+        
     }
 
 }

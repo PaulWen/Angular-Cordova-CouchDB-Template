@@ -29,12 +29,30 @@
     </div>
     <main class="mdl-layout__content">
         <div class="page-content">
-            <h1>{{test}}</h1>
-            <input class="mdl-textfield__input" type="text" name="sample"
-                    #search2 (keyup)="testM(search2.value)">
-            <a [routerLink]="['Test']">Test</a>
+            <h1 class="mdl-typography--text-center">Login</h1>
+            <form class="mdl-typography--text-center" (submit)="register(name.value, email.value, password.value)">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input #name class="mdl-textfield__input" type="text" id="name">
+                    <label class="mdl-textfield__label" for="name">Name</label>
+                </div>
 
-            <div id="p2" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input #email class="mdl-textfield__input" type="email" id="email">
+                    <label class="mdl-textfield__label" for="email">E-Mail</label>
+                </div>
+
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input #password class="mdl-textfield__input" type="password" id="password">
+                    <label class="mdl-textfield__label" for="password">Password</label>
+                </div>
+
+                <div>
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" type="submit">
+                        Register
+                    </button>
+                </div>
+
+            </form>
         </div>
     </main>
 </div>
