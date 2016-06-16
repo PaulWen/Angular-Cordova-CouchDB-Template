@@ -6,7 +6,7 @@ var devOutputPathServer = "dist";
 
 var appSrcFolderPath = "client/app";
 var appTypeScriptFiles = appSrcFolderPath + "/**/*.ts";
-var appTypeScriptCompilerFiles = [appTypeScriptFiles, 'typings/browser/**/*.ts', 'typings/browser.d.ts'];
+var appTypeScriptCompilerFiles = [appTypeScriptFiles, 'typings_own/**/*.ts', 'typings/browser/**/*.ts', 'typings/browser.d.ts'];
 var appSassFiles = appSrcFolderPath + "/**/*.scss";
 var appHtmlFiles = [
     appSrcFolderPath + "/**/*.+(htm|html)",
@@ -21,7 +21,7 @@ var appIndexHtmlFilesDev = [
 
 var serverSrcFolderPath = "server";
 var serverTypeScriptFiles = serverSrcFolderPath + "/**/*.ts";
-var serverTypeScriptCompilerFiles = [serverTypeScriptFiles, 'typings/browser/**/*.ts', 'typings/browser.d.ts'];
+var serverTypeScriptCompilerFiles = [serverTypeScriptFiles, 'typings_own/**/*.ts', 'typings/browser/**/*.ts', 'typings/browser.d.ts'];
 
 
 // Gulp Tools

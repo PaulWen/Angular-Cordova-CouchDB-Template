@@ -7,6 +7,7 @@ System.config({
   map: {
     'rxjs': 'node_modules/rxjs',
     '@angular': 'node_modules/@angular',
+    'jquery-param' : 'node_modules/jquery-param',
     'client/app': 'dist/app'
   },
   
@@ -35,12 +36,20 @@ System.config({
       main: 'index.js',
       defaultExtension: 'js'
     },
+    '@angular/http': {
+      main: 'index.js',
+      defaultExtension: 'js'
+    },
     '@angular/router-deprecated': {
       main: 'index.js',
       defaultExtension: 'js'
     },
     'rxjs': {
       main: 'index.js',
+      defaultExtension: 'js'
+    },
+    'jquery-param': {
+      main: 'jquery-param.js',
       defaultExtension: 'js'
     },
     'client/app': {
