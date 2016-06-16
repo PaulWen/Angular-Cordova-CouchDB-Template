@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router-deprecated';
 import {TestComponent} from "../test/test";
 import {MDL} from "../../directives/MaterialDesignLiteUpgradeElement";
-import {SuperLoginClient} from "../../shared/model/superlogin/superlogin_client";
+import {SuperLoginClient} from "../../shared/utils/superlogin_client";
 import {HttpRequestor} from "../../shared/utils/http_requestor";
 
 @Component({
@@ -48,15 +48,18 @@ export class AppComponent {
 
 
         // POST Request
-        // ACHTUNG: couchDB CORS Problem!!!!!!!
+        // TODO: die wichtigsten Funktionen von Superlogin in dieser Klasse abbilden
+        // TODO: username = email einstellen
+        // TODO: die Fehlermeldungen abfangen und behandlen
+        // TODO: getting started with POUCHDB (https://pouchdb.com/guides/)
         this.httpRequestor.postJsonData("http://localhost:3000/auth/register", {
             name: "Joe Smith",
-            username: "hekim2",
-            email: "hekim.wenzel2@web.de",
+            username: "hekim7",
+            email: "hekim.wenzel7@web.de",
             password: "bigsecret",
             confirmPassword: "bigsecret"
         }).subscribe(
-            (data: any) => this.test = data.userid,
+            (data: any) => this.test = JSON.stringify(data),
             (error) => alert(error.message),
             ()=>console.log('Finished Get')
         );

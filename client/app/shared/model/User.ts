@@ -1,13 +1,20 @@
-import {SuperLoginClient} from "./superlogin/superlogin_client";
+import {SuperLoginClient} from "../utils/superlogin_client";
+import {Board} from "./board";
+import {Injectable} from "@angular/core";
 
+@Injectable()
 export class User {
 
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
+    private superLoginClient: SuperLoginClient;
+
+    private boards: Board[];
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
-    constructor() {
+    constructor(superLoginClient: SuperLoginClient) {
+        this.superLoginClient = superLoginClient;
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////

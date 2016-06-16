@@ -1,7 +1,7 @@
 import {Http, Headers} from '@angular/http';
 import { Injectable } from '@angular/core';
-import {HttpRequestor} from "../../utils/http_requestor";
-import {Config} from "../../../config";
+import {HttpRequestor} from "./http_requestor";
+import {Config} from "../../config";
 
 /**
  * This class is a service which implements TypeScript methods to communicate
@@ -33,18 +33,6 @@ export class SuperLoginClient {
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
-
-    public getCurrentTime() {
-        return this.http.getJsonData("http://date.jsontest.com");
-    }
-
-    public postJSON() {
-
-    }
-
-
-
-
 
     /**
      * The function uses superlogin-client to register the user with the given information.
