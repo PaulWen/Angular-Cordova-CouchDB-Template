@@ -1,4 +1,4 @@
-import {SuperLoginClient} from "../utils/superlogin_client";
+import {SuperLoginClient} from "../utils/super_login_client/super_login_client";
 import {Board} from "./board";
 import {Injectable} from "@angular/core";
 

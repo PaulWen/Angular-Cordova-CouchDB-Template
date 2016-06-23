@@ -26,6 +26,10 @@ var config = {
         // If set to true, the user will be logged in automatically after resetting the password
         loginOnPasswordReset: true
     },
+    local: {
+        // Set this to true to disable usernames and use emails instead
+        emailUsername: true,
+    },
     dbServer: {
         // The CouchDB compatible server where all your databases are stored on
         protocol: 'http://',
@@ -49,6 +53,15 @@ var config = {
             members: []
         }
     },
+    userModel: {
+        // For example, this will require each new user to specify a valid age on the sign-up form or registration will fail
+        whitelist: ['name'],
+        validate: {
+            name: {
+                presence: true
+            }
+        }
+    }
 };
 
 // select port

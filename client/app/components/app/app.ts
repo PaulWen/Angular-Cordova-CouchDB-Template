@@ -2,14 +2,14 @@ import { Component } from '@angular/core';
 import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router-deprecated';
 import {TestComponent} from "../test/test";
 import {MDL} from "../../directives/MaterialDesignLiteUpgradeElement";
-import {SuperLoginClient} from "../../shared/utils/superlogin_client";
-import {HttpRequestor} from "../../shared/utils/http_requestor";
+import {SuperLoginClient} from "../../shared/utils/super_login_client/super_login_client";
+import {SuperLoginClientError} from "../../shared/utils/super_login_client/super_login_client_error";
 
 @Component({
     selector: 'my-app',
     templateUrl: 'app/components/app/app.html',
     directives: [ROUTER_DIRECTIVES, MDL],
-    providers: [ROUTER_PROVIDERS, HttpRequestor]
+    providers: [ROUTER_PROVIDERS, SuperLoginClient]
 })
 @RouteConfig([
     {
@@ -22,47 +22,49 @@ export class AppComponent {
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
     private superLoginClient: SuperLoginClient;
-    private httpRequestor: HttpRequestor;
 
     private test: string;
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
-    constructor(httpRequestor: HttpRequestor) {
-        // this.superLoginClient = new SuperLoginClient();
-        this.httpRequestor = httpRequestor;
+    constructor(superLoginClient: SuperLoginClient) {
+        this.superLoginClient = superLoginClient;
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
 
-    public register(name: string, email:string, password: string) {
-        // this.superLoginClient.register(name, email, password);
+    private register(name: string, email: string, password: string) {
+        try {
+            this.superLoginClient.register(name, email, password);
+            alert("hallo1");
+        } catch (error) {
+            if (error instanceof SuperLoginClientError) {
+                alert("hallo2");
+                if ((<SuperLoginClientError>error).checkForError(SuperLoginClientError.AUTH_ERR_1)) {
+                }
+                if ((<SuperLoginClientError>error).checkForError(SuperLoginClientError.AUTH_ERR_2)) {
+                }
+                if ((<SuperLoginClientError>error).checkForError(SuperLoginClientError.AUTH_ERR_3)) {
+                }
+                if ((<SuperLoginClientError>error).checkForError(SuperLoginClientError.AUTH_ERR_4)) {
+                    alert(SuperLoginClientError.AUTH_ERR_4);
+                }
+                if ((<SuperLoginClientError>error).checkForError(SuperLoginClientError.AUTH_ERR_5)) {
+                    alert(SuperLoginClientError.AUTH_ERR_5);
+                }
+                if ((<SuperLoginClientError>error).checkForError(SuperLoginClientError.AUTH_ERR_6)) {
+                    alert(SuperLoginClientError.AUTH_ERR_6);
+                }
+            }
+        }
+    }
 
-        // GET Request Funktioniert
-        // this.httpRequestor.getJsonData("http://jsonplaceholder.typicode.com/posts").subscribe(
-        //     (data: any) =>this.test = data[2].title + "---------" + JSON.stringify(data),
-        //     error=>alert(error.message),
-        //     ()=>console.log('Finished Get')
-        // );
-
-
-
-        // POST Request
-        // TODO: die wichtigsten Funktionen von Superlogin in dieser Klasse abbilden
-        // TODO: username = email einstellen
-        // TODO: die Fehlermeldungen abfangen und behandlen
-        // TODO: getting started with POUCHDB (https://pouchdb.com/guides/)
-        this.httpRequestor.postJsonData("http://localhost:3000/auth/register", {
-            name: "Joe Smith",
-            username: "hekim7",
-            email: "hekim.wenzel7@web.de",
-            password: "bigsecret",
-            confirmPassword: "bigsecret"
-        }).subscribe(
-            (data: any) => this.test = JSON.stringify(data),
-            (error) => alert(error.message),
-            ()=>console.log('Finished Get')
-        );
+    private login(email: string, password: string) {
+        try {
+            this.superLoginClient.login(email, password);
+        } catch (error) {
+            console.dir(error);
+        }
     }
 
 }
