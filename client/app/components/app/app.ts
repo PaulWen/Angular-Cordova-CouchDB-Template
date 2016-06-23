@@ -34,37 +34,65 @@ export class AppComponent {
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
 
     private register(name: string, email: string, password: string) {
-        try {
-            this.superLoginClient.register(name, email, password);
-            alert("hallo1");
-        } catch (error) {
-            if (error instanceof SuperLoginClientError) {
-                alert("hallo2");
-                if ((<SuperLoginClientError>error).checkForError(SuperLoginClientError.AUTH_ERR_1)) {
-                }
-                if ((<SuperLoginClientError>error).checkForError(SuperLoginClientError.AUTH_ERR_2)) {
-                }
-                if ((<SuperLoginClientError>error).checkForError(SuperLoginClientError.AUTH_ERR_3)) {
-                }
-                if ((<SuperLoginClientError>error).checkForError(SuperLoginClientError.AUTH_ERR_4)) {
-                    alert(SuperLoginClientError.AUTH_ERR_4);
-                }
-                if ((<SuperLoginClientError>error).checkForError(SuperLoginClientError.AUTH_ERR_5)) {
-                    alert(SuperLoginClientError.AUTH_ERR_5);
-                }
-                if ((<SuperLoginClientError>error).checkForError(SuperLoginClientError.AUTH_ERR_6)) {
-                    alert(SuperLoginClientError.AUTH_ERR_6);
-                }
+        this.superLoginClient.register(name, email, password, () => {
+            // successfully registred
+            alert("successfully registred");
+        }, (error: SuperLoginClientError) => {
+            // error
+            if (error.checkForError(SuperLoginClientError.AUTH_ERR_1)) {
+                alert(SuperLoginClientError.AUTH_ERR_1);
             }
-        }
+            if (error.checkForError(SuperLoginClientError.AUTH_ERR_2)) {
+                alert(SuperLoginClientError.AUTH_ERR_2);
+            }
+            if (error.checkForError(SuperLoginClientError.AUTH_ERR_3)) {
+                alert(SuperLoginClientError.AUTH_ERR_3);
+            }
+            if (error.checkForError(SuperLoginClientError.AUTH_ERR_4)) {
+                alert(SuperLoginClientError.AUTH_ERR_4);
+            }
+            if (error.checkForError(SuperLoginClientError.AUTH_ERR_5)) {
+                alert(SuperLoginClientError.AUTH_ERR_5);
+            }
+            if (error.checkForError(SuperLoginClientError.AUTH_ERR_6)) {
+                alert(SuperLoginClientError.AUTH_ERR_6);
+            }
+        });
     }
 
     private login(email: string, password: string) {
-        try {
-            this.superLoginClient.login(email, password);
-        } catch (error) {
-            console.dir(error);
-        }
+        this.superLoginClient.login(email, password, () => {
+            // successfully logedin
+            alert("successfully loged-in");
+        }, (error: SuperLoginClientError) => {
+            // error
+            if (error.checkForError(SuperLoginClientError.LOGIN_ERR_1)) {
+                alert(SuperLoginClientError.LOGIN_ERR_1);
+            }
+        });
     }
 
+    private logout() {
+        this.superLoginClient.logout(() => {
+            // successfully logedin
+            alert("successfully loged-out");
+        }, (error: SuperLoginClientError) => {
+        });
+    }
+
+    private session() {
+        this.superLoginClient.logout(() => {
+            // successfully ask for session information
+            alert("session successful");
+        }, (error: SuperLoginClientError) => {
+        });
+    }
+
+    private validateEmail(email: string) {
+        this.superLoginClient.isEmailInUse(email, () => {
+            alert("email NOT in use");
+        }, () => {
+            alert("email in use");
+        });
+    }
 }

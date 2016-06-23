@@ -1,9 +1,12 @@
 import {Http, Headers} from '@angular/http';
 import { Injectable } from '@angular/core';
-import {HttpRequestor} from "../http_requestor";
+import {SuperloginHttpRequestor} from "./superlogin_http_requestor";
 import {Config} from "../../../config";
 import {SuperLoginClientError} from "./super_login_client_error";
 import {error} from "util";
+import {SuperLoginClientDoneResponse} from "./super_login_client_done_reponse";
+import {SuperLoginClientErrorResponse} from "./super_login_client_error_reponse";
+import {Logger} from "../logger";
 
 /**
  * This class is a service which implements TypeScript methods to communicate
@@ -13,21 +16,20 @@ import {error} from "util";
  */
 @Injectable()
 export class SuperLoginClient {
+
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
     /** provides functions to easily perform http requests */
-    private httpRequestor: HttpRequestor;
+    private httpRequestor: SuperloginHttpRequestor;
 
-    /** temporary token of the logged in user provided by superlogin for the current session */
-    private token: string;
-
-    /**temporary password of the logged in user provided by superlogin current session */
-    private password: string;
+    /** temporary authentication bearer for the current session */
+    private authenticationBearer : string;
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
-    constructor(httpRequestor: HttpRequestor) {
+    constructor(httpRequestor: SuperloginHttpRequestor) {
         this.httpRequestor = httpRequestor;
+        this.authenticationBearer = null;
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
@@ -39,23 +41,25 @@ export class SuperLoginClient {
      * @param email of the user
      * @param password of the user
      */
-    public register(name: string, email: string, password: string) {
-        // POST Request
-        // TODO: die wichtigsten Funktionen von Superlogin in dieser Klasse abbilden
-        // TODO: username = email einstellen
-        // TODO: die Fehlermeldungen abfangen und behandlen
-        // TODO: getting started with POUCHDB (https://pouchdb.com/guides/)
-        this.httpRequestor.postJsonData("http://localhost:3000/auth/register", {
-            // name: name,
+    public register(name: string, email: string, password: string, done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse) {
+        this.httpRequestor.postJsonData("http://localhost:3000/auth/register", null, {
+            name: name,
             email: email,
             password: password,
             confirmPassword: password
         }).subscribe(
-            (data: any) => console.dir(data),
-            (error) => {
-                alert("error");
-                console.dir(error);
-                throw new SuperLoginClientError(error);
+            (data: any) => {
+                console.dir(data);
+                done();
+            },
+            (errorObject) => {
+                var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
+
+                // Log the Error
+                Logger.error(superLoginClientError.getErrorMessage());
+
+                // call the error callback function
+                error(superLoginClientError);
             }
         );
     }
@@ -63,27 +67,103 @@ export class SuperLoginClient {
     /**
      * The function uses superlogin-client to login the user withe the given credentials.
      *
-     * @param username of the user
+     * @param email of the user
      * @param password of the user
+     * @param done callback function once the request was successful
+     * @param error callback function in case an error occurred
      */
-    public login(username: string, password: string)  {
-        // POST Request
-        // TODO: die wichtigsten Funktionen von Superlogin in dieser Klasse abbilden
-        // TODO: username = email einstellen
-        // TODO: die Fehlermeldungen abfangen und behandlen
-        // TODO: getting started with POUCHDB (https://pouchdb.com/guides/)
-        this.httpRequestor.postJsonData("http://localhost:3000/auth/login", {
-            username: username,
+    public login(email: string, password: string, done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse)  {
+        this.httpRequestor.postJsonData("http://localhost:3000/auth/login", null, {
+            username: email,
             password: password,
         }).subscribe(
-            (data: any) => console.dir(data),
-            (error) => {throw new SuperLoginClientError(error);}
+            (data: any) => {
+                console.dir(data);
+                this.authenticationBearer = data.token + ":" + data.password;
+                alert(this.authenticationBearer);
+                done();
+            },
+            (errorObject) => {
+                var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
+
+                // Log the Error
+                Logger.error(superLoginClientError.getErrorMessage());
+
+                // call the error callback function
+                error(superLoginClientError);
+            }
         );
     }
 
-    public logout()  {
+    /**
+     *
+     * 
+     * @param done callback function once the request was successful
+     * @param error callback function in case an error occurred
+     */
+    public logout(done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse)  {
+        this.httpRequestor.postJsonData("http://localhost:3000/auth/logout", this.authenticationBearer, {}).subscribe(
+            (data: any) => {
+                done();
+            },
+            (errorObject) => {
+                var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
+
+                // Log the Error
+                Logger.error(superLoginClientError.getErrorMessage());
+
+                // call the error callback function
+                error(superLoginClientError);
+            }
+        );
     }
 
+    /**
+     * This method gets the information about the current session.
+     *
+     * @param done
+     * @param error
+     */
+    public sessionInformation(done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse) {
+        this.httpRequestor.getJsonData("http://localhost:3000/auth/session", this.authenticationBearer).subscribe(
+            (data: any) => {
+                done();
+            },
+            (errorObject) => {
+                var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
 
+                // Log the Error
+                Logger.error(superLoginClientError.getErrorMessage());
+
+                // call the error callback function
+                error(superLoginClientError);
+            }
+        );
+    }
+
+    /**
+     * This function checks if a email is already in use.
+     *
+     * @param email
+     * @param trueCallback gets called if the email is already in use
+     * @param falseCallback gets called if the email is not yet in use
+     */
+    public isEmailInUse(email: string, trueCallback: SuperLoginClientDoneResponse, falseCallback: SuperLoginClientDoneResponse) {
+       this.httpRequestor.getJsonData("http://localhost:3000/auth/validate-email/" + email, null).subscribe(
+            (data: any) => {
+                trueCallback();
+            },
+            (errorObject) => {
+                var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
+
+                // Log the Error
+                Logger.error(superLoginClientError.getErrorMessage());
+
+                // check if error = email already in use
+                if (superLoginClientError.checkForError(SuperLoginClientError.AUTH_ERR_1)) {
+                    falseCallback();
+                }
+            }
+        );
+    }
 }
-

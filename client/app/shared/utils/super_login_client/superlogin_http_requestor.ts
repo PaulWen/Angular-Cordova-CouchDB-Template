@@ -4,13 +4,14 @@ import {Http, Headers} from '@angular/http';
 import { Injectable } from '@angular/core';
 import {Observable} from "rxjs/Rx";
 import postParam from 'jquery-param';
-import {Logger} from "./logger";
+import {Logger} from "../logger";
 
 /**
  * The class is a service which provides basic methods for making HTTP requests.
+ * The methods are specifically optimized for SuperLogin.
  */
 @Injectable()
-export class HttpRequestor {
+export class SuperloginHttpRequestor {
 
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
@@ -52,12 +53,24 @@ export class HttpRequestor {
      *
      *
      * @param url
+     * @param authorizationBearer sessionID oder null
+     *
      * @returns {Observable<R>}
      */
-    public getJsonData(url: string) {
-        return this.http.get(url)
-            // transform response so that it gets a JSON object
-            .map(this.extractJsonData)
+    public getJsonData(url: string, authorizationBearer: string) {
+        // generate request header
+        let headers = new Headers();
+
+        if (authorizationBearer != null) {
+            headers.append('Authorization', 'Bearer ' + authorizationBearer);
+        }
+
+        // make GET request
+        return this.http.get(url, {
+            headers: headers
+        })
+        // transform response so that it gets a JSON object
+        .map(this.extractJsonData)
     }
 
     /**
@@ -82,17 +95,23 @@ export class HttpRequestor {
      *
      *
      * @param url
-     * @param parametersAsJson
+     * @param authorizationBearer sessionID oder null
+     * @param bodyParametersAsJson
+     * 
      * @returns {Observable<R>}
      */
-    public postJsonData(url:string, parametersAsJson: any) {
+    public postJsonData(url:string, authorizationBearer: string, bodyParametersAsJson: any) {
         // generate request header
         let headers = new Headers();
         // config post parameter content type in header
         headers.append('Content-Type', 'application/x-www-form-urlencoded');
 
+        if (authorizationBearer != null) {
+            headers.append('Authorization', 'Bearer ' + authorizationBearer);
+        }
+
         // make post request but first convert the JSON object into a POST parameters string
-        return this.http.post(url, postParam(parametersAsJson), {
+        return this.http.post(url, postParam(bodyParametersAsJson), {
             headers: headers
         // transform response so that it gets a JSON object
         }).map(this.extractJsonData);
