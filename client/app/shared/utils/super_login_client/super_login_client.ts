@@ -119,15 +119,15 @@ export class SuperLoginClient {
     }
 
     /**
-     * This method gets the information about the current session.
+     * This method checks if the user is currently authenticated.
      *
-     * @param done
-     * @param error
+     * @param trueCallback gets called if the user is already authenticated
+     * @param falseCallback gets called if the user is not yet authenticated
      */
-    public sessionInformation(done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse) {
+    public isAuthenticated(trueCallback: SuperLoginClientDoneResponse, falseCallback: SuperLoginClientDoneResponse) {
         this.httpRequestor.getJsonData("http://localhost:3000/auth/session", this.authenticationBearer).subscribe(
             (data: any) => {
-                done();
+                trueCallback();
             },
             (errorObject) => {
                 var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
@@ -135,8 +135,10 @@ export class SuperLoginClient {
                 // Log the Error
                 Logger.error(superLoginClientError.getErrorMessage());
 
-                // call the error callback function
-                error(superLoginClientError);
+                // check if error = unauthorized
+                if (superLoginClientError.checkForError(SuperLoginClientError.UNAUTHORIZED)) {
+                    falseCallback();
+                }
             }
         );
     }

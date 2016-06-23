@@ -62,29 +62,32 @@ export class AppComponent {
 
     private login(email: string, password: string) {
         this.superLoginClient.login(email, password, () => {
-            // successfully logedin
+            // successfully loged-in
             alert("successfully loged-in");
         }, (error: SuperLoginClientError) => {
             // error
             if (error.checkForError(SuperLoginClientError.LOGIN_ERR_1)) {
                 alert(SuperLoginClientError.LOGIN_ERR_1);
             }
+            if (error.checkForError(SuperLoginClientError.LOGIN_ERR_2)) {
+                alert(SuperLoginClientError.LOGIN_ERR_2);
+            }
         });
     }
 
     private logout() {
         this.superLoginClient.logout(() => {
-            // successfully logedin
+            // successfully loged-out
             alert("successfully loged-out");
         }, (error: SuperLoginClientError) => {
         });
     }
 
-    private session() {
-        this.superLoginClient.logout(() => {
-            // successfully ask for session information
-            alert("session successful");
-        }, (error: SuperLoginClientError) => {
+    private isAuthenticated() {
+        this.superLoginClient.isAuthenticated(() => {
+            alert("authenticated");
+        }, () => {
+            alert("NOT authenticated");
         });
     }
 

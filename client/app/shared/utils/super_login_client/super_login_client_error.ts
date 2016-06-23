@@ -5,6 +5,8 @@ export class SuperLoginClientError {
 
 /////////////////////////////////////////////Constants/////////////////////////////////////////////
 
+    public static get UNAUTHORIZED(): string {return "Unauthorized";};
+
     public static get AUTH_ERR_1(): string {return "Email already in use";};
     public static get AUTH_ERR_2(): string {return "Password must be at least 6 characters";};
     public static get AUTH_ERR_3(): string {return "Email can't be blank";};
@@ -13,6 +15,7 @@ export class SuperLoginClientError {
     public static get AUTH_ERR_6(): string {return "Email invalid email";};
 
     public static get LOGIN_ERR_1(): string {return "Invalid username or password";};
+    public static get LOGIN_ERR_2(): string {return "Missing credentials";};
 
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
