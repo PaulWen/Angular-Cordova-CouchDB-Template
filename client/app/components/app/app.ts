@@ -4,12 +4,13 @@ import {TestComponent} from "../test/test";
 import {MDL} from "../../directives/MaterialDesignLiteUpgradeElement";
 import {SuperLoginClient} from "../../shared/utils/super_login_client/super_login_client";
 import {SuperLoginClientError} from "../../shared/utils/super_login_client/super_login_client_error";
+import {AppModel} from "./app_model";
 
 @Component({
     selector: 'my-app',
     templateUrl: 'app/components/app/app.html',
     directives: [ROUTER_DIRECTIVES, MDL],
-    providers: [ROUTER_PROVIDERS, SuperLoginClient]
+    providers: [ROUTER_PROVIDERS, AppModel]
 })
 @RouteConfig([
     {
@@ -24,11 +25,14 @@ export class AppComponent {
     private superLoginClient: SuperLoginClient;
 
     private test: string;
+    
+    private model: AppModel;
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
-    constructor(superLoginClient: SuperLoginClient) {
+    constructor(superLoginClient: SuperLoginClient, model: AppModel) {
         this.superLoginClient = superLoginClient;
+        this.model = model;
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////

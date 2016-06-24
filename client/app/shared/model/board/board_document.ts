@@ -3,7 +3,7 @@ import {List} from "../list/list";
 /**
  * This class represents the structure of an board document in the database.
  */
-export class BoardDataObject {
+export class BoardDocument {
 
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 

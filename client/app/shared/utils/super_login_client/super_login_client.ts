@@ -7,10 +7,18 @@ import {error} from "util";
 import {SuperLoginClientDoneResponse} from "./super_login_client_done_reponse";
 import {SuperLoginClientErrorResponse} from "./super_login_client_error_reponse";
 import {Logger} from "../logger";
+import {SuperLoginClientDatabaseInitializer} from "./super_login_client_database_initializer";
 
 /**
  * This class is a service which implements TypeScript methods to communicate
- * with the Serverlogin API running on the server.
+ * with the ServerLogin API running on the server.
+ *
+ * The only purposes of the class are:
+ *  1) register users
+ *  2) login users --> initializes the all databases used by the app by calling a initialize function
+ *  3) logout users
+ *  4) check if user is logged in
+ *  5) renew connection that that session does not end before user is done
  *
  * The Service can only handle one login at a time!
  */
@@ -25,31 +33,50 @@ export class SuperLoginClient {
     /** temporary authentication bearer for the current session */
     private authenticationBearer : string;
 
+    /** defines a function which gets called to  */
+    private databaseInitializer: SuperLoginClientDatabaseInitializer;
+
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
-    constructor(httpRequestor: SuperloginHttpRequestor) {
+    constructor(httpRequestor: SuperloginHttpRequestor, databaseInitializer: SuperLoginClientDatabaseInitializer) {
         this.httpRequestor = httpRequestor;
         this.authenticationBearer = null;
+        this.databaseInitializer = databaseInitializer;
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
 
     /**
+     * This function should get called once the user loged in successfully.
+     * The function makes sure that the app gets provided with all the information it needs.
+     *
+     * @param data
+     */
+    private finishLogin(data: any) {
+        // save the authentication bearer for the current session
+        this.authenticationBearer = data.token + ":" + data.password;
+
+        // providing the app with the URLs to the user databases
+        this.databaseInitializer.initializeDatabases(null);
+    }
+
+    /**
      * The function uses superlogin-client to register the user with the given information.
      *
-     * @param firstname of the user
+     * @param firstName of the user
      * @param email of the user
      * @param password of the user
      */
-    public register(firstname: string, email: string, password: string, done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse) {
+    public register(firstName: string, email: string, password: string, done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse) {
         this.httpRequestor.postJsonData("http://localhost:3000/auth/register", null, {
-            firstname: firstname,
+            firstName: firstName,
             email: email,
             password: password,
             confirmPassword: password
         }).subscribe(
             (data: any) => {
                 console.dir(data);
+                this.finishLogin(data);
                 done();
             },
             (errorObject) => {
@@ -79,7 +106,7 @@ export class SuperLoginClient {
         }).subscribe(
             (data: any) => {
                 console.dir(data);
-                this.authenticationBearer = data.token + ":" + data.password;
+                this.finishLogin(data);
                 alert(this.authenticationBearer);
                 done();
             },
@@ -167,9 +194,5 @@ export class SuperLoginClient {
                 }
             }
         );
-    }
-
-    public getClientDatabases(): string[] {
-        return null;
     }
 }

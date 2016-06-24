@@ -55,9 +55,9 @@ var config = {
     },
     userModel: {
         // For example, this will require each new user to specify a valid age on the sign-up form or registration will fail
-        whitelist: ['firstname'],
+        whitelist: ['firstName'],
         validate: {
-            firstname: {
+            firstName: {
                 presence: true
             }
         }
