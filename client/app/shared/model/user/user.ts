@@ -1,5 +1,5 @@
-import {SuperLoginClient} from "../utils/super_login_client/super_login_client";
-import {Board} from "./board";
+import {SuperLoginClient} from "../../utils/super_login_client/super_login_client";
+import {BoardDataObject} from "../board/board_data_object";
 import {Injectable} from "@angular/core";
 
 @Injectable()
@@ -9,7 +9,7 @@ export class User {
 
     private superLoginClient: SuperLoginClient;
 
-    private boards: Board[];
+    private boards: BoardDataObject[];
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 

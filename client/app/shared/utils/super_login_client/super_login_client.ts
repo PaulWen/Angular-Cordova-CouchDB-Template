@@ -37,13 +37,13 @@ export class SuperLoginClient {
     /**
      * The function uses superlogin-client to register the user with the given information.
      *
-     * @param name of the user
+     * @param firstname of the user
      * @param email of the user
      * @param password of the user
      */
-    public register(name: string, email: string, password: string, done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse) {
+    public register(firstname: string, email: string, password: string, done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse) {
         this.httpRequestor.postJsonData("http://localhost:3000/auth/register", null, {
-            name: name,
+            firstname: firstname,
             email: email,
             password: password,
             confirmPassword: password
@@ -151,7 +151,7 @@ export class SuperLoginClient {
      * @param falseCallback gets called if the email is not yet in use
      */
     public isEmailInUse(email: string, trueCallback: SuperLoginClientDoneResponse, falseCallback: SuperLoginClientDoneResponse) {
-       this.httpRequestor.getJsonData("http://localhost:3000/auth/validate-email/" + email, null).subscribe(
+       this.httpRequestor.getJsonData("http://localhost:3000/auth/validateEmailUsername/" + email, null).subscribe(
             (data: any) => {
                 trueCallback();
             },
@@ -167,5 +167,9 @@ export class SuperLoginClient {
                 }
             }
         );
+    }
+
+    public getClientDatabases(): string[] {
+        return null;
     }
 }

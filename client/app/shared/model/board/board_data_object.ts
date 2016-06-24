@@ -1,6 +1,9 @@
-import {List} from "./list";
+import {List} from "../list/list";
 
-export class Board {
+/**
+ * This class represents the structure of an board document in the database.
+ */
+export class BoardDataObject {
 
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
