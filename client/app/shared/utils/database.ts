@@ -1,4 +1,4 @@
-import {BoardDocument} from "../model/board/board_document";
+import {BoardDocument} from "../databases/board/board_document";
 
 /**
  * This class represents one CouchDB database.

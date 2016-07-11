@@ -1,59 +1,54 @@
-<!-- The drawer is always open in large screens. The header is always shown,
-  even in small screens. -->
-<div mdl class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer
-            mdl-layout--fixed-header">
-    <header class="mdl-layout__header">
-        <div class="mdl-layout__header-row">
-            <div class="mdl-layout-spacer"></div>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable
-                  mdl-textfield--floating-label mdl-textfield--align-right">
-                <label class="mdl-button mdl-js-button mdl-button--icon"
-                       for="fixed-header-drawer-exp">
-                    <i class="material-icons">search</i>
-                </label>
-                <div class="mdl-textfield__expandable-holder">
-                    <input class="mdl-textfield__input" type="text" name="sample"
-                           id="fixed-header-drawer-exp" #search (keyup)="testM(search.value)">
-                </div>
-            </div>
-        </div>
-    </header>
-    <div class="mdl-layout__drawer">
-        <span class="mdl-layout-title">Title</span>
-        <nav class="mdl-navigation">
-            <a class="mdl-navigation__link" href="">Link</a>
-            <a class="mdl-navigation__link" href="">Link</a>
-            <a class="mdl-navigation__link" href="">Link</a>
-            <a class="mdl-navigation__link" href="">Link</a>
-        </nav>
-    </div>
-    <main class="mdl-layout__content">
+<style>
+    .demo-card-wide.mdl-card {
+        width: 512px;
+    }
+    .demo-card-wide > .mdl-card__title {
+        color: #fff;
+        height: 176px;
+    }
+    .demo-card-wide > .mdl-card__menu {
+        color: #fff;
+    }
+</style>
+
+<!-- Uses a transparent header that draws on top of the layout's background -->
+<div mdl id="login-page" class="mdl-layout mdl-js-layout">
+    <main class="mdl-layout__content center">
         <div class="page-content">
-            <h1 class="mdl-typography--text-center">{{test}}</h1>
-            <h1 class="mdl-typography--text-center">Login</h1>
-            <form class="mdl-typography--text-center" (submit)="login(email.value, password.value)">
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input #firstName class="mdl-textfield__input" type="text" id="firstName">
-                    <label class="mdl-textfield__label" for="firstName">First Name</label>
+            <!-- Wide card with share menu button -->
+            <div class="mdl-card mdl-shadow--16dp">
+                <h1 class="mdl-typography--text-center">Welcome to Todovio</h1>
+
+                <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+                    <div class="mdl-tabs__tab-bar">
+                        <a href="#starks-panel" class="mdl-tabs__tab is-active">Login</a>
+                        <a href="#lannisters-panel" class="mdl-tabs__tab">Create New Account</a>
+                    </div>
                 </div>
 
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input #email class="mdl-textfield__input" type="text" id="email">
-                    <label class="mdl-textfield__label" for="email">E-Mail</label>
-                </div>
+                <form class="mdl-typography--text-center" (submit)="login(email.value, password.value)">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input #firstName class="mdl-textfield__input" type="text" id="firstName">
+                        <label class="mdl-textfield__label" for="firstName">First Name</label>
+                    </div>
 
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input #password class="mdl-textfield__input" type="password" id="password">
-                    <label class="mdl-textfield__label" for="password">Password</label>
-                </div>
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input #email class="mdl-textfield__input" type="text" id="email">
+                        <label class="mdl-textfield__label" for="email">E-Mail</label>
+                    </div>
 
-                <div>
-                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" type="submit">
-                        Register
-                    </button>
-                </div>
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input #password class="mdl-textfield__input" type="password" id="password">
+                        <label class="mdl-textfield__label" for="password">Password</label>
+                    </div>
 
-            </form>
+                    <div>
+                        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" type="submit">
+                            Register
+                        </button>
+                    </div>
+
+                </form>
                 <div>
                     <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" (click)="logout()">
                         Logout
@@ -69,8 +64,7 @@
                         Email Validation
                     </button>
                 </div>
+            </div>
         </div>
     </main>
 </div>
-
-<router-outlet></router-outlet>

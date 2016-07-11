@@ -1,6 +1,5 @@
 import {Database} from "../../utils/database";
-import {BoardDocument} from "../board/board_document";
-import {AppModel} from "../../../components/app/app_model";
+import {BoardDocument} from "./board_document";
 
 /**
  * This class extends from "Database". It gets only used for managing a CouchDB database
@@ -11,6 +10,7 @@ export class BoardDatabase extends Database<BoardDocument> {
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
 
+    
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
     constructor() {

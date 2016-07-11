@@ -19,6 +19,7 @@ import {SuperLoginClientDatabaseInitializer} from "./super_login_client_database
  *  3) logout users
  *  4) check if user is logged in
  *  5) renew connection that that session does not end before user is done
+ *  6) change password or email
  *
  * The Service can only handle one login at a time!
  */

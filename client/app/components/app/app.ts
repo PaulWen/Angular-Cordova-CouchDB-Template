@@ -1,38 +1,25 @@
 import { Component } from '@angular/core';
-import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router-deprecated';
 import {TestComponent} from "../test/test";
 import {MDL} from "../../directives/MaterialDesignLiteUpgradeElement";
 import {SuperLoginClient} from "../../shared/utils/super_login_client/super_login_client";
 import {SuperLoginClientError} from "../../shared/utils/super_login_client/super_login_client_error";
-import {AppModel} from "./app_model";
+import {BoardDatabase} from "../../shared/databases/board/board_database";
 
 @Component({
     selector: 'my-app',
     templateUrl: 'app/components/app/app.html',
-    directives: [ROUTER_DIRECTIVES, MDL],
-    providers: [ROUTER_PROVIDERS, AppModel]
+    styleUrls: ['app/components/app/app.css'],
+    directives: [MDL]
 })
-@RouteConfig([
-    {
-        path: '/test',
-        name: 'Test',
-        component: TestComponent,
-    }
-])
 export class AppComponent {
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
     private superLoginClient: SuperLoginClient;
 
-    private test: string;
-    
-    private model: AppModel;
-
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
-    constructor(superLoginClient: SuperLoginClient, model: AppModel) {
+    constructor(superLoginClient: SuperLoginClient) {
         this.superLoginClient = superLoginClient;
-        this.model = model;
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////

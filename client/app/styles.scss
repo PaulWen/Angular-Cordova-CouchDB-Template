@@ -7,3 +7,11 @@ $color-accent-contrast: "36,0,0";
 
 // import the MDL design
 @import '../../node_modules/material-design-lite/src/material-design-lite';
+
+// the class can be added to a div, to center all content in the
+// div horizontally as well as vertically
+.center {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}

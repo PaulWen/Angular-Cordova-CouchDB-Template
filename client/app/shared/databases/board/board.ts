@@ -1,4 +1,6 @@
-import {BoardDatabase} from "../databases/board_database";
+import {BoardDatabase} from "./board_database";
+import {Database} from "../../utils/database";
+import {BoardDocument} from "./board_document";
 
 /**
  * This class gets used to get and set values from a specific board.
@@ -8,17 +10,17 @@ export class Board {
 
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
-    private database: BoardDatabase;
+    private database: Database<BoardDocument>;
     private id: string;
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
     /**
      *
-     * @param database database which retunrs and manages BoardDataObjects
+     * @param database database which returns and manages BoardDataObjects
      * @param id
      */
-    constructor(database: BoardDatabase, id: string) {
+    constructor(database: Database<BoardDocument>, id: string) {
         this.database = database;
         this.id = id;
     }

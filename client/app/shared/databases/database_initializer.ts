@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
-import {SuperLoginClientDatabaseInitializer} from "../../utils/super_login_client/super_login_client_database_initializer";
-import {BoardDatabase} from "./board_database";
+import {SuperLoginClientDatabaseInitializer} from "../utils/super_login_client/super_login_client_database_initializer";
+import {BoardDatabase} from "./board/board_database";
 
 /**
  * This class describes how the URLs of the databases of the app are getting updated in case
