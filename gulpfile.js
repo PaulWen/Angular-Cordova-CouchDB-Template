@@ -18,6 +18,7 @@ var appIndexHtmlFilesDev = [
     appSrcFolderPath + "/../index.html",
     appSrcFolderPath + "/../index-js-dev.html"
 ];
+var appResFiles = "client/app/res/**/*";
 
 var serverSrcFolderPath = "server";
 var serverTypeScriptFiles = serverSrcFolderPath + "/**/*.ts";
@@ -152,6 +153,22 @@ gulp.task('index-prod', function() {
 });
 
 // ////////////////////////////////////////////////
+// App Resourses Tasks
+// // /////////////////////////////////////////////
+
+// copies all resources into the build folder
+gulp.task('res-prod', function() {
+    return gulp.src(appResFiles)
+        .pipe(gulp.dest(prodOutputPathApp + '/res', {overwrite: true}));
+});
+
+// copies all resources into the development folder
+gulp.task('res-dev', function() {
+    return gulp.src(appResFiles)
+        .pipe(gulp.dest(devOutputPathApp + '/res', {overwrite: true}));
+});
+
+// ////////////////////////////////////////////////
 // Server TypeScript Files Tasks
 // // /////////////////////////////////////////////
 
@@ -209,6 +226,7 @@ gulp.task('serve-dev', ['start-dev-server'], function(cb) {
     gulp.watch(appHtmlFiles, ["browserSync-view-dev"], cb);
     gulp.watch(appIndexHtmlFilesDev, ["browserSync-index-dev"], cb);
     gulp.watch(serverTypeScriptFiles, ["browserSync-server-typescript-dev"], cb);
+    gulp.watch(appResFiles, ["browserSync-res-dev"], cb);
 });
 
 // the task reloads all browsers using browserSync after compiling and deploying all the TypeScript files
@@ -246,6 +264,11 @@ gulp.task('browserSync-server-typescript-dev', ["server-typescript-own-dev"], fu
     cb();
 });
 
+// the task reloads all browsers using browserSync after copying all resources to the server
+gulp.task('browserSync-res-dev', ["res-dev"], function(cb) {
+    browserSync.reload();
+    cb();
+});
 
 // ////////////////////////////////////////////////
 // Build Tasks
@@ -264,10 +287,10 @@ gulp.task('clear-dev', function (cb) {
 });
 
 // build process for production
-gulp.task('deploy', gulpSequence('clear-prod', 'typescript-prod', ['server-typescript-own-prod', 'view-prod', 'index-prod', 'sass-prod'], 'serve-prod'));
+gulp.task('deploy', gulpSequence('clear-prod', 'typescript-prod', ['server-typescript-own-prod', 'view-prod', 'index-prod', 'sass-prod', 'res-prod'], 'serve-prod'));
 
 // build process for production
-gulp.task('develop', gulpSequence('clear-dev', 'typescript-own-dev', ['server-typescript-own-dev', 'typescript-libs-dev', 'view-dev', 'index-dev', 'sass-dev'], 'serve-dev'));
+gulp.task('develop', gulpSequence('clear-dev', 'typescript-own-dev', ['server-typescript-own-dev', 'typescript-libs-dev', 'view-dev', 'index-dev', 'sass-dev', 'res-dev'], 'serve-dev'));
 
 
 // ////////////////////////////////////////////////

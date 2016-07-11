@@ -79,6 +79,12 @@ app.use(function(req, res, next) {
     next()
 });
 
+// output request details
+// app.use(function(req, res, next) {
+//     console.log("REQUEST URL: " + req.url );
+//     next(); // Passing the request to the next handler in the stack.
+// });
+
 // use body parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
