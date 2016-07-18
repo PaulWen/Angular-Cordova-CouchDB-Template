@@ -25,4 +25,8 @@ export class Logger {
         console.warn(msg);
     }
 
+    public static debug(msg:any) {
+        console.debug(msg);
+    }
+
 }

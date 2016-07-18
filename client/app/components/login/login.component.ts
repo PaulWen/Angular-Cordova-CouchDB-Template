@@ -1,25 +1,29 @@
 import { Component } from '@angular/core';
-import {TestComponent} from "../test/test";
-import {MDL} from "../../directives/MaterialDesignLiteUpgradeElement";
+import {Router} from '@angular/router';
 import {SuperLoginClient} from "../../shared/utils/super_login_client/super_login_client";
 import {SuperLoginClientError} from "../../shared/utils/super_login_client/super_login_client_error";
 import {BoardDatabase} from "../../shared/databases/board/board_database";
+import {AppRoutes} from "../../app_routes";
+import {MDL} from "../../shared/utils/mdl/MaterialDesignLiteUpgradeElement";
 
 @Component({
-    selector: 'my-app',
-    templateUrl: 'app/components/app/app.html',
-    styleUrls: ['app/components/app/app.css'],
+    selector: 'login-component',
+    templateUrl: 'app/components/login/login.component.html',
+    styleUrls: ['app/components/login/login.component.css'],
     directives: [MDL]
 })
-export class AppComponent {
+export class LoginComponent {
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
     private superLoginClient: SuperLoginClient;
 
+    private router: Router;
+
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
-    constructor(superLoginClient: SuperLoginClient) {
+    constructor(superLoginClient: SuperLoginClient, router: Router) {
         this.superLoginClient = superLoginClient;
+        this.router = router;
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
@@ -27,7 +31,7 @@ export class AppComponent {
     private register(name: string, email: string, password: string) {
         this.superLoginClient.register(name, email, password, () => {
             // successfully registred
-            alert("successfully registred");
+            this.router.navigate([AppRoutes.BOARD_ROUTE]);
         }, (error: SuperLoginClientError) => {
             // error
             if (error.checkForError(SuperLoginClientError.AUTH_ERR_1)) {
@@ -54,7 +58,8 @@ export class AppComponent {
     private login(email: string, password: string) {
         this.superLoginClient.login(email, password, () => {
             // successfully loged-in
-            alert("successfully loged-in");
+            this.router.navigate([AppRoutes.BOARD_ROUTE]);
+
         }, (error: SuperLoginClientError) => {
             // error
             if (error.checkForError(SuperLoginClientError.LOGIN_ERR_1)) {
@@ -63,22 +68,6 @@ export class AppComponent {
             if (error.checkForError(SuperLoginClientError.LOGIN_ERR_2)) {
                 alert(SuperLoginClientError.LOGIN_ERR_2);
             }
-        });
-    }
-
-    private logout() {
-        this.superLoginClient.logout(() => {
-            // successfully loged-out
-            alert("successfully loged-out");
-        }, (error: SuperLoginClientError) => {
-        });
-    }
-
-    private isAuthenticated() {
-        this.superLoginClient.isAuthenticated(() => {
-            alert("authenticated");
-        }, () => {
-            alert("NOT authenticated");
         });
     }
 

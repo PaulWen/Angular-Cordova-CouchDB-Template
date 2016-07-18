@@ -95,8 +95,8 @@ app.use('/auth', superlogin.router);
 // define the static routes where just the files should get loaded from
 app.use('/app', express.static(__dirname + '/app'));
 
-// all requests get answered by returning the index.html
-app.get('/*'/*, superlogin.requireAuth, superlogin.requireRole('user')*/, (req: express.Request, res: express.Response) => {
+// all requests that could not be handled until this point get answered by returning the index.html
+app.get('/*', (req: express.Request, res: express.Response) => {
     res.sendFile(__dirname + '/index.html');
 });
 

@@ -54,7 +54,7 @@ gulp.task('typescript-prod', ['typescript-own-dev'], function(cb) {
     systemJsBuilder.loadConfig('./systemjs.config.js')
         .then(function() {
             // combines ALL JavaScript files into one file - the systemjs.config.js is not needed anymore afterwards!
-            return systemJsBuilder.buildStatic(appSrcFolderPath, prodOutputPathApp + "/script.js", { minify: true, sourceMaps: false});
+            return systemJsBuilder.buildStatic(appSrcFolderPath, prodOutputPathApp + "/script.js", { minify: true, sourceMaps: 'inline'});
         })
         .then(function(){
             console.log('library bundles built successfully!');
@@ -69,7 +69,7 @@ gulp.task('typescript-libs-dev', function(cb) {
         .then(function(){
             return systemJsBuilder.bundle(
                 appSrcFolderPath + ' - [' + appSrcFolderPath + '/**/*]', // build app and remove the app code - this leaves only 3rd party dependencies
-                devOutputPathApp + '/libs-bundle.js', { minify: true });
+                devOutputPathApp + '/libs-bundle.js', { minify: true, sourceMaps:true});
         })
         .then(function(){
             console.log('library bundles built successfully!');

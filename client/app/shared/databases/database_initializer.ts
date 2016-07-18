@@ -22,8 +22,8 @@ export class DatabaseInitializer extends SuperLoginClientDatabaseInitializer {
 
 ////////////////////////////////////////Inherited Methods//////////////////////////////////////////
 
-   public initializeDatabases(user_databases:string[]):void {
-       this.boardDatabase.initializeDatabase(user_databases[0]);
+   public initializeDatabases(user_databases:any):void {
+       this.boardDatabase.initializeDatabase(user_databases.boards);
    }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////

@@ -1,4 +1,5 @@
 import {Http, Headers} from '@angular/http';
+import {CanActivate, Router} from '@angular/router';
 import { Injectable } from '@angular/core';
 import {SuperloginHttpRequestor} from "./superlogin_http_requestor";
 import {Config} from "../../../config";
@@ -24,12 +25,15 @@ import {SuperLoginClientDatabaseInitializer} from "./super_login_client_database
  * The Service can only handle one login at a time!
  */
 @Injectable()
-export class SuperLoginClient {
+export class SuperLoginClient implements CanActivate {
 
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
     /** provides functions to easily perform http requests */
     private httpRequestor: SuperloginHttpRequestor;
+
+    /** the router which allows routing */
+    private router: Router;
 
     /** temporary authentication bearer for the current session */
     private authenticationBearer : string;
@@ -37,15 +41,61 @@ export class SuperLoginClient {
     /** defines a function which gets called to  */
     private databaseInitializer: SuperLoginClientDatabaseInitializer;
 
+
+    /** tells if the user already confirmed his email */
+    private emailConfirmed: boolean;
+
+    // ROUTES
+    /** the route in the application to the login page */
+    private loginPageRoute: string;
+
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
-    constructor(httpRequestor: SuperloginHttpRequestor, databaseInitializer: SuperLoginClientDatabaseInitializer) {
+    /**
+     *
+     * @param httpRequestor
+     * @param databaseInitializer
+     * @param router
+     * @param loginPageRoute the rout which points at the login page - that is where not yet authenticated users get directed to
+     */
+    constructor(httpRequestor: SuperloginHttpRequestor, databaseInitializer: SuperLoginClientDatabaseInitializer, router: Router, loginPageRoute: string) {
         this.httpRequestor = httpRequestor;
-        this.authenticationBearer = null;
         this.databaseInitializer = databaseInitializer;
+        this.router = router;
+
+        this.authenticationBearer = null;
+        this.emailConfirmed = null;
+
+
+        this.loginPageRoute = loginPageRoute;
+    }
+
+////////////////////////////////////////Inherited Methods//////////////////////////////////////////
+
+    public canActivate(): boolean {
+        // check if the user is authenticated
+        if (this.isAuthenticated()) {
+            // check if the user already confirmed his email
+            if (this.emailConfirmed) {
+                // let him pass
+                return true;
+            } else {
+                // TODO if the user has not yet confirmed his email, route him to the page where it says that he has to confirm his email
+            }
+
+        // if the user is not yet authenticated
+        } else {
+            // route the user to the login page
+            this.router.navigate([this.loginPageRoute]);
+            return false;
+        }
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
+
+    public isAuthenticated(): boolean {
+        return this.authenticationBearer !== null;
+    }
 
     /**
      * This function should get called once the user loged in successfully.
@@ -57,8 +107,11 @@ export class SuperLoginClient {
         // save the authentication bearer for the current session
         this.authenticationBearer = data.token + ":" + data.password;
 
+        //TODO check if the users email already got confirmed
+        this.emailConfirmed = true;
+
         // providing the app with the URLs to the user databases
-        this.databaseInitializer.initializeDatabases(null);
+        this.databaseInitializer.initializeDatabases(data.userDBs);
     }
 
     /**
@@ -76,9 +129,9 @@ export class SuperLoginClient {
             confirmPassword: password
         }).subscribe(
             (data: any) => {
-                console.dir(data);
                 this.finishLogin(data);
                 done();
+                Logger.log("New account created.");
             },
             (errorObject) => {
                 var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
@@ -88,6 +141,8 @@ export class SuperLoginClient {
 
                 // call the error callback function
                 error(superLoginClientError);
+
+                Logger.log("Could not create new account.");
             }
         );
     }
@@ -106,10 +161,9 @@ export class SuperLoginClient {
             password: password,
         }).subscribe(
             (data: any) => {
-                console.dir(data);
                 this.finishLogin(data);
-                alert(this.authenticationBearer);
                 done();
+                Logger.log("Authenticated.");
             },
             (errorObject) => {
                 var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
@@ -119,6 +173,8 @@ export class SuperLoginClient {
 
                 // call the error callback function
                 error(superLoginClientError);
+
+                Logger.log("Authentication failed.");
             }
         );
     }
@@ -152,7 +208,7 @@ export class SuperLoginClient {
      * @param trueCallback gets called if the user is already authenticated
      * @param falseCallback gets called if the user is not yet authenticated
      */
-    public isAuthenticated(trueCallback: SuperLoginClientDoneResponse, falseCallback: SuperLoginClientDoneResponse) {
+    private checkAuthentication(trueCallback: SuperLoginClientDoneResponse, falseCallback: SuperLoginClientDoneResponse) {
         this.httpRequestor.getJsonData("http://localhost:3000/auth/session", this.authenticationBearer).subscribe(
             (data: any) => {
                 trueCallback();
@@ -161,7 +217,7 @@ export class SuperLoginClient {
                 var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
 
                 // Log the Error
-                Logger.error(superLoginClientError.getErrorMessage());
+                Logger.log(superLoginClientError.getErrorMessage());
 
                 // check if error = unauthorized
                 if (superLoginClientError.checkForError(SuperLoginClientError.UNAUTHORIZED)) {
@@ -194,6 +250,6 @@ export class SuperLoginClient {
                     falseCallback();
                 }
             }
-        );
+       );
     }
 }

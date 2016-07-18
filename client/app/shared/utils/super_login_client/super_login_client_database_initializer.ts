@@ -12,6 +12,6 @@ export abstract class SuperLoginClientDatabaseInitializer {
      *
      * @param user_databases array of all user databases and the URL's to those
      */
-    abstract initializeDatabases(user_databases: string[]): void
+    abstract initializeDatabases(user_databases: any): void
 
 }
