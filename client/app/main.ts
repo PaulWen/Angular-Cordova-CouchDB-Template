@@ -4,7 +4,7 @@ import {bootstrap}    from '@angular/platform-browser-dynamic';
 import {HTTP_PROVIDERS} from "@angular/http";
 import {Router, provideRouter} from '@angular/router';
 import {SuperLoginClientDatabaseInitializer} from "./shared/utils/super_login_client/super_login_client_database_initializer";
-import {provide} from "@angular/core";
+import {provide, ComponentRef} from "@angular/core";
 import {SuperLoginClient} from "./shared/utils/super_login_client/super_login_client";
 import {SuperloginHttpRequestor} from "./shared/utils/super_login_client/superlogin_http_requestor";
 import {BoardDatabase} from "./shared/databases/board/board_database";
@@ -13,8 +13,9 @@ import {AppRoutesConfig, AppRoutes} from "./app_routes";
 import {AppComponent} from "./components/app/app.component";
 
 
-bootstrap(AppComponent,    [
-    provideRouter(AppRoutesConfig),
+//  http://stackoverflow.com/questions/34289761/angular-2-equivalent-to-router-resolve-data-for-new-router/38138019#38138019
+
+bootstrap(AppComponent, [   provideRouter(AppRoutesConfig),
                             HTTP_PROVIDERS,
                             SuperloginHttpRequestor,
                             BoardDatabase,
@@ -26,4 +27,6 @@ bootstrap(AppComponent,    [
                                 },
                                 deps: [SuperloginHttpRequestor, SuperLoginClientDatabaseInitializer, Router]
                             })
-                            ]);
+]);
+
+

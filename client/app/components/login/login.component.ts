@@ -56,7 +56,7 @@ export class LoginComponent {
     }
 
     private login(email: string, password: string) {
-        this.superLoginClient.login(email, password, () => {
+        this.superLoginClient.login(email, password, false, () => {
             // successfully loged-in
             this.router.navigate([AppRoutes.BOARD_ROUTE]);
 

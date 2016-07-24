@@ -1,5 +1,8 @@
 import {Http, Headers} from '@angular/http';
-import {CanActivate, Router} from '@angular/router';
+import {
+    CanActivate, Router, ActivatedRouteSnapshot,
+    RouterStateSnapshot
+} from '@angular/router';
 import { Injectable } from '@angular/core';
 import {SuperloginHttpRequestor} from "./superlogin_http_requestor";
 import {Config} from "../../../config";
@@ -9,6 +12,7 @@ import {SuperLoginClientDoneResponse} from "./super_login_client_done_reponse";
 import {SuperLoginClientErrorResponse} from "./super_login_client_error_reponse";
 import {Logger} from "../logger";
 import {SuperLoginClientDatabaseInitializer} from "./super_login_client_database_initializer";
+import {Observable} from "rxjs/Rx";
 
 /**
  * This class is a service which implements TypeScript methods to communicate
@@ -26,6 +30,10 @@ import {SuperLoginClientDatabaseInitializer} from "./super_login_client_database
  */
 @Injectable()
 export class SuperLoginClient implements CanActivate {
+
+////////////////////////////////////////////Constants/////////////////////////////////////////////
+
+    private static get SESSION_TOKEN_COOKIE(): string {return 'session_token';};
 
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
@@ -52,6 +60,7 @@ export class SuperLoginClient implements CanActivate {
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
     /**
+     * Cunstructor of the class SuperLoginClient.
      *
      * @param httpRequestor
      * @param databaseInitializer
@@ -72,29 +81,144 @@ export class SuperLoginClient implements CanActivate {
 
 ////////////////////////////////////////Inherited Methods//////////////////////////////////////////
 
-    public canActivate(): boolean {
-        // check if the user is authenticated
+    public canActivate(): Observable<boolean> | boolean {
+        // check if the user is already authenticated
         if (this.isAuthenticated()) {
-            // check if the user already confirmed his email
-            if (this.emailConfirmed) {
-                // let him pass
-                return true;
-            } else {
-                // TODO if the user has not yet confirmed his email, route him to the page where it says that he has to confirm his email
-            }
+            return true;
 
-        // if the user is not yet authenticated
+        // if the user is not yet authenticated try to authenticate him by using the cookie data
         } else {
-            // route the user to the login page
-            this.router.navigate([this.loginPageRoute]);
-            return false;
+            return Observable.create((observer) => {
+                this.checkAuthentication().subscribe(
+                    (isAuthenticated: boolean)=>{
+                        // if user is authenticated
+                        if (isAuthenticated) {
+                            // check if the user already confirmed his email
+                            if (this.emailConfirmed) {
+                                // let him pass
+                                return true;
+                            } else {
+                                // TODO if the user has not yet confirmed his email, route him to the page where it says that he has to confirm his email
+                            }
+
+                        // if user is not yet authenticated
+                        } else {
+                            // route the user to the login page
+                            this.router.navigate([this.loginPageRoute]);
+                            return false;
+                        }
+                    }
+                )
+            });
         }
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
 
+    /**
+     * This function creates a cookie.
+     *
+     * @param cookieName name of the cookie
+     * @param cookieValue value of the cookie
+     * @param expirationDate time in days until the cookie expires
+     */
+    private setCookie(cookieName, cookieValue, expirationDate) {
+        var date = new Date();
+        date.setTime(date.getTime() + (expirationDate*24*60*60*1000));
+        var expires = "expires="+ date.toUTCString();
+        document.cookie = cookieName + "=" + cookieValue + "; " + expires;
+    }
+
+    /**
+     * This function returns the value of a specific cookie.
+     *
+     * @param cookieName name of the cookie
+     * @returns {any} value of the cookie
+     */
+    private getCookie(cookieName) {
+        var name = cookieName + "=";
+        var ca = document.cookie.split(';');
+        for(var i = 0; i <ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length,c.length);
+            }
+        }
+        return "";
+    }
+
+
+    /**
+     * This method checks whether or not the user is already authenticated and a session token exists.
+     *
+     * CAUTION: The method does not check if the session token is still valid! Therefore the method
+     * does not need any connection to the database and works synchronous.
+     *
+     * @returns {boolean} true is a session token already exists
+     */
     public isAuthenticated(): boolean {
         return this.authenticationBearer !== null;
+    }
+
+    /**
+     * This methods checks if the user is already authenticated.
+     * It checks if there is a session token either stored in a cookie or in an object of this class.
+     * In case there is a stored session token, this session token gets validated to check if it is still valid.
+     *
+     * @returns {Observable<boolean>} returns true or false once it knows if the user is already authenticated
+     */
+    public checkAuthentication(): Observable<boolean> {
+        // create an observable which will be completed as soon as the authentication check got completely finished
+        return Observable.create((observer) => {
+            // check if the user already logged in earlier and if a valid session token got stored in the cookies
+            if (this.authenticationBearer == null && this.getCookie(SuperLoginClient.SESSION_TOKEN_COOKIE) != "") {
+                this.authenticationBearer = this.getCookie(SuperLoginClient.SESSION_TOKEN_COOKIE);
+            }
+
+            // check if the currently known authentication bearer is still valid
+            if (this.authenticationBearer != null ) {
+                this.httpRequestor.getJsonData("http://localhost:3000/auth/session", this.authenticationBearer).subscribe(
+                    // is still valid
+                    (data: any) => {
+                        // finish the authentication
+                        this.finishAuthentication(false);
+
+                        // renew the session token
+                        this.renewSessionToken();
+
+                        // end the observable and return the result
+                        observer.next(true);
+                        observer.complete();
+                    },
+
+                    // is not valid anymore
+                    (errorObject) => {
+                        // make sure that no invalid session token is stored in the cookie
+                        this.setCookie(SuperLoginClient.SESSION_TOKEN_COOKIE, "", -1);
+
+                        // create error object to evaluate the error
+                        var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
+
+                        // Log the Error
+                        Logger.log(superLoginClientError.getErrorMessage());
+
+                        // check if error = unauthorized
+                        if (superLoginClientError.checkForError(SuperLoginClientError.UNAUTHORIZED)) {
+                            this.authenticationBearer = null;
+                        }
+
+                        observer.next(false);
+                        observer.complete();
+                    }
+                );
+            } else {
+                observer.next(false);
+                observer.complete();
+            }
+        });
     }
 
     /**
@@ -102,16 +226,20 @@ export class SuperLoginClient implements CanActivate {
      * The function makes sure that the app gets provided with all the information it needs.
      *
      * @param data
+     * @param stayAuthenticated set true, if the session token should get stored in a cookie, so that the session token can be reused for the next login
      */
-    private finishLogin(data: any) {
-        // save the authentication bearer for the current session
-        this.authenticationBearer = data.token + ":" + data.password;
-
+    private finishAuthentication(stayAuthenticated: boolean) {
         //TODO check if the users email already got confirmed
         this.emailConfirmed = true;
 
         // providing the app with the URLs to the user databases
-        this.databaseInitializer.initializeDatabases(data.userDBs);
+        this.userDB();
+
+
+        // if user wants to stay logged in even after he closed the browser, the session token needs to be stored in a cookie
+        if (stayAuthenticated) {
+            this.setCookie(SuperLoginClient.SESSION_TOKEN_COOKIE, this.authenticationBearer, 14)
+        }
     }
 
     /**
@@ -120,6 +248,8 @@ export class SuperLoginClient implements CanActivate {
      * @param firstName of the user
      * @param email of the user
      * @param password of the user
+     * @param done callback function once the request was successful
+     * @param error callback function in case an error occurred
      */
     public register(firstName: string, email: string, password: string, done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse) {
         this.httpRequestor.postJsonData("http://localhost:3000/auth/register", null, {
@@ -129,7 +259,11 @@ export class SuperLoginClient implements CanActivate {
             confirmPassword: password
         }).subscribe(
             (data: any) => {
-                this.finishLogin(data);
+                // save the new session token
+                this.authenticationBearer = data.token + ":" + data.password;
+
+                // finish the authentication
+                this.finishAuthentication(false);
                 done();
                 Logger.log("New account created.");
             },
@@ -152,16 +286,22 @@ export class SuperLoginClient implements CanActivate {
      *
      * @param email of the user
      * @param password of the user
+     * @param stayAuthenticated set true, if the session token should get stored in a cookie, so that the session token can be reused for the next login
      * @param done callback function once the request was successful
      * @param error callback function in case an error occurred
      */
-    public login(email: string, password: string, done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse)  {
+    public login(email: string, password: string, stayAuthenticated: boolean , done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse)  {
+        // log zu user in
         this.httpRequestor.postJsonData("http://localhost:3000/auth/login", null, {
             username: email,
             password: password,
         }).subscribe(
             (data: any) => {
-                this.finishLogin(data);
+                // save the new session token
+                this.authenticationBearer = data.token + ":" + data.password;
+
+                // finish the authentication
+                this.finishAuthentication(stayAuthenticated);
                 done();
                 Logger.log("Authenticated.");
             },
@@ -180,7 +320,7 @@ export class SuperLoginClient implements CanActivate {
     }
 
     /**
-     *
+     * The method loggs out the user. The current session token gets invalid.
      * 
      * @param done callback function once the request was successful
      * @param error callback function in case an error occurred
@@ -203,31 +343,6 @@ export class SuperLoginClient implements CanActivate {
     }
 
     /**
-     * This method checks if the user is currently authenticated.
-     *
-     * @param trueCallback gets called if the user is already authenticated
-     * @param falseCallback gets called if the user is not yet authenticated
-     */
-    private checkAuthentication(trueCallback: SuperLoginClientDoneResponse, falseCallback: SuperLoginClientDoneResponse) {
-        this.httpRequestor.getJsonData("http://localhost:3000/auth/session", this.authenticationBearer).subscribe(
-            (data: any) => {
-                trueCallback();
-            },
-            (errorObject) => {
-                var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
-
-                // Log the Error
-                Logger.log(superLoginClientError.getErrorMessage());
-
-                // check if error = unauthorized
-                if (superLoginClientError.checkForError(SuperLoginClientError.UNAUTHORIZED)) {
-                    falseCallback();
-                }
-            }
-        );
-    }
-
-    /**
      * This function checks if a email is already in use.
      *
      * @param email
@@ -235,7 +350,7 @@ export class SuperLoginClient implements CanActivate {
      * @param falseCallback gets called if the email is not yet in use
      */
     public isEmailInUse(email: string, trueCallback: SuperLoginClientDoneResponse, falseCallback: SuperLoginClientDoneResponse) {
-       this.httpRequestor.getJsonData("http://localhost:3000/auth/validateEmailUsername/" + email, null).subscribe(
+        this.httpRequestor.getJsonData("http://localhost:3000/auth/validateEmailUsername/" + email, null).subscribe(
             (data: any) => {
                 trueCallback();
             },
@@ -251,5 +366,46 @@ export class SuperLoginClient implements CanActivate {
                 }
             }
        );
+    }
+
+    /**
+     * This method renews the current session token.
+     */
+    private renewSessionToken(): void {
+        this.httpRequestor.postJsonData("http://localhost:3000/auth/refresh/", this.authenticationBearer, {}).subscribe(
+            (data: any) => {
+                // all done successfully
+            },
+            (errorObject) => {
+                var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
+
+                // Log the Error
+                Logger.error(superLoginClientError.getErrorMessage());
+            }
+        );
+    }
+
+    /**
+     * This method loads all the database names of the users databases and passes those to the DatabaseInitializer.
+     */
+    private userDB(): void {
+        // load the database names
+        this.httpRequestor.getJsonData("http://localhost:3000/auth/user-db/", this.authenticationBearer).subscribe(
+            // if the database names got loaded successfully
+            (data: any) => {
+                console.debug(data);
+
+                // give the database names to the database initializer
+                this.databaseInitializer.initializeDatabases(data);
+            },
+
+            // in case of an error
+            (errorObject) => {
+                var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
+
+                // Log the Error
+                Logger.error(superLoginClientError.getErrorMessage());
+            }
+        );
     }
 }

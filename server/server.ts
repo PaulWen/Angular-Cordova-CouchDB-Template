@@ -14,11 +14,11 @@ var config = {
         // Maximum number of failed logins before the account is locked
         maxFailedLogins: 3,
         // The amount of time the account will be locked for (in seconds) after the maximum failed logins is exceeded
-        lockoutTime: 600,
-        // The amount of time a new session is valid for (default: 24 hours)
-        sessionLife: 86400,
-        // The amount of time a password reset token is valid for
-        tokenLife: 86400,
+        lockoutTime: 10*60,
+        // The amount of time (in seconds) a new session is valid for
+        sessionLife: 14*24*60*60,
+        // The amount of time (in seconds) a password reset token is valid for
+        tokenLife: 24*60*60,
         // The maximum number of entries in the activity log in each user doc. Zero to disable completely
         userActivityLogSize: 10,
         // If set to true, the user will be logged in automatically after registering
@@ -46,7 +46,7 @@ var config = {
     },
     userDBs: {
         defaultDBs: {
-            private: ['boards', 'cards', 'lists']
+            private: ['settings', 'boards', 'cards', 'lists']
         },
         defaultSecurityRoles: {
             admins: ['admin'],
@@ -89,7 +89,88 @@ app.use(function(req, res, next) {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// Mount SuperLogin's routes to our app
+
+//Custom SuperLogin routes to enhance the functionality of SuperLogin
+{
+    // get user databases of authenticated user
+    app.get('/auth/user-db', superlogin.requireAuth, (req: express.Request, res: express.Response) => {
+        // get the user data of the current user
+        superlogin.getUser(req.user._id)
+            // if request was successful return the names of the databases
+            .then((data)=>{
+                //TODO format the database names right so that they are the links including the currnet authentication token of the user
+                res.send(data.personalDBs);
+            })
+
+            //if there was an error, return the error code
+            .catch(function(error) {
+            res.sendStatus(error.status);
+        });
+    });
+
+    //TODO returns whether the email address of the user got confirmed yet or not
+    // app.get('/auth/email-confirm-status', superlogin.requireAuth, (req: express.Request, res: express.Response) => {
+    //     // get the user data of the current user
+    //     superlogin.getUser(req.user._id)
+    //         // if request was successful return the names of the databases
+    //         .then((data)=>{
+    //             res.send(data.personalDBs);
+    //         })
+    //
+    //         //if there was an error, return the error code
+    //         .catch(function(error) {
+    //         res.sendStatus(error.status);
+    //     });
+    // });
+
+    // get the first name of the user
+    app.get('/auth/first-name', superlogin.requireAuth, (req: express.Request, res: express.Response) => {
+        // get the current user data of the current user
+        superlogin.getUser(req.user._id)
+            // if request was successful return the first name of the user
+            .then((data)=>{
+                res.send(data.firstName);
+            })
+
+            //if there was an error, return the error code
+            .catch(function(error) {
+                res.sendStatus(error.status);
+            });
+    });
+
+    // set the first name of the user
+    // (the new first name is expected to get received via the post variable "firstName")
+    app.post('/auth/first-name', superlogin.requireAuth, (req: express.Request, res: express.Response) => {
+        // get the user data of the current user
+        superlogin.userDB.get(req.user._id)
+            // if request was successful try to update the first name
+            .then((data)=>{
+                // update the user data with the new first name
+                data.firstName = req.body.firstName;
+
+                // upload the updated user data
+                superlogin.userDB.put(data)
+                    // give feedback to the user whether or not setting a new first name was successful
+                    .then((response) => {
+                        if (response.ok == true) {
+                            res.sendStatus(200);
+                        }
+                    })
+                    .catch(function(error) {
+                        res.sendStatus(500);
+                    }
+                );
+            })
+
+            //if there was an error, return the error code
+            .catch(function(error) {
+                res.sendStatus(error.status);
+            }
+        );
+    });
+}
+
+// Mount SuperLogin's routes to the app
 app.use('/auth', superlogin.router);
 
 // define the static routes where just the files should get loaded from
