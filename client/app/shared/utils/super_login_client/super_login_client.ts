@@ -254,7 +254,8 @@ export class SuperLoginClient implements CanActivate {
     public register(firstName: string, email: string, password: string, done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse) {
         this.httpRequestor.postJsonData("http://localhost:3000/auth/register", null, {
             firstName: firstName,
-            email: email,
+            // since the username is not allowed to include Capital letters we have to make sure that it does not
+            email: email.toLocaleLowerCase(),
             password: password,
             confirmPassword: password
         }).subscribe(
@@ -291,9 +292,10 @@ export class SuperLoginClient implements CanActivate {
      * @param error callback function in case an error occurred
      */
     public login(email: string, password: string, stayAuthenticated: boolean , done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse)  {
-        // log zu user in
+        // log the user in
         this.httpRequestor.postJsonData("http://localhost:3000/auth/login", null, {
-            username: email,
+            // since the username is not allowed to include Capital letters we have to make sure that it does not
+            username: email.toLocaleLowerCase(),
             password: password,
         }).subscribe(
             (data: any) => {
@@ -321,7 +323,7 @@ export class SuperLoginClient implements CanActivate {
 
     /**
      * The method loggs out the user. The current session token gets invalid.
-     * 
+     *
      * @param done callback function once the request was successful
      * @param error callback function in case an error occurred
      */
@@ -393,8 +395,6 @@ export class SuperLoginClient implements CanActivate {
         this.httpRequestor.getJsonData("http://localhost:3000/auth/user-db/", this.authenticationBearer).subscribe(
             // if the database names got loaded successfully
             (data: any) => {
-                console.debug(data);
-
                 // give the database names to the database initializer
                 this.databaseInitializer.initializeDatabases(data);
             },

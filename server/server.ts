@@ -98,8 +98,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
         superlogin.getUser(req.user._id)
             // if request was successful return the names of the databases
             .then((data)=>{
-                //TODO format the database names right so that they are the links including the currnet authentication token of the user
-                res.send(data.personalDBs);
+                // represent the user databases nicely in a JSON object
+                var userDBs = {};
+                for (var i = 0; i < Object.keys(data.personalDBs).length; i++) {
+                    // Representation--> <database-name>=<URL to access database, already including the session token>
+                    userDBs[(data.personalDBs)[(Object.keys(data.personalDBs))[i]].name] = superlogin.config.getItem("dbServer").protocol + (<any>req.headers).authorization.replace("Bearer ", "") + "@" + superlogin.config.getItem("dbServer").host + "/" + (Object.keys(data.personalDBs))[i];
+                }
+
+                // send the formatted user database JSON object
+                res.send(userDBs);
             })
 
             //if there was an error, return the error code

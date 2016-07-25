@@ -13,8 +13,6 @@ import {AppRoutesConfig, AppRoutes} from "./app_routes";
 import {AppComponent} from "./components/app/app.component";
 
 
-//  http://stackoverflow.com/questions/34289761/angular-2-equivalent-to-router-resolve-data-for-new-router/38138019#38138019
-
 bootstrap(AppComponent, [   provideRouter(AppRoutesConfig),
                             HTTP_PROVIDERS,
                             SuperloginHttpRequestor,
