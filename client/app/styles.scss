@@ -5,6 +5,10 @@ $color-accent: "100,221,23";
 $color-primary-contrast: "255,253,232";
 $color-accent-contrast: "36,0,0";
 
+// customize the path of the MDL images
+$image_path: 'res/img';
+
+
 // import the MDL design
 @import '../../node_modules/material-design-lite/src/material-design-lite';
 
@@ -15,4 +19,3 @@ $color-accent-contrast: "36,0,0";
   justify-content:center;
   align-items:center;
 }
-
