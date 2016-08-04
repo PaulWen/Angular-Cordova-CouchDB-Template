@@ -16,6 +16,7 @@ $image_path: 'res/img';
 // div horizontally as well as vertically
 .center {
   display:flex;
+  flex-direction: column;
   justify-content:center;
   align-items:center;
 }

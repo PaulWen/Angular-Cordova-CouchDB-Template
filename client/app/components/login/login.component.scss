@@ -8,16 +8,22 @@
 }
 
 #remember-login-checkbox {
-    margin-top: 10px;
-    margin-bottom: 20px;
-    margin-right: auto;
-}
-
-#form-buttons {
-    margin-top: 10px;
     margin-bottom: 20px;
 }
 
 #tabs {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+}
+
+.form-content {
+    display:flex;
+    flex-direction: column;
+    justify-content:center;
+    align-items: flex-start;
+}
+
+.buttons {
+    display:flex;
+    justify-content: flex-end;
+    width: 100%;
 }

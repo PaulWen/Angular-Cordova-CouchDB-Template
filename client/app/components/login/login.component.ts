@@ -5,6 +5,7 @@ import {SuperLoginClientError} from "../../shared/utils/super_login_client/super
 import {BoardDatabase} from "../../shared/databases/board/board_database";
 import {AppRoutes} from "../../app_routes";
 import {MDL} from "../../shared/utils/mdl/MaterialDesignLiteUpgradeElement";
+import {Logger} from "../../shared/utils/logger";
 
 @Component({
     selector: 'login-component',
@@ -55,8 +56,8 @@ export class LoginComponent {
         });
     }
 
-    private login(email: string, password: string) {
-        this.superLoginClient.login(email, password, false, () => {
+    private login(email: string, password: string, rememberLogin: boolean) {
+        this.superLoginClient.login(email, password, rememberLogin, () => {
             // successfully loged-in
             this.router.navigate([AppRoutes.BOARD_ROUTE]);
 
