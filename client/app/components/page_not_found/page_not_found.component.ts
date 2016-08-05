@@ -1,0 +1,21 @@
+import { Component } from '@angular/core';
+import {MDL} from "../../shared/utils/mdl/MaterialDesignLiteUpgradeElement";
+
+@Component({
+    selector: 'page_not_found-component',
+    templateUrl: 'app/components/page_not_found/page_not_found.component.html',
+    directives: [MDL]
+})
+export class PageNotFoundComponent {
+////////////////////////////////////////////Properties////////////////////////////////////////////
+
+
+////////////////////////////////////////////Constructor////////////////////////////////////////////
+
+    constructor() {
+
+    }
+
+/////////////////////////////////////////////Methods///////////////////////////////////////////////
+
+}
