@@ -3,6 +3,7 @@ import {BoardComponent} from "./components/board/board.component";
 import {LoginComponent} from "./components/login/login.component";
 import {SuperLoginClient} from "./shared/utils/super_login_client/super_login_client";
 import {PageNotFoundComponent} from "./components/page_not_found/page_not_found.component";
+import {ErrorComponent} from "./components/error/error.component";
 
 
 /**
@@ -15,6 +16,7 @@ export class AppRoutes {
     public static get LOGIN_ROUTE(): string {return 'login';};
     public static get BOARD_ROUTE(): string {return 'board';};
     public static get PAGE_NOT_FOUND_ROUTE(): string {return '404';};
+    public static get ERROR_ROUTE(): string {return 'error';};
 
 }
 
@@ -27,6 +29,7 @@ export const AppRoutesConfig: RouterConfig = [
     { path: AppRoutes.BOARD_ROUTE, component: BoardComponent, canActivate: [SuperLoginClient]},
     { path: AppRoutes.LOGIN_ROUTE, component: LoginComponent},
     { path: AppRoutes.PAGE_NOT_FOUND_ROUTE, component: PageNotFoundComponent},
+    { path: AppRoutes.ERROR_ROUTE, component: ErrorComponent},
     // standard route if the root web page gets called
     { path: '', pathMatch:'full', redirectTo: AppRoutes.BOARD_ROUTE},
     // standard route if the route is not defined
