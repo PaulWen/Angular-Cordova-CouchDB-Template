@@ -113,13 +113,10 @@ export class SuperLoginClient implements CanActivate {
 
                            // route the user to the login page
                            this.router.navigate([this.loginPageRoute]);
-
-                           Logger.debug("Invalid token stored in storage");
                        }
                    );
                });
            } else {
-                Logger.debug("Not yet authenticated");
                // route the user to the login page
                this.router.navigate([this.loginPageRoute]);
 
@@ -281,6 +278,9 @@ export class SuperLoginClient implements CanActivate {
      * @param stayAuthenticated set true, if the session token should get stored in a cookie, so that the session token can be reused for the next login
      */
     private finishAuthentication(sessionToken: string, stayAuthenticated: boolean) {
+        // set authenticated to true
+        this.authenticated = true;
+
         // store the current session token
         this.saveSessionToken(stayAuthenticated, sessionToken);
 
@@ -364,6 +364,7 @@ export class SuperLoginClient implements CanActivate {
         this.httpRequestor.postJsonData("http://localhost:3000/auth/logout", this.getSessionToken(), {}).subscribe(
             (data: any) => {
                 done();
+                this.authenticated = false;
             },
             (errorObject) => {
                 var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
@@ -375,6 +376,7 @@ export class SuperLoginClient implements CanActivate {
                 error(superLoginClientError);
             }
         );
+
     }
 
     /**
@@ -410,11 +412,13 @@ export class SuperLoginClient implements CanActivate {
         this.httpRequestor.postJsonData("http://localhost:3000/auth/refresh/", this.getSessionToken(), {}).subscribe(
             (data: any) => {
                 // all done successfully
+                Logger.log("Session successfully extended.");
             },
             (errorObject) => {
                 var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
 
                 // Log the Error
+                Logger.log("Failed to extend session.");
                 Logger.error(superLoginClientError.getErrorMessage());
             }
         );

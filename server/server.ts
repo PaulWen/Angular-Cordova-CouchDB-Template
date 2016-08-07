@@ -115,21 +115,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
         });
     });
 
-    //TODO returns whether the email address of the user got confirmed yet or not
-    // app.get('/auth/email-confirm-status', superlogin.requireAuth, (req: express.Request, res: express.Response) => {
-    //     // get the user data of the current user
-    //     superlogin.getUser(req.user._id)
-    //         // if request was successful return the names of the databases
-    //         .then((data)=>{
-    //             res.send(data.personalDBs);
-    //         })
-    //
-    //         //if there was an error, return the error code
-    //         .catch(function(error) {
-    //         res.sendStatus(error.status);
-    //     });
-    // });
-
     // get the first name of the user
     app.get('/auth/first-name', superlogin.requireAuth, (req: express.Request, res: express.Response) => {
         // get the current user data of the current user
