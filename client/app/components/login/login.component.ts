@@ -33,6 +33,9 @@ export class LoginComponent {
         this.superLoginClient.register(name, email, password, () => {
             // successfully registred
             this.router.navigate([AppRoutes.BOARD_ROUTE]);
+
+            // log user in
+            this.login(email, password, false);
         }, (error: SuperLoginClientError) => {
             // error
             if (error.checkForError(SuperLoginClientError.AUTH_ERR_1)) {
@@ -57,7 +60,7 @@ export class LoginComponent {
     }
 
     private login(email: string, password: string, rememberLogin: boolean) {
-        this.superLoginClient.login(email, password, rememberLogin, () => {
+        this.superLoginClient.loginWithCredentials(email, password, rememberLogin, () => {
             // successfully loged-in
             this.router.navigate([AppRoutes.BOARD_ROUTE]);
 

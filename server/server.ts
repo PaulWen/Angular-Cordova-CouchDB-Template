@@ -22,9 +22,9 @@ var config = {
         // The maximum number of entries in the activity log in each user doc. Zero to disable completely
         userActivityLogSize: 10,
         // If set to true, the user will be logged in automatically after registering
-        loginOnRegistration: true,
+        loginOnRegistration: false,
         // If set to true, the user will be logged in automatically after resetting the password
-        loginOnPasswordReset: true
+        loginOnPasswordReset: false
     },
     local: {
         // Set this to true to disable usernames and use emails instead
