@@ -1,0 +1,54 @@
+.page-content {
+    padding: 16px 0px 16px 16px;
+    display: flex;
+
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    background-color: purple;
+
+}
+
+.list-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    align-content: flex-start;
+}
+
+.list {
+    padding: 0px;
+    margin: 0px 16px 0px 0px;
+    min-width: 300px;
+    max-width: 300px;
+    max-height: 100%;
+}
+
+.list-header {
+    min-height: 40px;
+
+    padding: 0px 8px 0px 8px;
+    margin: 0px;
+
+    background-color: gray;
+}
+
+.list-header-title {
+    margin: 0px;
+}
+
+.list-content {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.list-task {
+    margin: 16px 12px 12px 12px;
+
+    padding: 8px 8px 8px 8px;
+
+    width: auto;
+    height: auto;
+    min-height: 0px;
+}

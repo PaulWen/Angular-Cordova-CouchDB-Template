@@ -8,6 +8,8 @@ System.config({
     'rxjs': 'node_modules/rxjs',
     '@angular': 'node_modules/@angular',
     'jquery-param' : 'node_modules/jquery-param',
+    'angular-sortablejs': 'node_modules/angular-sortablejs',
+    'sortablejs': 'node_modules/sortablejs/Sortable.js',
     'client/app': 'dist/app'
   },
   
@@ -32,6 +34,10 @@ System.config({
       main: 'index.js',
       defaultExtension: 'js'
     },
+    '@angular/forms': {
+      main: 'index.js',
+      defaultExtension: 'js'
+    },
     '@angular/router': {
       main: 'index.js',
       defaultExtension: 'js'
@@ -46,6 +52,10 @@ System.config({
     },
     'jquery-param': {
       main: 'jquery-param.js',
+      defaultExtension: 'js'
+    },
+    'angular-sortablejs': {
+      main: 'index.js',
       defaultExtension: 'js'
     },
     'client/app': {
