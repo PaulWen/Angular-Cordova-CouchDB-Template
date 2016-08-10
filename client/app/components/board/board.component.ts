@@ -20,13 +20,19 @@ export class BoardComponent {
     private items2 = [21, 22, 23, 24, 25];
     private sortablejsOptions1: SortablejsOptions = {
         animation: 150,
-        group: "test"
+        group: "test",
+        scroll: true, // or HTMLElement
+        scrollSensitivity: 550, // px, how near the mouse must be to an edge to start scrolling.
+        scrollSpeed: 1 // px
     };
 
     // how to configurer sortablejs https://www.npmjs.com/package/sortablejs
     private sortablejsOptions2: SortablejsOptions = {
         animation: 150,
-        group: "test"
+        group: "test",
+        scroll: true, // or HTMLElement
+        scrollSensitivity: 150, // px, how near the mouse must be to an edge to start scrolling.
+        scrollSpeed: 1 // px
     };
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////

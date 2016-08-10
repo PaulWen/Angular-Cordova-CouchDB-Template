@@ -20,3 +20,18 @@ $image_path: 'res/img';
   justify-content:center;
   align-items:center;
 }
+
+@mixin remove-mdl-text-field-padding() {
+  // removes padding from text field
+  .mdl-textfield {
+    padding: 0px;
+  }
+
+  .mdl-textfield__label {
+    top: 4px;
+  }
+
+  .mdl-textfield__label:after {
+    top: 20px;
+  }
+}

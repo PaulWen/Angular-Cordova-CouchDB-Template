@@ -218,7 +218,10 @@ gulp.task('serve-dev', ['start-dev-server'], function(cb) {
     browserSync.init({
         proxy: "localhost:3000",  // local node app address
         port: 5000,  // use *different* port than above
-        notify: true
+        notify: true,
+        // if true all sessions in different browsers and devices are getting synced = if you type in something in one window it will appear in every video
+        // this feature is good for testing multiple browsers at the same time
+        ghostMode: false
     });
 
     gulp.watch(appTypeScriptFiles, ["browserSync-typescript-own-dev"], cb);

@@ -54,6 +54,6 @@ export class SuperLoginClientError {
      * @returns {boolean}
      */
     public checkForError(error: string): boolean {
-        return (this.errorMessage).includes(error);
+        return (this.errorMessage).indexOf(error) > -1;
     }
 }
