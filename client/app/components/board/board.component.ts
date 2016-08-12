@@ -4,6 +4,7 @@ import {SuperLoginClientError} from "../../shared/utils/super_login_client/super
 import {BoardDatabase} from "../../shared/databases/board/board_database";
 import {MDL} from "../../shared/utils/mdl/MaterialDesignLiteUpgradeElement";
 import {SORTABLEJS_DIRECTIVES, SortablejsOptions} from 'angular-sortablejs';
+import {Logger} from "../../shared/utils/logger";
 
 @Component({
     selector: 'board-component',
@@ -18,21 +19,27 @@ export class BoardComponent {
 
     private items1 = [1, 2, 3, 4, 5];
     private items2 = [21, 22, 23, 24, 25];
-    private sortablejsOptions1: SortablejsOptions = {
+    private sortablejsOptions: SortablejsOptions = {
         animation: 150,
         group: "test",
         scroll: true, // or HTMLElement
-        scrollSensitivity: 550, // px, how near the mouse must be to an edge to start scrolling.
-        scrollSpeed: 1 // px
-    };
-
-    // how to configurer sortablejs https://www.npmjs.com/package/sortablejs
-    private sortablejsOptions2: SortablejsOptions = {
-        animation: 150,
-        group: "test",
-        scroll: true, // or HTMLElement
-        scrollSensitivity: 150, // px, how near the mouse must be to an edge to start scrolling.
-        scrollSpeed: 1 // px
+        scrollSensitivity: 40, // px, how near the mouse must be to an edge to start scrolling.
+        scrollSpeed: 5, // px
+        ghostClass: "sortable-ghost",  // Class name for the drop placeholder
+        onMove: function (/**Event*/evt) {
+            // Example: http://jsbin.com/tuyafe/1/edit?js,output
+            evt.dragged; // dragged HTMLElement
+            evt.draggedRect; // TextRectangle {left, top, right и bottom}
+            evt.related; // HTMLElement on which have guided
+            evt.relatedRect; // TextRectangle
+            // return false; — for cancel
+            Logger.log(evt);
+            return true;
+        },
+        onStart: (/**Event*/evt) => {
+            evt.oldIndex;  // element index within parent
+            Logger.log(evt);
+        }
     };
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////

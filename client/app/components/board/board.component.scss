@@ -29,9 +29,15 @@
 }
 
 .list-header {
+    // always show the menu button in the top right corner
+    .mdl-button {
+        display: flex;
+        align-self: flex-start;
+    }
+
     min-height: 40px;
 
-    padding: 0px 8px 0px 8px;
+    padding: 4px 8px 4px 8px;
     margin: 0px;
 
     background-color: gray;
@@ -59,11 +65,31 @@
 }
 
 .list-task {
-    margin: 16px 12px 12px 12px;
+    margin: 16px 12px 16px 12px;
 
     padding: 8px 8px 8px 8px;
 
     width: auto;
     height: auto;
     min-height: 0px;
+}
+
+.list-footer {
+    .mdl-button--icon {
+        color: black;
+    }
+
+    max-height: 30px;
+    min-height: 30px;
+
+    padding: 2px 8px 2px 8px;
+    margin: 0px;
+
+    background-color: gray;
+}
+
+
+.sortable-ghost {
+    color: lightgrey;
+    background-color: lightgrey;
 }

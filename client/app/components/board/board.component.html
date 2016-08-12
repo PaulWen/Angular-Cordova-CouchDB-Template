@@ -65,26 +65,23 @@
                 </div>
 
                 <div class="list-content">
-                    <div class="list-content">
-                        <div [sortablejs]="items1" [sortablejsOptions]="sortablejsOptions1">
-                            <div class="mdl-card mdl-shadow--2dp list-task" *ngFor="let item of items1">
-                                {{ item }}
-                            </div>
-                        </div>
-                        <div class="mdl-card mdl-shadow--2dp list-task">
-                            <div class="mdl-textfield mdl-js-textfield">
-                                <input class="mdl-textfield__input no-padding" type="text" id="new_task1">
-                                <label class="mdl-textfield__label no-padding" for="new_task1">New Card...</label>
-                            </div>
+                    <div [sortablejs] [sortablejsOptions]="sortablejsOptions">
+                        <div class="mdl-card mdl-shadow--2dp list-task" *ngFor="let item of items1">
+                            {{ item }}
                         </div>
                     </div>
+                </div>
+                <div class="list-footer center">
+                    <button class="mdl-button mdl-js-button mdl-button--icon">
+                        <i class="material-icons">add</i>
+                    </button>
                 </div>
             </div>
 
             <div class="mdl-card list">
                 <div class="mdl-card__title list-header">
                     <!-- Header -->
-                    <h6 class="list-header-title">Auslandssemester</h6>
+                    <h6 class="list-header-title">Auslandssemester Test dies ist ein langer Listenname und er wird immmmmer länger!!</h6>
 
                     <!-- Add spacer, to align navigation to the right -->
                     <div class="mdl-layout-spacer"></div>
@@ -104,17 +101,17 @@
                 </div>
 
                 <div class="list-content">
-                    <div [sortablejs]="items2" [sortablejsOptions]="sortablejsOptions2">
+                    <div [sortablejs] [sortablejsOptions]="sortablejsOptions">
                         <div class="mdl-card mdl-shadow--2dp list-task" *ngFor="let item of items2">
                             {{ item }}
                         </div>
                     </div>
-                    <div class="mdl-card mdl-shadow--2dp list-task">
-                        <div class="mdl-textfield mdl-js-textfield">
-                            <input class="mdl-textfield__input no-padding" type="text" id="new_task2">
-                            <label class="mdl-textfield__label no-padding" for="new_task2">New Card...</label>
-                        </div>
-                    </div>
+                </div>
+
+                <div class="list-footer center">
+                    <button class="mdl-button mdl-js-button mdl-button--icon">
+                        <i class="material-icons">add</i>
+                    </button>
                 </div>
             </div>
 
@@ -214,12 +211,11 @@
                         Test<br/>
                         Testtttt
                     </div>
-                    <div class="mdl-card mdl-shadow--2dp list-task">
-                        <div class="mdl-textfield mdl-js-textfield">
-                            <input class="mdl-textfield__input no-padding" type="text" id="new_task3">
-                            <label class="mdl-textfield__label no-padding" for="new_task3">New Card...</label>
-                        </div>
-                    </div>
+                </div>
+                <div class="list-footer center">
+                    <button class="mdl-button mdl-js-button mdl-button--icon">
+                        <i class="material-icons">add</i>
+                    </button>
                 </div>
             </div>
 
