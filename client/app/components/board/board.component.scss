@@ -25,7 +25,8 @@
     margin: 0px 16px 0px 0px;
     min-width: 300px;
     max-width: 300px;
-    max-height: 100%;
+    min-height: 0px;
+    max-height: 100%; // necessary so that the list content gets smaller in case the windows size decreases
 }
 
 .list-header {
@@ -58,6 +59,8 @@
 }
 
 .list-content {
+    min-height: 40px;
+
     overflow-x: hidden;
     overflow-y: auto;
 

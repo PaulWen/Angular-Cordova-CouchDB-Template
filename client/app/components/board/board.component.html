@@ -65,10 +65,8 @@
                 </div>
 
                 <div class="list-content">
-                    <div [sortablejs] [sortablejsOptions]="sortablejsOptions">
-                        <div class="mdl-card mdl-shadow--2dp list-task" *ngFor="let item of items1">
-                            {{ item }}
-                        </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task" *ngFor="let item of items1">
+                        {{ item }}
                     </div>
                 </div>
                 <div class="list-footer center">
@@ -100,11 +98,9 @@
                     </ul>
                 </div>
 
-                <div class="list-content">
-                    <div [sortablejs] [sortablejsOptions]="sortablejsOptions">
-                        <div class="mdl-card mdl-shadow--2dp list-task" *ngFor="let item of items2">
-                            {{ item }}
-                        </div>
+                <div class="list-content" [sortablejs] [sortablejsOptions]="sortablejsOptions">
+                    <div class="mdl-card mdl-shadow--2dp list-task" *ngFor="let item of items2">
+                        {{ item }}
                     </div>
                 </div>
 
