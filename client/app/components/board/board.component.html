@@ -64,7 +64,7 @@
                     </ul>
                 </div>
 
-                <div class="list-content">
+                <div class="list-content" [sortablejs] [sortablejsOptions]="sortablejsOptions">
                     <div class="mdl-card mdl-shadow--2dp list-task" *ngFor="let item of items1">
                         {{ item }}
                     </div>
