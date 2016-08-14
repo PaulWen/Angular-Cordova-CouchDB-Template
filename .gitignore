@@ -27,6 +27,10 @@
 ehthumbs.db
 Thumbs.db
 
+# IDE generated files #
+######################
+.idea/
+git rm --cached /\*.exe
 # Build Systems #
 ######################
 src/**/*.js
