@@ -44,6 +44,7 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-typescript": "^2.13.4",
     "systemjs-builder": "^0.15.17",
-    "typings": "^0.8.1"
+    "typings": "^0.8.1",
+    "typescript": "^1.8.10"
   }
 }

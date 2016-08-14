@@ -31,10 +31,11 @@ var server = require( 'gulp-develop-server' );
 var systemJsBuilder = new (require('systemjs-builder'))();
 var del = require('del');
 var rename = require('gulp-rename');
-var tsc = require('gulp-typescript');
+var gulpTsc = require('gulp-typescript');
+var typescript = require('typescript');
 var sourcemaps = require('gulp-sourcemaps');
-var appTsProject = tsc.createProject('tsconfigApp.json');
-var serverTsProject = tsc.createProject('tsconfigServer.json');
+var appTsProject = gulpTsc.createProject('tsconfigApp.json', { typescript: typescript });
+var serverTsProject = gulpTsc.createProject('tsconfigServer.json', { typescript: typescript });
 var browserSync = require('browser-sync').create();
 var htmlreplace = require('gulp-html-replace');
 var fileLoader = require('fs');
@@ -82,7 +83,7 @@ gulp.task('typescript-libs-dev', function(cb) {
 gulp.task('typescript-own-dev', function(cb) {
     var tscResult = gulp.src(appTypeScriptCompilerFiles) // instead of "appTsProject.src()" because the other one slows down the transpile process
         .pipe(sourcemaps.init()) // This means sourcemaps will be generated
-        .pipe(tsc(appTsProject));
+        .pipe(gulpTsc(appTsProject));
 
     return tscResult.js
         .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
@@ -130,26 +131,26 @@ gulp.task('view-dev', function() {
 gulp.task('index-dev', function() {
     // load the index-js-dev.html file
     fileLoader.readFile(appSrcFolderPath + '/../index-js-dev.html', "utf-8", function(err, data) {
-            // place the content of the index-js-dev.html inside the index.html template
-            return gulp.src(appSrcFolderPath + '/../index.html')
-                .pipe(htmlreplace({
-                    'js': data
-                }))
-                .pipe(gulp.dest(devOutputPathApp + "/.."));
-        });
+        // place the content of the index-js-dev.html inside the index.html template
+        return gulp.src(appSrcFolderPath + '/../index.html')
+            .pipe(htmlreplace({
+                'js': data
+            }))
+            .pipe(gulp.dest(devOutputPathApp + "/.."));
+    });
 });
 
 // copies the index.html file in the build folder after inculding the JavaScript
 gulp.task('index-prod', function() {
     // load the index-js-prod.html file
     fileLoader.readFile(appSrcFolderPath + '/../index-js-prod.html', "utf-8", function(err, data) {
-            // place the conent of the index-js-prod.html inside the inde.html template
-            return gulp.src(appSrcFolderPath + '/../index.html')
-                .pipe(htmlreplace({
-                    'js': data
-                }))
-                .pipe(gulp.dest(prodOutputPathApp + "/.."));
-        });
+        // place the conent of the index-js-prod.html inside the inde.html template
+        return gulp.src(appSrcFolderPath + '/../index.html')
+            .pipe(htmlreplace({
+                'js': data
+            }))
+            .pipe(gulp.dest(prodOutputPathApp + "/.."));
+    });
 });
 
 // ////////////////////////////////////////////////
@@ -176,7 +177,7 @@ gulp.task('res-dev', function() {
 gulp.task('server-typescript-own-dev', function(cb) {
     var tscResult = gulp.src(serverTypeScriptCompilerFiles) // instead of "appTsProject.src()" because the other one slows down the transpile process
         .pipe(sourcemaps.init()) // This means sourcemaps will be generated
-        .pipe(tsc(serverTsProject));
+        .pipe(gulpTsc(serverTsProject));
 
     return tscResult.js
         .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
@@ -187,7 +188,7 @@ gulp.task('server-typescript-own-dev', function(cb) {
 gulp.task('server-typescript-own-prod', function(cb) {
     var tscResult = gulp.src(serverTypeScriptCompilerFiles) // instead of "appTsProject.src()" because the other one slows down the transpile process
         .pipe(sourcemaps.init()) // This means sourcemaps will be generated
-        .pipe(tsc(serverTsProject));
+        .pipe(gulpTsc(serverTsProject));
 
     return tscResult.js
         .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
