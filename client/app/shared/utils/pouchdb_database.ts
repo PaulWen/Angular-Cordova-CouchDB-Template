@@ -96,12 +96,37 @@ export class PouchDbDatabase<DocumentType> {
      *
      * @return a promise which will return an object which includes all the ids of the the documents included in the database
      */
-    public getAllDocumentIDs(): Promise<DocumentList> {
-        return this.localDatabase.allDocs({
-            include_docs: false,
-            attachments: false
-        });
+    public async getAllDocumentIDs(): Promise<DocumentType> {
+        try {
+            var result = await this.localDatabase.allDocs({
+                include_docs: true,
+                attachments: true
+            });
+
+            return result;
+        } catch (err) {
+            console.log(err);
+            return null;
+        }
     }
+
+
+    public async testAsync(): Promise<string> {
+        Logger.debug("Hallo");
+        await this.test1();
+        Logger.debug("Tschüss");
+        return "FERTIG";
+    }
+
+    private async test1() {
+        await this.delay(3000);
+        Logger.debug("Hi");
+    }
+
+    private delay(ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
 
     /**
      * This method loads a document in the database.
