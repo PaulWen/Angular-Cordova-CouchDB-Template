@@ -1,4 +1,5 @@
 import {Config} from "../../config";
+import PouchDB from "pouchdb";
 
 /**
  * This class provides static methods for logging.
@@ -14,6 +15,10 @@ export class Logger {
     public static log(msg:any) {
         if (Config.DEVELOPMENT) {
             console.log(msg);
+            // PouchDB.debug.enable('*');
+            PouchDB.debug.disable();
+        } else {
+            PouchDB.debug.disable();
         }
     }
 

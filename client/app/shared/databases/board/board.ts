@@ -1,5 +1,5 @@
 import {BoardDatabase} from "./board_database";
-import {Database} from "../../utils/database";
+import {PouchDbDatabase} from "../../utils/pouchdb_database";
 import {BoardDocument} from "./board_document";
 
 /**
@@ -10,7 +10,7 @@ export class Board {
 
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
-    private database: Database<BoardDocument>;
+    private database: PouchDbDatabase<BoardDocument>;
     private id: string;
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
@@ -20,7 +20,7 @@ export class Board {
      * @param database database which returns and manages BoardDataObjects
      * @param id
      */
-    constructor(database: Database<BoardDocument>, id: string) {
+    constructor(database: PouchDbDatabase<BoardDocument>, id: string) {
         this.database = database;
         this.id = id;
     }

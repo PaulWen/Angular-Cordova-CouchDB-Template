@@ -221,8 +221,7 @@ export class SuperLoginClient implements CanActivate {
         }).subscribe(
             (data: any) => {
                 // finish the authentication
-                this.finishAuthentication(data.token + ":" + data.password, stayAuthenticated);
-                done();
+                this.finishAuthentication(data.token + ":" + data.password, stayAuthenticated, done, error);
                 Logger.log("Authenticated.");
             },
             (errorObject) => {
@@ -256,8 +255,7 @@ export class SuperLoginClient implements CanActivate {
             // if session token is still valid
             (data: any) => {
                 // finish the authentication
-                this.finishAuthentication(sessionToken, stayAuthenticated);
-                done();
+                this.finishAuthentication(sessionToken, stayAuthenticated, done, error);
                 Logger.log("Authenticated.");
             },
 
@@ -276,8 +274,10 @@ export class SuperLoginClient implements CanActivate {
      *
      * @param sessionToken the valid session token for the users current session
      * @param stayAuthenticated set true, if the session token should get stored in a cookie, so that the session token can be reused for the next login
+     * @param done callback function once the request was successful
+     * @param error callback function in case an error occurred
      */
-    private finishAuthentication(sessionToken: string, stayAuthenticated: boolean) {
+    private finishAuthentication(sessionToken: string, stayAuthenticated: boolean, done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse) {
         // set authenticated to true
         this.authenticated = true;
 
@@ -288,27 +288,31 @@ export class SuperLoginClient implements CanActivate {
         this.extendSessionToken();
 
         // providing the app with the URLs to the user databases
-        this.initializeUserDatabases();
+        this.initializeUserDatabases(done, error);
     }
 
     /**
      * This method loads all the database names of the users databases and passes those to the DatabaseInitializer.
+     *
+     * @param done callback function once the request was successful
+     * @param error callback function in case an error occurred
      */
-    private initializeUserDatabases(): void {
+    private initializeUserDatabases(done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse): void {
         // load the database names
         this.httpRequestor.getJsonData("http://localhost:3000/auth/user-db/", this.getSessionToken()).subscribe(
             // if the database names got loaded successfully
             (data: any) => {
                 // give the database names to the database initializer
                 this.databaseInitializer.initializeDatabases(data);
+                done();
             },
 
             // in case of an error
             (errorObject) => {
                 var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
 
-                // Log the Error
-                Logger.error(superLoginClientError.getErrorMessage());
+                // call the error callback function
+                error(new SuperLoginClientError(errorObject));
             }
         );
     }

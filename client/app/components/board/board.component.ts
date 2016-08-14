@@ -5,6 +5,7 @@ import {BoardDatabase} from "../../shared/databases/board/board_database";
 import {MDL} from "../../shared/utils/mdl/MaterialDesignLiteUpgradeElement";
 import {SORTABLEJS_DIRECTIVES, SortablejsOptions} from 'angular-sortablejs';
 import {Logger} from "../../shared/utils/logger";
+import {DocumentList} from "pouchdb";
 
 @Component({
     selector: 'board-component',
@@ -46,6 +47,25 @@ export class BoardComponent {
 
     constructor(boardDatabase: BoardDatabase) {
         this.boardDatabase = boardDatabase;
+
+        this.boardDatabase.getAllDocumentIDs().then(function (result: DocumentList) {
+            for (var i in result.rows) {
+                Logger.debug(result.rows[i].id);
+
+
+                // if request was successful try to update the first name
+                boardDatabase.getDocument(result.rows[i].id).then((doc)=>{
+                    Logger.debug(doc);
+                })
+                //if there was an error, return the error code
+                .catch(function(error) {
+                    Logger.error(error);
+                });
+
+            }
+        }).catch(function (error) {
+            Logger.error(error);
+        });
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////

@@ -12,20 +12,21 @@
     "@angular/common": "*",
     "@angular/compiler": "*",
     "@angular/core": "*",
+    "@angular/forms": "*",
     "@angular/http": "*",
     "@angular/platform-browser": "*",
     "@angular/platform-browser-dynamic": "*",
-    "@angular/forms": "*",
     "@angular/router": "3.0.0-beta.2",
     "angular-sortablejs": "*",
-    "sortablejs": "*",
     "body-parser": "*",
     "es6-shim": "*",
     "express": "*",
     "jquery-param": "*",
     "material-design-lite": "*",
+    "pouchdb": "^5.4.5",
     "reflect-metadata": "*",
     "rxjs": "5.0.0-beta.6",
+    "sortablejs": "*",
     "superlogin": "*",
     "systemjs": "*",
     "zone.js": "*"
@@ -44,6 +45,5 @@
     "gulp-typescript": "^2.13.4",
     "systemjs-builder": "^0.15.17",
     "typings": "^0.8.1"
-  },
-  "repository": {}
+  }
 }

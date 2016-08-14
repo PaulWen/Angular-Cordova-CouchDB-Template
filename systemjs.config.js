@@ -9,6 +9,7 @@ System.config({
     '@angular': 'node_modules/@angular',
     'jquery-param' : 'node_modules/jquery-param',
     'angular-sortablejs': 'node_modules/angular-sortablejs',
+    'pouchdb': 'node_modules/pouchdb/dist',
     'sortablejs': 'node_modules/sortablejs/Sortable.js',
     'client/app': 'dist/app'
   },
@@ -56,6 +57,10 @@ System.config({
     },
     'angular-sortablejs': {
       main: 'index.js',
+      defaultExtension: 'js'
+    },
+    'pouchdb': {
+      main: 'pouchdb.min.js',
       defaultExtension: 'js'
     },
     'client/app': {
