@@ -48,30 +48,16 @@ export class BoardComponent {
     constructor(boardDatabase: BoardDatabase) {
         this.boardDatabase = boardDatabase;
 
+
+
+        ///////////////////ASYNC/AWAIT BEISPIEL ///////////////////
         Logger.debug("1");
         this.boardDatabase.testAsync().then((data) => {
             Logger.debug(data);
         });
         Logger.debug("2");
+        ///////////////////ASYNC/AWAIT BEISPIEL ///////////////////
 
-        // this.boardDatabase.getAllDocumentIDs().then(function (result: DocumentList) {
-        //     for (var i in result.rows) {
-        //         Logger.debug(result.rows[i].id);
-        //
-        //
-        //         // if request was successful try to update the first name
-        //         boardDatabase.getDocument(result.rows[i].id).then((doc)=>{
-        //             Logger.debug(doc);
-        //         })
-        //         //if there was an error, return the error code
-        //         .catch(function(error) {
-        //             Logger.error(error);
-        //         });
-        //
-        //     }
-        // }).catch(function (error) {
-        //     Logger.error(error);
-        // });
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////

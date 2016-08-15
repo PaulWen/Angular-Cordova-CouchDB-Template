@@ -111,6 +111,8 @@ export class PouchDbDatabase<DocumentType> {
     }
 
 
+    
+    ///////////////////ASYNC/AWAIT BEISPIEL ///////////////////
     public async testAsync(): Promise<string> {
         Logger.debug("Hallo");
         await this.test1();
@@ -126,6 +128,9 @@ export class PouchDbDatabase<DocumentType> {
     private delay(ms: number) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
+    ///////////////////ASYNC/AWAIT BEISPIEL ///////////////////
+
+
 
 
     /**
