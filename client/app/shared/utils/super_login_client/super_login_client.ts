@@ -217,7 +217,7 @@ export class SuperLoginClient implements CanActivate {
         this.httpRequestor.postJsonData("http://localhost:3000/auth/login", null, {
             // since the username is not allowed to include Capital letters we have to make sure that it does not
             username: email.toLocaleLowerCase(),
-            password: password,
+            password: password
         }).subscribe(
             (data: any) => {
                 // finish the authentication

@@ -6,6 +6,7 @@ import {MDL} from "../../shared/utils/mdl/MaterialDesignLiteUpgradeElement";
 import {SORTABLEJS_DIRECTIVES, SortablejsOptions} from 'angular-sortablejs';
 import {Logger} from "../../shared/utils/logger";
 import {DocumentList} from "pouchdb";
+import {BoardDocument} from "../../shared/databases/board/board_document";
 
 @Component({
     selector: 'board-component',
@@ -48,16 +49,18 @@ export class BoardComponent {
     constructor(boardDatabase: BoardDatabase) {
         this.boardDatabase = boardDatabase;
 
+        // this.boardDatabase.newDocument().then((data)=>{
+        //     Logger.debug(data);
+        // });
 
 
-        ///////////////////ASYNC/AWAIT BEISPIEL ///////////////////
-        Logger.debug("1");
-        this.boardDatabase.testAsync().then((data) => {
+        this.boardDatabase.getDocument("f76e24668a9559d7e6490bfd22000e7d").then((data:any)=>{
             Logger.debug(data);
+            data.name = "test";
+            this.boardDatabase.putDocument(data);
         });
-        Logger.debug("2");
-        ///////////////////ASYNC/AWAIT BEISPIEL ///////////////////
 
+        this.boardDatabase.getAllDocuments().then((data)=>{Logger.debug(data);});
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////

@@ -1,4 +1,4 @@
-import {PouchDbDatabase} from "../../utils/pouchdb_database";
+import {PouchDbDatabase} from "../../utils/pouch_db/pouch_db_database";
 import {BoardDocument} from "./board_document";
 
 /**
@@ -14,7 +14,7 @@ export class BoardDatabase extends PouchDbDatabase<BoardDocument> {
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
     constructor() {
-        super();
+        super(BoardDocument);
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
