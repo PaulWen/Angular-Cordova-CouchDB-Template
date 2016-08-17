@@ -90,16 +90,18 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
 ////////////////////////////////////////Inherited Methods//////////////////////////////////////////
 
     public serializeToJsonObject(): any {
-        return  {
-                    _id: this._id,
-                    _rev: this._rev,
-                    _deleted: this._deleted,
-                    name: this.name,
-                    backgroundColor: this.backgroundColor,
-                };
+        var json = super.serializeToJsonObject();
+
+        // add the fields of this class
+        json.name = this.name;
+        json.backgroundColor = this.backgroundColor;
+
+        return json;
     }
 
     public deserializeJsonObject(json: any): void {
+        super.deserializeJsonObject(json);
+
         if (json.name) this.name = json.name;
         if (json.backgroundColor) this.backgroundColor = json.backgroundColor;
     }

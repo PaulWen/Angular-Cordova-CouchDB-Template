@@ -6,7 +6,10 @@
  * Using this class makes it possible that objects of the Document-Class get synced easily with
  * the CouchDB database in real-time.
  *
+ * HOT TO USE THE CLASS:
  * The classes which implement this class MUST have a public constructor with the single parameter "json: any"!
+ * In addition to that, the classes should override the functions "serializeToJsonObject" and "deserializeJsonObject"
+ * in order to add also there custom class fields.
  */
 export abstract class PouchDbDocument<DocumentType> {
 
@@ -98,7 +101,13 @@ export abstract class PouchDbDocument<DocumentType> {
      *
      * @return a string representing the JSON document which includes all the current values of the fields of this object.
      */
-    public abstract serializeToJsonObject(): any;
+    public serializeToJsonObject(): any {
+        return {
+            _id: this._id,
+            _rev: this._rev,
+            _deleted: this._deleted
+        }
+    }
 
     /**
      * This function sets all the individual fields of a specific object by taking the values from the JSON input object.
@@ -112,6 +121,8 @@ export abstract class PouchDbDocument<DocumentType> {
      *
      * @param json a JSON object which includes the values of the object
      */
-    public abstract deserializeJsonObject(json: any): void;
+    public deserializeJsonObject(json: any): void {
+
+    }
 
 }
