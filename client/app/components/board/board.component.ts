@@ -5,7 +5,6 @@ import {BoardDatabase} from "../../shared/databases/board/board_database";
 import {MDL} from "../../shared/utils/mdl/MaterialDesignLiteUpgradeElement";
 import {SORTABLEJS_DIRECTIVES, SortablejsOptions} from 'angular-sortablejs';
 import {Logger} from "../../shared/utils/logger";
-import {DocumentList} from "pouchdb";
 import {BoardDocument} from "../../shared/databases/board/board_document";
 
 @Component({

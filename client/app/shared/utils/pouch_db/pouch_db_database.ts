@@ -15,6 +15,9 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
 
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
+    /** the class of the <DocumentType> in order to be able to create objects of this class */
+    private documentCreator: {new (json: any): DocumentType;};
+
     // PouchDB objects representing the database
     /** object representing the original database on the server */
     private remoteDatabase: any;
@@ -26,9 +29,12 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
     /**
      * Constructor of the class "PouchDbDatabase"
      *
+     * @param documentCreator the class of the <DocumentType> in order to be able to create objects of this class
      * @param url to the original database
      */
-    constructor(url?:string) {
+    constructor(documentCreator: {new (json: any): DocumentType;}, url?:string) {
+        this.documentCreator = documentCreator;
+
         if (url) {
             this.initializeDatabase(url);
         } else {
@@ -43,6 +49,8 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
      * This function initializes the PouchDB database objects needed to build up a
      * connection to the CouchDB database. The local and the remote database get synced
      * in real-time.
+     *
+     * This function can also be used to change the URL of the database if necessary.
      *
      * @param url to the CouchDB database
      */
@@ -72,7 +80,7 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
     public async getDocument(id: string): Promise<DocumentType> {
         try {
             // load the wanted document from the database and save it in the right DocumentType
-            return DocumentType.deserializeJsonObject(await this.localDatabase.get(id));
+            return new this.documentCreator(await this.localDatabase.get(id));
         } catch (error) {
             Logger.error(error);
             return null;
@@ -96,7 +104,7 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
 
             // put all the documents in a typed array
             for(var i: number = 0; i < databaseResponse.rows.length; i++) {
-                documentList[i] = DocumentType.deserializeJsonObject(databaseResponse.rows[i].doc);
+                documentList[i] = new this.documentCreator(databaseResponse.rows[i].doc);
             }
 
             // return all the documents in an array
@@ -136,7 +144,7 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
             var newDocument = await this.localDatabase.post({});
 
             // convert the new created document to the right object type
-            return DocumentType.deserializeJsonObject(newDocument);
+            return new this.documentCreator(newDocument);
         } catch (error) {
             Logger.error(error);
             return null;

@@ -3,33 +3,50 @@ import {PouchDbDocument} from "../../utils/pouch_db/pouch_db_document";
 
 /**
  * This class represents the structure of an board document in the database.
+ * Once created, it automatically syncs with its database in real-time.
  */
 export class BoardDocument extends PouchDbDocument<BoardDocument> {
 
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
     /** the name of the board */
-    private name: string;
+    private _name: string;
 
-    /** the background-color of the board */
-    private backgroundColor: string;
+    /** the background color of the board */
+    private _backgroundColor: string;
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
     /**
      * The constructor of the class "BoardDocument".
      *
-     * @param _id the id of the CouchDB document which this object is representing
-     * @param _rev the revision code of the CouchDB document which this object is representing
-     * @param _deleted indicates whether or not the document got deleted
-     * @param name the name of the board
-     * @param backgroundColor the background-color of the board
+     * @param json  A JSON object which MUST include the properties:
+     *                  - "_id" (the id of the CouchDB document which this object is representing)
+     *                  - "_rev" (the revision code of the CouchDB document which this object is representing)
+     *
+     *              It CAN also include the property:
+     *                  - "_deleted" (indicates whether or not the document got deleted (optional, defaults to "false"))
+     *
+     *              Furthermore, it CAN include the properties:
+     *                  - "name" (the name of the board)
+     *                  - "backgroundColor" (the background color of the board)
+     *
+     *
+     *              If the JSON object does not include one of the optional properties listed above, a default value will be set.
+     *              If the JSON object includes properties which are not listed above, those values get ignored.
+     *              (The way this function deals with unknown attributes from the JSON object is for the purpose of changing
+     *              the document structure dynamically and making sure that all the documents which still have the old
+     *              structure will get updated eventually.)
      */
-    constructor(_id: string, _rev: string, _deleted:boolean, name: string = "", backgroundColor: string = "#000099") {
-        super(_id, _rev, _deleted);
+    public constructor(json: any) {
+        super(json);
 
-        this.name= name;
-        this.backgroundColor = backgroundColor;
+        // set the default values of the fields
+        this.name = "";
+        this.backgroundColor = "#000099";
+
+        // update the fields if the JSON Object includes specific values for them
+        this.deserializeJsonObject(json);
     }
 
 /////////////////////////////////////////Getter and Setter/////////////////////////////////////////
@@ -40,34 +57,34 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
      * @return {string} the name of the board
      */
     public get name():string {
-        return this.name;
+        return this._name;
     }
 
     /**
      *  This function sets the the name of the board.
      *
-     * @param value the name of the board
+     * @param name the name of the board
      */
-    public set name(name:string) {
-        this.name = name;
+    public set name(name: string) {
+        this._name = name;
     }
 
     /**
-     *  This function returns the the background-color of the board.
+     *  This function returns the the background color of the board.
      *
-     * @return {string} the background-color of the board
+     * @return {string} the background color of the board
      */
     public get backgroundColor():string {
-        return this.backgroundColor;
+        return this._backgroundColor;
     }
 
     /**
-     * This function sets the background-color of the board
+     * This function sets the background color of the board
      *
-     * @param value the background-color of the board
+     * @param backgroundColor the background color of the board
      */
     public set backgroundColor(backgroundColor: string) {
-        this.backgroundColor = backgroundColor;
+        this._backgroundColor = backgroundColor;
     }
 
 ////////////////////////////////////////Inherited Methods//////////////////////////////////////////
@@ -78,17 +95,12 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
                     _rev: this._rev,
                     _deleted: this._deleted,
                     name: this.name,
-                    backgroundColor: this.backgroundColor
+                    backgroundColor: this.backgroundColor,
                 };
     }
 
-    public deserializeJsonObject(json: any): BoardDocument {
-        return new BoardDocument(
-            json._id,
-            json._rev,
-            (json._deleted) ? json._deleted : undefined,
-            (json.name) ? json.name : undefined,
-            (json.backgroundColor) ? json.backgroundColor : undefined
-        )
+    public deserializeJsonObject(json: any): void {
+        if (json.name) this.name = json.name;
+        if (json.backgroundColor) this.backgroundColor = json.backgroundColor;
     }
 }

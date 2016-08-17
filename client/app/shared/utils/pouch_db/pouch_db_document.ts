@@ -6,35 +6,43 @@
  * Using this class makes it possible that objects of the Document-Class get synced easily with
  * the CouchDB database in real-time.
  *
- * All classes who implement this class should not provide a public constructor. Instead the deserialize
- * function should be the only way an Object of this class can be created.
+ * The classes which implement this class MUST have a public constructor with the single parameter "json: any"!
  */
 export abstract class PouchDbDocument<DocumentType> {
 
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
     /** the id of the CouchDB document which this object is representing */
-    private _id: string;
+    private __id: string;
 
     /** the revision code of the CouchDB document which this object is representing */
-    private _rev: string;
+    private __rev: string;
 
     /** indicates whether or not the document got deleted */
-    private _deleted: boolean;
+    private __deleted: boolean;
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
     /**
      * The constructor of the class "PouchDbDocument".
      *
-     * @param _id the id of the CouchDB document which this object is representing
-     * @param _rev the revision code of the CouchDB document which this object is representing
-     * @param _deleted indicates whether or not the document got deleted (optional, defaults to "false")
+     * @param json  A JSON object which MUST include the properties:
+     *                  - "_id" (the id of the CouchDB document which this object is representing)
+     *                  - "_rev" (the revision code of the CouchDB document which this object is representing)
+     *
+     *              It CAN also include the property:
+     *                  - "_deleted" (indicates whether or not the document got deleted (optional, defaults to "false"))
+     *
+     *              If the JSON object does not include one of the optional properties listed above, a default value will be set.
+     *              If the JSON object includes properties which are not listed above, those values get ignored.
+     *              (The way this function deals with unknown attributes from the JSON object is for the purpose of changing
+     *              the document structure dynamically and making sure that all the documents which still have the old
+     *              structure will get updated eventually.)
      */
-    constructor(_id: string, _rev: string, _deleted: boolean = false) {
-        this._id = _id;
-        this._rev = _rev;
-        this._deleted = _deleted;
+    constructor(json: any) {
+        this.__id = json._id;
+        this.__rev = json._rev;
+        this._deleted = (json._deleted) ? json._deleted : false;
     }
 
 /////////////////////////////////////////Getter and Setter/////////////////////////////////////////
@@ -45,7 +53,7 @@ export abstract class PouchDbDocument<DocumentType> {
      * @return {string} the  of the CouchDB document which this object is representing
      */
     public get _id(): string {
-        return this._id;
+        return this.__id;
     }
 
     /**
@@ -54,7 +62,7 @@ export abstract class PouchDbDocument<DocumentType> {
      * @return {string} the revision code of the CouchDB document which this object is representing
      */
     public get _rev(): string {
-        return this._rev;
+        return this.__rev;
     }
 
     /**
@@ -63,49 +71,47 @@ export abstract class PouchDbDocument<DocumentType> {
      * @return {boolean} whether or not the document got deleted
      */
     public get _deleted(): boolean {
-        return this._deleted;
+        return this.__deleted;
     }
 
 
     /**
-     * This function sets hether or not the document got deleted.
+     * This function sets whether or not the document got deleted.
      *
      * @param deleted true if the document should get marked as deleted, false if not
      */
     public set _deleted(deleted: boolean) {
-        this._deleted = deleted;
+        this.__deleted = deleted;
         
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
 
     /**
-     * This function provides all the values of the fields of the current object represented in
-     * JSON.
+     * This function provides all the values of the fields of the current object represented in a
+     * JSON object.
      *
-     * The JSON object can be converted back into an object using the "deserializeJsonObject" function.
+     *
+     * See also: The JSON object can be converted back into an object creating a new object of this class. In addition to that
+     * it is possible to set the field of this object by using the "deserializeJsonObject" function and passing a JSON object
+     * to that function which includes the new values for the field of this object.
      *
      * @return a string representing the JSON document which includes all the current values of the fields of this object.
      */
     public abstract serializeToJsonObject(): any;
 
     /**
-     * This function is supposed to be used to create an object of this class. The JSON input string
-     * should contain the values of the object. The JSON object must contain at least a valid "_id" and "_rev".
-     * For all the other values there are default configured in case they do net get provided by the JSON object.
-     * If the JSON object includes values which are no fields of this class, those values get ignored.
+     * This function sets all the individual fields of a specific object by taking the values from the JSON input object.
+     * If there is no property defined in the JSON object for a specific field of the class, the class field will be kept unchanged.
      *
-     * (The way this function deals with unknown attributes from the JSON object is for the purpose of changing
-     * the document structure dynamically and making sure that all the documents which still have the old
-     * structure will get updated eventually.)
+     * CAUTION: This function does not change the values of the object fields "_id" or "_rev" or "_deleted"!
+     *          The function only updates the custom fields of the class that is implementing this function.
      *
-     * The document object can be converted back into an JSON object using the "serializeToJsonObject" function.
      *
+     * See also: The document object can be converted into an JSON object using the "serializeToJsonObject" function.
      *
      * @param json a JSON object which includes the values of the object
-     *
-     * @return an new object of this class with the values included in the JSON object
      */
-    public abstract deserializeJsonObject(json: any): DocumentType;
+    public abstract deserializeJsonObject(json: any): void;
 
 }
