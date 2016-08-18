@@ -274,6 +274,12 @@ gulp.task('browserSync-res-dev', ["res-dev"], function(cb) {
     cb();
 });
 
+// the tasks compiles all the own typescript files automatically, when ever they change
+gulp.task('dev-typescript', ['clear-dev'], function(cb) {
+    gulp.watch(appTypeScriptFiles, ["typescript-own-dev"], cb);
+    gulp.watch(serverTypeScriptFiles, ["server-typescript-own-dev"], cb);
+});
+
 // ////////////////////////////////////////////////
 // Build Tasks
 // // /////////////////////////////////////////////
