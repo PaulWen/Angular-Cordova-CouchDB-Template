@@ -5,7 +5,7 @@ let SuperLogin = require("superlogin");
 
 // SuperLogin Configuration
 // (https://github.com/colinskow/superlogin/blob/master/config.example.js)
-var config = {
+let config = {
     security: {
         // Default roles given to a new user
         defaultRoles: ['user'],
@@ -65,12 +65,12 @@ var config = {
 };
 
 // select port
-var port: number = process.env.PORT || 3000;
+let port: number = process.env.PORT || 3000;
 // get Express-App instance
-var app = express();
+let app = express();
 
 // initialize SuperLogin
-var superlogin = new SuperLogin(config);
+let superlogin = new SuperLogin(config);
 
 // enable CORS for the Express Web Server
 app.use(function(req, res, next) {
@@ -99,8 +99,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
             // if request was successful return the names of the databases
             .then((data)=>{
                 // represent the user databases nicely in a JSON object
-                var userDBs = {};
-                for (var i = 0; i < Object.keys(data.personalDBs).length; i++) {
+                let userDBs = {};
+                for (let i = 0; i < Object.keys(data.personalDBs).length; i++) {
                     // Representation--> <database-name>=<URL to access database, already including the session token>
                     userDBs[(data.personalDBs)[(Object.keys(data.personalDBs))[i]].name] = superlogin.config.getItem("dbServer").protocol + (<any>req.headers).authorization.replace("Bearer ", "") + "@" + superlogin.config.getItem("dbServer").host + "/" + (Object.keys(data.personalDBs))[i];
                 }
@@ -174,8 +174,8 @@ app.get('/*', (req: express.Request, res: express.Response) => {
 });
 
 // start the server
-var server = app.listen(port, function() {
-    var host = server.address().address;
-    var port = server.address().port;
+let server = app.listen(port, function() {
+    let host = server.address().address;
+    let port = server.address().port;
     console.log('This express app is listening on port:' + port);
 });

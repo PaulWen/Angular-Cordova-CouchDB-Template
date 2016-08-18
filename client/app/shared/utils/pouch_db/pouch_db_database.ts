@@ -1,6 +1,7 @@
 import {Logger} from "../logger";
 import PouchDB from "pouchdb";
 import {PouchDbDocument} from "./pouch_db_document";
+import {PouchDbDocumentLoaderInterface} from "./pouch_db_document_loader_interface";
 
 /**
  * This abstract class is based on PouchDB and represents one CouchDB database.
@@ -11,7 +12,7 @@ import {PouchDbDocument} from "./pouch_db_document";
  * This class is based on "async/await" instead of promises. Doing so makes it possible for the class to already handel any errors or merge conflicts.
  * Furthermore, the class already provides the result documents in the correct data type.
  */
-export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<DocumentType>> {
+export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<DocumentType>> implements PouchDbDocumentLoaderInterface<DocumentType> {
 
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
@@ -42,6 +43,61 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
             this.localDatabase = null;
         }
     }
+////////////////////////////////////////Inherited Methods//////////////////////////////////////////
+
+    public async getDocument(id: string): Promise<DocumentType> {
+        try {
+            // load the wanted document from the database and save it in the right DocumentType
+            return new this.documentCreator(await this.localDatabase.get(id));
+        } catch (error) {
+            Logger.error(error);
+            return null;
+        }
+    }
+
+    public async getAllDocuments(): Promise<DocumentType[]> {
+        try {
+            let documentList: DocumentType[] = [];
+
+            // load all the documents from the database
+            let databaseResponse = await this.localDatabase.allDocs({
+                include_docs: true,
+                attachments: false
+            });
+
+            // put all the documents in a typed array
+            for(let i: number = 0; i < databaseResponse.rows.length; i++) {
+                documentList[i] = new this.documentCreator(databaseResponse.rows[i].doc);
+            }
+
+            // return all the documents in an array
+            return documentList;
+        } catch (error) {
+            Logger.error(error);
+            return null;
+        }
+    }
+
+    public async newDocument(): Promise<DocumentType> {
+        try {
+            // upload the updated user data
+            let newDocument = await this.localDatabase.post({});
+
+            // convert the new created document to the right object type
+            return new this.documentCreator(newDocument);
+        } catch (error) {
+            Logger.error(error);
+            return null;
+        }
+    }
+
+    public deleteDocument(document: DocumentType) {
+        // delete document
+        document._deleted = false;
+
+        // upload document to the database
+        this.putDocument(document);
+    }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
 
@@ -71,51 +127,6 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
     }
 
     /**
-     * This method returns an document with a specific id.
-     *
-     * @param id the id of the wanted document
-     *
-     * @return the wanted document or null if an error occurred
-     */
-    public async getDocument(id: string): Promise<DocumentType> {
-        try {
-            // load the wanted document from the database and save it in the right DocumentType
-            return new this.documentCreator(await this.localDatabase.get(id));
-        } catch (error) {
-            Logger.error(error);
-            return null;
-        }
-    }
-
-    /**
-     * This function returns all the documents included in the database listed in an array.
-     *
-     * @return all the documents included in the database listed in an array or null if an error occurred
-     */
-    public async getAllDocuments(): Promise<DocumentType[]> {
-        try {
-            var documentList: DocumentType[] = [];
-
-            // load all the documents from the database
-            var databaseResponse = await this.localDatabase.allDocs({
-                include_docs: true,
-                attachments: false
-            });
-
-            // put all the documents in a typed array
-            for(var i: number = 0; i < databaseResponse.rows.length; i++) {
-                documentList[i] = new this.documentCreator(databaseResponse.rows[i].doc);
-            }
-
-            // return all the documents in an array
-            return documentList;
-        } catch (error) {
-            Logger.error(error);
-            return null;
-        }
-    }
-
-    /**
      * This method loads a document in the database.
      *
      * @param document the document that should get loaded in the database
@@ -131,36 +142,5 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
             Logger.error(error);
             return false;
         }
-    }
-
-    /**
-     * This function creates an new document from the type <DocumentType> in the database.
-     *
-     * @return the new created document or null if an error occurred
-     */
-    public async newDocument(): Promise<DocumentType> {
-        try {
-            // upload the updated user data
-            var newDocument = await this.localDatabase.post({});
-
-            // convert the new created document to the right object type
-            return new this.documentCreator(newDocument);
-        } catch (error) {
-            Logger.error(error);
-            return null;
-        }
-    }
-
-    /**
-     * This method marks a document as in the database.
-     *
-     * @param document the document that should get marked as deleted
-     */
-    public deleteDocument(document: DocumentType) {
-        // delete document
-        document._deleted = false;
-
-        // upload document to the database
-        this.putDocument(document);
     }
 }

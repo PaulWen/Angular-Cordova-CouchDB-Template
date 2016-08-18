@@ -1,4 +1,3 @@
-import {List} from "../list/list";
 import {PouchDbDocument} from "../../utils/pouch_db/pouch_db_document";
 
 /**
@@ -90,7 +89,7 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
 ////////////////////////////////////////Inherited Methods//////////////////////////////////////////
 
     public serializeToJsonObject(): any {
-        var json = super.serializeToJsonObject();
+        let json = super.serializeToJsonObject();
 
         // add the fields of this class
         json.name = this.name;

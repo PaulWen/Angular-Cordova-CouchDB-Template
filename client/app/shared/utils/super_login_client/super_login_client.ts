@@ -1,13 +1,7 @@
-import {Http, Headers} from '@angular/http';
-import {
-    CanActivate, Router, ActivatedRouteSnapshot,
-    RouterStateSnapshot
-} from '@angular/router';
-import { Injectable } from '@angular/core';
+import {CanActivate, Router} from "@angular/router";
+import {Injectable} from "@angular/core";
 import {SuperloginHttpRequestor} from "./superlogin_http_requestor";
-import {Config} from "../../../config";
 import {SuperLoginClientError} from "./super_login_client_error";
-import {error} from "util";
 import {SuperLoginClientDoneResponse} from "./super_login_client_done_reponse";
 import {SuperLoginClientErrorResponse} from "./super_login_client_error_reponse";
 import {Logger} from "../logger";
@@ -180,7 +174,7 @@ export class SuperLoginClient implements CanActivate {
      * @returns a string representing the current session token or null in case no session token is stored in the storage
      */
     private getSessionToken(): string {
-        var isSessionTokenStoredPersistent = this.isSessionTokenStoredPersistent();
+        let isSessionTokenStoredPersistent = this.isSessionTokenStoredPersistent();
 
         // check if a session token got stored anywhere
         if (isSessionTokenStoredPersistent != null) {
@@ -226,7 +220,7 @@ export class SuperLoginClient implements CanActivate {
             },
             (errorObject) => {
                 // create error object to evaluate the error
-                var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
+                let superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
 
                 // Log the Error
                 Logger.error(superLoginClientError.getErrorMessage());
@@ -309,7 +303,7 @@ export class SuperLoginClient implements CanActivate {
 
             // in case of an error
             (errorObject) => {
-                var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
+                let superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
 
                 // call the error callback function
                 error(new SuperLoginClientError(errorObject));
@@ -345,7 +339,7 @@ export class SuperLoginClient implements CanActivate {
                 Logger.log("New account created.");
             },
             (errorObject) => {
-                var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
+                let superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
 
                 // Log the Error
                 Logger.error(superLoginClientError.getErrorMessage());
@@ -371,7 +365,7 @@ export class SuperLoginClient implements CanActivate {
                 this.authenticated = false;
             },
             (errorObject) => {
-                var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
+                let superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
 
                 // Log the Error
                 Logger.error(superLoginClientError.getErrorMessage());
@@ -396,7 +390,7 @@ export class SuperLoginClient implements CanActivate {
                 trueCallback();
             },
             (errorObject) => {
-                var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
+                let superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
 
                 // Log the Error
                 Logger.error(superLoginClientError.getErrorMessage());
@@ -419,7 +413,7 @@ export class SuperLoginClient implements CanActivate {
                 Logger.log("Session successfully extended.");
             },
             (errorObject) => {
-                var superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
+                let superLoginClientError: SuperLoginClientError = new SuperLoginClientError(errorObject);
 
                 // Log the Error
                 Logger.log("Failed to extend session.");

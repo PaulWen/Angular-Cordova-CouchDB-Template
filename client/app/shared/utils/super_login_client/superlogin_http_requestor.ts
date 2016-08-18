@@ -1,9 +1,7 @@
-import {Response} from "@angular/http";
-import 'rxjs/add/operator/map';
-import {Http, Headers} from '@angular/http';
-import { Injectable } from '@angular/core';
-import {Observable} from "rxjs/Rx";
-import postParam from 'jquery-param';
+import {Response, Http, Headers} from "@angular/http";
+import "rxjs/add/operator/map";
+import {Injectable} from "@angular/core";
+import postParam from "jquery-param";
 import {Logger} from "../logger";
 
 /**
@@ -21,6 +19,7 @@ export class SuperloginHttpRequestor {
 
     constructor(http: Http) {
         this.http = http;
+        Logger.debug("test3");
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////

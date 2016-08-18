@@ -1,11 +1,8 @@
-import { Component } from '@angular/core';
-import {SuperLoginClient} from "../../shared/utils/super_login_client/super_login_client";
-import {SuperLoginClientError} from "../../shared/utils/super_login_client/super_login_client_error";
-import {BoardDatabase} from "../../shared/databases/board/board_database";
+import {Component} from "@angular/core";
 import {MDL} from "../../shared/utils/mdl/MaterialDesignLiteUpgradeElement";
-import {SORTABLEJS_DIRECTIVES, SortablejsOptions} from 'angular-sortablejs';
+import {SORTABLEJS_DIRECTIVES, SortablejsOptions} from "angular-sortablejs";
 import {Logger} from "../../shared/utils/logger";
-import {BoardDocument} from "../../shared/databases/board/board_document";
+import {BoardDocumentLoader} from "../../shared/databases/board/board_document_loader";
 
 @Component({
     selector: 'board-component',
@@ -16,7 +13,7 @@ import {BoardDocument} from "../../shared/databases/board/board_document";
 export class BoardComponent {
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
-    private boardDatabase: BoardDatabase;
+    private boardDocumentLoader: BoardDocumentLoader;
 
     private items1 = [1, 2, 3, 4, 5];
     private items2 = [21, 22, 23, 24, 25];
@@ -45,21 +42,21 @@ export class BoardComponent {
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
-    constructor(boardDatabase: BoardDatabase) {
-        this.boardDatabase = boardDatabase;
+    constructor(boardDocumentLoader: BoardDocumentLoader) {
+        this.boardDocumentLoader = boardDocumentLoader;
 
         // this.boardDatabase.newDocument().then((data)=>{
         //     Logger.debug(data);
         // });
 
-
-        this.boardDatabase.getDocument("f76e24668a9559d7e6490bfd22000e7d").then((data:any)=>{
-            Logger.debug(data);
-            data.name = "test";
-            this.boardDatabase.putDocument(data);
-        });
-
-        this.boardDatabase.getAllDocuments().then((data)=>{Logger.debug(data);});
+        //
+        // this.boardDocumentLoader.getDocument("f76e24668a9559d7e6490bfd22000e7d").then((data:any)=>{
+        //     Logger.debug(data);
+        //     data.name = "test";
+        //     this.boardDocumentLoader.putDocument(data);
+        // });
+        //
+        // this.boardDocumentLoader.getAllDocuments().then((data)=>{Logger.debug(data);});
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
