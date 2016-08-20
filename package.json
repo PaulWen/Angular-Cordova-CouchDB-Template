@@ -3,20 +3,24 @@
   "version": "0.1.0",
   "description": "AngularJS 2 project template",
   "scripts": {
-    "postinstall": "typings install"
+    "check-for-updates": "npm outdated",
+    "update": "npm update -dev --save",
+    "preinstall": "npm config set python python2.7 && npm config set msvs_version 2015",
+    "postinstall": "typings install && npm run check-for-updates"
   },
   "keywords": [],
   "author": "Paul Wenzel <wenzel.pgb@googlemail.com>",
   "license": "ISC",
   "dependencies": {
-    "@angular/common": "*",
-    "@angular/compiler": "*",
-    "@angular/core": "*",
-    "@angular/forms": "*",
-    "@angular/http": "*",
-    "@angular/platform-browser": "*",
-    "@angular/platform-browser-dynamic": "*",
-    "@angular/router": "3.0.0-beta.2",
+    "@angular/common":  "2.0.0-rc.5",
+    "@angular/compiler":  "2.0.0-rc.5",
+    "@angular/core":  "2.0.0-rc.5",
+    "@angular/forms": "0.3.0",
+    "@angular/http":  "2.0.0-rc.5",
+    "@angular/platform-browser":  "2.0.0-rc.5",
+    "@angular/platform-browser-dynamic":  "2.0.0-rc.5",
+    "@angular/router":  "3.0.0-rc.1",
+
     "angular-sortablejs": "*",
     "body-parser": "*",
     "es6-shim": "*",
