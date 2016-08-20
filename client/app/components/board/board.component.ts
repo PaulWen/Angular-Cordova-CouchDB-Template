@@ -3,6 +3,7 @@ import {MDL} from "../../shared/utils/mdl/MaterialDesignLiteUpgradeElement";
 import {SORTABLEJS_DIRECTIVES, SortablejsOptions} from "angular-sortablejs";
 import {Logger} from "../../shared/utils/logger";
 import {BoardDocumentLoader} from "../../shared/databases/board/board_document_loader";
+import {BoardDocument} from "../../shared/databases/board/board_document";
 
 @Component({
     selector: 'board-component',
@@ -43,6 +44,21 @@ export class BoardComponent {
 
     constructor(boardDocumentLoader: BoardDocumentLoader) {
         this.boardDocumentLoader = boardDocumentLoader;
+
+        this.boardDocumentLoader.getAllDocuments().then((data)=>{
+            Logger.debug(data);
+        });
+
+        this.boardDocumentLoader.newDocument().then((data)=>{
+            Logger.debug(data);
+
+            this.boardDocumentLoader.getDocument(data._id).then((data2)=>{
+                Logger.debug(data2);
+                data2._deleted = true;
+            });
+        });
+
+
 
         // this.boardDatabase.newDocument().then((data)=>{
         //     Logger.debug(data);

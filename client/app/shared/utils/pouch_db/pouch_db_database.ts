@@ -84,19 +84,14 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
             let newDocument = await this.localDatabase.post({});
 
             // convert the new created document to the right object type
-            return new this.documentCreator(newDocument);
+            return new this.documentCreator({
+                _id: newDocument.id,
+                _rev: newDocument.rev,
+            });
         } catch (error) {
             Logger.error(error);
             return null;
         }
-    }
-
-    public deleteDocument(document: DocumentType) {
-        // delete document
-        document._deleted = false;
-
-        // upload document to the database
-        this.putDocument(document);
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
@@ -129,14 +124,14 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
     /**
      * This method loads a document in the database.
      *
-     * @param document the document that should get loaded in the database
+     * @param json the document, which should get loaded in the database,  as an json object
      *
      * @return true if the operation was successfully or false in the case of an error
      */
-    public async putDocument(document: DocumentType): Promise<boolean> {
+    public async putDocument(json: any): Promise<boolean> {
         try {
             // upload the document
-            await this.localDatabase.put(document.serializeToJsonObject());
+            await this.localDatabase.put(json);
             return true;
         } catch (error) {
             Logger.error(error);

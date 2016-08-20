@@ -1,3 +1,5 @@
+import {PouchDbDatabase} from "./pouch_db_database";
+import {Logger} from "../logger";
 /**
  * This abstract class is based on PouchDB and represents one document stored in a CouchDB database.
  * It has to be implemented by a class which  represents a specific document.
@@ -14,6 +16,9 @@
 export abstract class PouchDbDocument<DocumentType> {
 
 ////////////////////////////////////////////Properties////////////////////////////////////////////
+
+    /** the database where this document gets stored in, so it can upload itself in the database in the case of an change */
+    private database: PouchDbDatabase<DocumentType>;
 
     /** the id of the CouchDB document which this object is representing */
     private __id: string;
@@ -41,8 +46,12 @@ export abstract class PouchDbDocument<DocumentType> {
      *              (The way this function deals with unknown attributes from the JSON object is for the purpose of changing
      *              the document structure dynamically and making sure that all the documents which still have the old
      *              structure will get updated eventually.)
+     * @param database the database where this document gets stored in, so it can upload itself in the database in the case of an change
+     *
      */
-    constructor(json: any) {
+    constructor(json: any, database: PouchDbDatabase<DocumentType>) {
+        this.database = database;
+
         this.__id = json._id;
         this.__rev = json._rev;
         this._deleted = (json._deleted) ? json._deleted : false;
@@ -85,10 +94,21 @@ export abstract class PouchDbDocument<DocumentType> {
      */
     public set _deleted(deleted: boolean) {
         this.__deleted = deleted;
-        
+        this.uploadToDatabase();
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
+
+    /**
+     * This function uploads this document into its database, so that the database has the current version.
+     */
+    protected uploadToDatabase() {
+        this.database.putDocument(this.serializeToJsonObject()).then((status: boolean) => {
+            if (!status) {
+                Logger.log("Document could not get uploaded!");
+            }
+        });
+    }
 
     /**
      * This function provides all the values of the fields of the current object represented in a
@@ -101,7 +121,7 @@ export abstract class PouchDbDocument<DocumentType> {
      *
      * @return a string representing the JSON document which includes all the current values of the fields of this object.
      */
-    public serializeToJsonObject(): any {
+    protected serializeToJsonObject(): any {
         return {
             _id: this._id,
             _rev: this._rev,
@@ -121,7 +141,7 @@ export abstract class PouchDbDocument<DocumentType> {
      *
      * @param json a JSON object which includes the values of the object
      */
-    public deserializeJsonObject(json: any): void {
+    protected deserializeJsonObject(json: any): void {
 
     }
 

@@ -1,4 +1,5 @@
 import {PouchDbDocument} from "../../utils/pouch_db/pouch_db_document";
+import {BoardDatabase} from "./board_database";
 
 /**
  * This class represents the structure of an board document in the database.
@@ -36,9 +37,11 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
      *              (The way this function deals with unknown attributes from the JSON object is for the purpose of changing
      *              the document structure dynamically and making sure that all the documents which still have the old
      *              structure will get updated eventually.)
+     *
+     * @param database the database where this document gets stored in, so it can upload itself in the database in the case of an change
      */
-    public constructor(json: any) {
-        super(json);
+    public constructor(json: any, database: BoardDatabase) {
+        super(json, database);
 
         // set the default values of the fields
         this.name = "";
@@ -66,6 +69,7 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
      */
     public set name(name: string) {
         this._name = name;
+        this.uploadToDatabase();
     }
 
     /**
@@ -84,11 +88,12 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
      */
     public set backgroundColor(backgroundColor: string) {
         this._backgroundColor = backgroundColor;
+        this.uploadToDatabase();
     }
 
 ////////////////////////////////////////Inherited Methods//////////////////////////////////////////
 
-    public serializeToJsonObject(): any {
+    protected serializeToJsonObject(): any {
         let json = super.serializeToJsonObject();
 
         // add the fields of this class
@@ -98,7 +103,7 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
         return json;
     }
 
-    public deserializeJsonObject(json: any): void {
+    protected deserializeJsonObject(json: any): void {
         super.deserializeJsonObject(json);
 
         if (json.name) this.name = json.name;

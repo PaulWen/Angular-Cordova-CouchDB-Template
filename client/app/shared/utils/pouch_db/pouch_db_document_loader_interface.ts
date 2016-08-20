@@ -46,11 +46,4 @@ export abstract class PouchDbDocumentLoaderInterface<DocumentType extends PouchD
      * @return the new created document or null if an error occurred
      */
     public abstract newDocument():Promise<DocumentType>;
-
-    /**
-     * This method marks a document as in the database.
-     *
-     * @param document the document that should get marked as deleted
-     */
-    public abstract deleteDocument(document:DocumentType):void;
 }
