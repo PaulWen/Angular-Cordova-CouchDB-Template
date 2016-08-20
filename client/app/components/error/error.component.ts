@@ -4,7 +4,6 @@ import {MDL} from "../../shared/utils/mdl/MaterialDesignLiteUpgradeElement";
 @Component({
     selector: 'error-component',
     templateUrl: 'app/components/error/error.component.html',
-    directives: [MDL]
 })
 export class ErrorComponent {
 ////////////////////////////////////////////Properties////////////////////////////////////////////

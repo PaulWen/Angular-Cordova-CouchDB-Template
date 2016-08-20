@@ -8,7 +8,6 @@ import {BoardDocumentLoader} from "../../shared/databases/board/board_document_l
     selector: 'board-component',
     templateUrl: 'app/components/board/board.component.html',
     styleUrls: ['app/components/board/board.component.css'],
-    directives: [MDL, SORTABLEJS_DIRECTIVES]
 })
 export class BoardComponent {
 ////////////////////////////////////////////Properties////////////////////////////////////////////
@@ -31,12 +30,12 @@ export class BoardComponent {
             evt.related; // HTMLElement on which have guided
             evt.relatedRect; // TextRectangle
             // return false; — for cancel
-            Logger.log(evt);
+            // Logger.log(evt);
             return true;
         },
         onStart: (/**Event*/evt) => {
             evt.oldIndex;  // element index within parent
-            Logger.log(evt);
+            // Logger.log(evt);
         }
     };
 

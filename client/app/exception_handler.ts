@@ -23,8 +23,6 @@ export class AppExceptionHandler extends ExceptionHandler {
         super(null, null);
         this.injector = injector;
         this.router = null;
-
-        Logger.debug("test3");
     }
 
 ////////////////////////////////////////Inherited Methods//////////////////////////////////////////

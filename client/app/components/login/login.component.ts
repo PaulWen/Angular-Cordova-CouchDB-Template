@@ -11,7 +11,6 @@ import {Logger} from "../../shared/utils/logger";
     selector: 'login-component',
     templateUrl: 'app/components/login/login.component.html',
     styleUrls: ['app/components/login/login.component.css'],
-    directives: [MDL]
 })
 export class LoginComponent {
 ////////////////////////////////////////////Properties////////////////////////////////////////////

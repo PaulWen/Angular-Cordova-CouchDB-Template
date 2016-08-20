@@ -19,7 +19,6 @@ export class SuperloginHttpRequestor {
 
     constructor(http: Http) {
         this.http = http;
-        Logger.debug("test3");
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////

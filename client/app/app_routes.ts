@@ -1,4 +1,4 @@
-import { RouterConfig }          from '@angular/router';
+import {RouterConfig, RouterModule}          from '@angular/router';
 import {BoardComponent} from "./components/board/board.component";
 import {LoginComponent} from "./components/login/login.component";
 import {SuperLoginClient} from "./shared/utils/super_login_client/super_login_client";
@@ -25,7 +25,7 @@ export class AppRoutes {
 /**
  * This is the configuration of all routes inside the app.
  */
-export const AppRoutesConfig: RouterConfig = [
+const appRoutesConfig: RouterConfig = [
     { path: AppRoutes.BOARD_ROUTE, component: BoardComponent, canActivate: [SuperLoginClient]},
     { path: AppRoutes.LOGIN_ROUTE, component: LoginComponent},
     { path: AppRoutes.PAGE_NOT_FOUND_ROUTE, component: PageNotFoundComponent},
@@ -36,3 +36,7 @@ export const AppRoutesConfig: RouterConfig = [
     { path: '**', redirectTo: AppRoutes.PAGE_NOT_FOUND_ROUTE}
 ];
 
+/**
+ * Create a Module which include all the routes of the application and can get imported by a module.
+ */
+export const routing = RouterModule.forRoot(appRoutesConfig);
