@@ -8,17 +8,40 @@ import {Logger} from "../logger";
  * Using this class makes it possible that objects of the Document-Class get synced easily with
  * the CouchDB database in real-time.
  *
- * HOT TO USE THE CLASS:
- * The classes which implement this class MUST have a public constructor with the single parameter "json: any"!
- * In addition to that, the classes should override the functions "serializeToJsonObject" and "deserializeJsonObject"
- * in order to add also there custom class fields.
+ *
+ *
+ * HOT TO EXTEND FROM THIS CLASS:
+ *
+ * 1) The classes which implement this class MUST have a public constructor with the two parameters
+ * "json: any" and "database:<TypeOfDocumentDatabase>"! Inside the constructor the classes ONLY call the super constructor and pass them the parameters.
+ * The super-constructor takes care that the "deserializeJsonObject"-function gets called in order to load the values of the json object
+ * (given to the constructor as a parameter) into this object.
+ * 2) The classes have to provide default values for all of there variables which represent a document value! This default value
+ * has to get defined during the declaration!
+ * 3) The classes has to overwrite the functions "serializeToJsonObject" and "deserializeJsonObject"
+ * in order to add also there custom class fields. When overriding the methods the classes to also have to call the super implementation
+ * of those functions first!
+ *      a) In the function {@link PouchDbDocument#deserializeJsonObject} the classes should always check if a specific property is included in the json object,
+ *         if that is the cas use the value from the json object. if the json object does not provide any value, the variable has to stay unchanged.
+ *         In addition to that the classes should call the super implementation of this function.
+ *      b) In the function {@link PouchDbDocument#serializeToJsonObject} the classes should first call the super implementation of
+ *         this function and afterwards extends the returned json object with the custom properties of the document.
+ * 4) The classes should make their variables only available through getter and setter functions
+ * 5) Each setter function should call "this.uploadToDatabase();" as the last statement in order to upload a change to the database
+ * ("this.uploadToDatabase();" should only be performed in case the call of the setter really changed the value)
  */
-export abstract class PouchDbDocument<DocumentType> {
+export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<DocumentType>> {
 
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
     /** the database where this document gets stored in, so it can upload itself in the database in the case of an change */
     private database: PouchDbDatabase<DocumentType>;
+
+    /** If this variable gets set to true, a call of the function {@link PouchDbDocument#uploadToDatabase}
+     * has any effect. This is useful if the document object gets updated with the current values retrieved
+     * from the database, so that for those changes the document does not get uploaded again. */
+    private disableUpload: boolean;
+
 
     /** the id of the CouchDB document which this object is representing */
     private __id: string;
@@ -52,9 +75,20 @@ export abstract class PouchDbDocument<DocumentType> {
     constructor(json: any, database: PouchDbDatabase<DocumentType>) {
         this.database = database;
 
+        // since @link{PouchDbDocument} should only get provided via @link{PouchDbDocumentLoaderInterface}
+        // the json object passed to this constructor should always be right from the database so there is
+        // no need for uploading those values to the database again
+        this.disableUpload = true;
+
         this.__id = json._id;
         this.__rev = json._rev;
         this._deleted = (json._deleted) ? json._deleted : false;
+
+        // set all the fields of the {}
+        this.deserializeJsonObject(json);
+
+        // enable upload again
+        this.disableUpload = false;
     }
 
 /////////////////////////////////////////Getter and Setter/////////////////////////////////////////
@@ -103,11 +137,14 @@ export abstract class PouchDbDocument<DocumentType> {
      * This function uploads this document into its database, so that the database has the current version.
      */
     protected uploadToDatabase() {
-        this.database.putDocument(this.serializeToJsonObject()).then((status: boolean) => {
-            if (!status) {
-                Logger.log("Document could not get uploaded!");
-            }
-        });
+        // only if the upload is not currently disabled, upload the document
+        if (!this.disableUpload) {
+            this.database.putDocument(this.serializeToJsonObject()).then((status: boolean) => {
+                if (!status) {
+                    Logger.log("Document could not get uploaded!");
+                }
+            });
+        }
     }
 
     /**

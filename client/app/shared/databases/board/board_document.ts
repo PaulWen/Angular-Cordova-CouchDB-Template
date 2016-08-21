@@ -1,5 +1,6 @@
 import {PouchDbDocument} from "../../utils/pouch_db/pouch_db_document";
 import {BoardDatabase} from "./board_database";
+import {Logger} from "../../utils/logger";
 
 /**
  * This class represents the structure of an board document in the database.
@@ -10,10 +11,10 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
     /** the name of the board */
-    private _name: string;
+    private _name: string = "";
 
     /** the background color of the board */
-    private _backgroundColor: string;
+    private _backgroundColor: string = "#000099";
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
@@ -42,13 +43,6 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
      */
     public constructor(json: any, database: BoardDatabase) {
         super(json, database);
-
-        // set the default values of the fields
-        this.name = "";
-        this.backgroundColor = "#000099";
-
-        // update the fields if the JSON Object includes specific values for them
-        this.deserializeJsonObject(json);
     }
 
 /////////////////////////////////////////Getter and Setter/////////////////////////////////////////
@@ -106,7 +100,8 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
     protected deserializeJsonObject(json: any): void {
         super.deserializeJsonObject(json);
 
-        if (json.name) this.name = json.name;
-        if (json.backgroundColor) this.backgroundColor = json.backgroundColor;
+        // if a value is provided from the json object use this value
+        if (json.name != null) this.name = json.name;
+        if (json.backgroundColor != null) this.backgroundColor = json.backgroundColor;
     }
 }
