@@ -41,7 +41,7 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
      *
      * @param database the database where this document gets stored in, so it can upload itself in the database in the case of an change
      */
-    public constructor(json: any, database: BoardDatabase) {
+    public constructor(json: any, database: BoardDatabase, changeListener: PouchDbDocument.DocumentChangeListener) {
         super(json, database);
     }
 

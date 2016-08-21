@@ -1,5 +1,6 @@
 import {PouchDbDatabase} from "./pouch_db_database";
 import {Logger} from "../logger";
+
 /**
  * This abstract class is based on PouchDB and represents one document stored in a CouchDB database.
  * It has to be implemented by a class which  represents a specific document.
@@ -70,9 +71,11 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
      *              the document structure dynamically and making sure that all the documents which still have the old
      *              structure will get updated eventually.)
      * @param database the database where this document gets stored in, so it can upload itself in the database in the case of an change
+     * @param changeListener a change listener which will get called by the database when ever this document changes,
+     *                       so that it updates the values with the once from the database
      *
      */
-    constructor(json: any, database: PouchDbDatabase<DocumentType>) {
+    constructor(json: any, database: PouchDbDatabase<DocumentType>, changeListener: PouchDbDocument.DocumentChangeListener) {
         this.database = database;
 
         // since @link{PouchDbDocument} should only get provided via @link{PouchDbDocumentLoaderInterface}
@@ -89,6 +92,8 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
 
         // enable upload again
         this.disableUpload = false;
+
+        new PouchDbDocument.DocumentChangeListener();
     }
 
 /////////////////////////////////////////Getter and Setter/////////////////////////////////////////
@@ -182,4 +187,57 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
 
     }
 
+}
+
+//////////////////////////////////////////Inner Classes////////////////////////////////////////////
+
+export module PouchDbDocument {
+
+    /**
+     * This class is a container for a change listener function.
+     * It gets only used for setting a change listener for objects of {@link PouchDbDocument}.
+     * It is used for setting a change listener function in an anonymous way that that only objects of this
+     * class and the class that is notifying, in case of an change, knows about this function.
+     */
+    export class DocumentChangeListener {
+
+        ///////////////////////////////////////////Properties//////////////////////////////////////////
+
+        /** This variable stores the onChange function which gets set by an {@link PouchDbDocument}
+         * and should get called in the case of an change. This variable has to be set by calling
+         * {@link PouchDbDocument#DocumentChangeListener#setOnChangeFunction}*/
+        private onChange:(json:any) => void;
+
+        //////////////////////////////////////////Constructor//////////////////////////////////////////
+
+        /**
+         * Constructor of the inner class {@link PouchDbDocument#DocumentChangeListener}
+         */
+        constructor() {
+
+        }
+
+        ///////////////////////////////////////////Methods/////////////////////////////////////////////
+
+        /**
+         * This setter sets the function that should get called in case the function
+         * {@link PouchDbDocument#DocumentChangeListener#change} gets called.
+         *
+         * @param onChange
+         */
+        protected setOnChangeFunction(onChange:(json:any) => void):void {
+            this.onChange = onChange;
+        }
+
+        /**
+         * This function should get called if a change occurred. The function
+         * calls then calls the right function of the listener to notify him about
+         * the change.
+         *
+         * @param json the new version of the jeson object that changed
+         */
+        public change(json:any):void {
+            this.onChange(json);
+        }
+    }
 }
