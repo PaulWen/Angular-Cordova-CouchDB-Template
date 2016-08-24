@@ -12,7 +12,7 @@ import {PouchDbDocumentLoaderInterface} from "./pouch_db_document_loader_interfa
  * This class is based on "async/await" instead of promises. Doing so makes it possible for the class to already handel any errors or merge conflicts.
  * Furthermore, the class already provides the result documents in the correct data type.
  *
- * 
+ *
  *
  * HOW TO EXTEND FROM THIS CLASS:
  *
@@ -32,7 +32,7 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
     /** the class of the <DocumentType> in order to be able to create objects of this class */
-    private documentCreator: {new (json: any, database: PouchDbDatabase<DocumentType>): DocumentType;};
+    private documentCreator: {new (json: any, database: PouchDbDatabase<DocumentType>, changeListener: PouchDbDocument.ChangeListener): DocumentType;};
 
     // PouchDB objects representing the database
     /** object representing the original database on the server */
@@ -49,7 +49,7 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
      * @param documentCreator the class of the <DocumentType> in order to be able to create objects of this class
      * @param url to the original database
      */
-    constructor(documentCreator: {new (json: any, database: PouchDbDatabase<DocumentType>): DocumentType;}, url?:string) {
+    constructor(documentCreator: {new (json: any, database: PouchDbDatabase<DocumentType>, changeListener: PouchDbDocument.ChangeListener): DocumentType;}, url?:string) {
         this.documentCreator = documentCreator;
 
         if (url) {
@@ -64,7 +64,7 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
     public async getDocument(id: string): Promise<DocumentType> {
         try {
             // load the wanted document from the database and save it in the right DocumentType
-            return new this.documentCreator(await this.database.get(id), this);
+            return this.createNewDocumentInstance(await this.database.get(id));
         } catch (error) {
             Logger.error(error);
             return null;
@@ -83,7 +83,7 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
 
             // put all the documents in a typed array
             for(let i: number = 0; i < databaseResponse.rows.length; i++) {
-                documentList[i] = new this.documentCreator(databaseResponse.rows[i].doc, this);
+                documentList[i] = this.createNewDocumentInstance(databaseResponse.rows[i].doc);
             }
 
             // return all the documents in an array
@@ -100,7 +100,10 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
             let newDocument = await this.database.post({});
 
             // convert the new created document to the right object type
-            return await this.getDocument(newDocument.id);
+            return await this.createNewDocumentInstance({
+                _id: newDocument.id,
+                _rev: newDocument.rev
+            });
         } catch (error) {
             Logger.error(error);
             return null;
@@ -150,5 +153,36 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
             Logger.error(error);
             return false;
         }
+    }
+
+    /**
+     * This function creates an new instance of {@link DocumentType} by taking a json object,
+     * which represents the data of the object, as the input.
+     *
+     * @param json the data of the {@link DocumentType} that should get created
+     * @return {DocumentType} the new document instance
+     */
+    private createNewDocumentInstance(json: any): DocumentType {
+        // create a new change listener for the new object
+        let changeListener: PouchDbDocument.ChangeListener = new PouchDbDocument.ChangeListener();
+
+        Logger.debug(json._id);
+        Logger.debug(json._idd);
+
+        // register a change listener at the database
+        this.database.changes({
+            live: true,
+            since: "now",
+            include_docs: true,
+            doc_ids: [json._id]
+        }).on('change', function(change) {
+            changeListener.change(change.doc);
+        }).on('error', function (error) {
+            Logger.error(error);
+            return null;
+        });
+
+        // load the wanted document from the database and save it in the right DocumentType
+        return new this.documentCreator(json, this, changeListener);
     }
 }

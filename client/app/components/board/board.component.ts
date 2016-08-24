@@ -65,8 +65,9 @@ export class BoardComponent {
         // });
 
         //
-        this.boardDocumentLoader.getDocument("13DC70F6-9939-DB6F-8B3C-13F7E7F73A6F").then((data:any)=>{
+        this.boardDocumentLoader.getDocument("13DC70F6-9939-DB6F-8B3C-13F7E7F73A6F").then((data)=>{
             Logger.debug(data);
+            data.name = "Paul :)";
         });
 
         // this.boardDocumentLoader.getAllDocuments().then((data)=>{Logger.debug(data);});

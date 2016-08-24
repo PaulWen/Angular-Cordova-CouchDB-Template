@@ -51,7 +51,7 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
     private __rev: string;
 
     /** indicates whether or not the document got deleted */
-    private __deleted: boolean;
+    private __deleted: boolean = false;
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
@@ -75,25 +75,26 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
      *                       so that it updates the values with the once from the database
      *
      */
-    constructor(json: any, database: PouchDbDatabase<DocumentType>, changeListener: PouchDbDocument.DocumentChangeListener) {
+    constructor(json: any, database: PouchDbDatabase<DocumentType>, changeListener: PouchDbDocument.ChangeListener) {
         this.database = database;
+
+        // register the onChange function by the changeListener
+        changeListener.setOnChangeFunction(this.onChange);
 
         // since @link{PouchDbDocument} should only get provided via @link{PouchDbDocumentLoaderInterface}
         // the json object passed to this constructor should always be right from the database so there is
         // no need for uploading those values to the database again
         this.disableUpload = true;
 
+        // since the id cannot change, we do only have to set it here and not in the
+        // function "deserializeJsonObject"
         this.__id = json._id;
-        this.__rev = json._rev;
-        this._deleted = (json._deleted) ? json._deleted : false;
 
-        // set all the fields of the {}
+        // set all the values of the fields of this object to the values provided in the json object
         this.deserializeJsonObject(json);
 
         // enable upload again
         this.disableUpload = false;
-
-        new PouchDbDocument.DocumentChangeListener();
     }
 
 /////////////////////////////////////////Getter and Setter/////////////////////////////////////////
@@ -116,6 +117,7 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
         return this.__rev;
     }
 
+
     /**
      * This function returns whether or not the document got deleted.
      *
@@ -132,11 +134,33 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
      * @param deleted true if the document should get marked as deleted, false if not
      */
     public set _deleted(deleted: boolean) {
-        this.__deleted = deleted;
-        this.uploadToDatabase();
+        // check if the value is really a new value to avoid unnecessary updates
+        if (deleted != this._deleted) {
+            this.__deleted = deleted;
+            this.uploadToDatabase();
+        }
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
+
+    /**
+     * This function should get called by the change listener, whenever there are new changes for this
+     * document in the database. The function updates the values of this object with the new values of
+     * the database.
+     *
+     * @param json the new version of the json object that changed
+     */
+    private onChange(json: any): void {
+        // since this function should get only called by the database, if there are changes for the document
+        // in the database, we do not have to update the database
+        this.disableUpload = true;
+
+        // update all the values of the fields of this object to the values provided in the json object
+        this.deserializeJsonObject(json);
+
+        // enable upload again
+        this.disableUpload = false;
+    }
 
     /**
      * This function uploads this document into its database, so that the database has the current version.
@@ -184,7 +208,11 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
      * @param json a JSON object which includes the values of the object
      */
     protected deserializeJsonObject(json: any): void {
+        // update the revision id
+        this.__rev = json._rev;
 
+        // if a value is provided from the json object use this value
+        if (json._deleted != null) this._deleted = json._deleted;
     }
 
 }
@@ -199,19 +227,19 @@ export module PouchDbDocument {
      * It is used for setting a change listener function in an anonymous way that that only objects of this
      * class and the class that is notifying, in case of an change, knows about this function.
      */
-    export class DocumentChangeListener {
+    export class ChangeListener {
 
         ///////////////////////////////////////////Properties//////////////////////////////////////////
 
         /** This variable stores the onChange function which gets set by an {@link PouchDbDocument}
          * and should get called in the case of an change. This variable has to be set by calling
-         * {@link PouchDbDocument#DocumentChangeListener#setOnChangeFunction}*/
+         * {@link PouchDbDocument#ChangeListener#setOnChangeFunction}*/
         private onChange:(json:any) => void;
 
         //////////////////////////////////////////Constructor//////////////////////////////////////////
 
         /**
-         * Constructor of the inner class {@link PouchDbDocument#DocumentChangeListener}
+         * Constructor of the inner class {@link PouchDbDocument#ChangeListener}
          */
         constructor() {
 
@@ -221,11 +249,11 @@ export module PouchDbDocument {
 
         /**
          * This setter sets the function that should get called in case the function
-         * {@link PouchDbDocument#DocumentChangeListener#change} gets called.
+         * {@link PouchDbDocument#ChangeListener#change} gets called.
          *
          * @param onChange
          */
-        protected setOnChangeFunction(onChange:(json:any) => void):void {
+        public setOnChangeFunction(onChange:(json:any) => void):void {
             this.onChange = onChange;
         }
 
@@ -234,7 +262,7 @@ export module PouchDbDocument {
          * calls then calls the right function of the listener to notify him about
          * the change.
          *
-         * @param json the new version of the jeson object that changed
+         * @param json the new version of the json object that changed
          */
         public change(json:any):void {
             this.onChange(json);

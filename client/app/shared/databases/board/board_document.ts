@@ -40,9 +40,11 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
      *              structure will get updated eventually.)
      *
      * @param database the database where this document gets stored in, so it can upload itself in the database in the case of an change
+     * @param changeListener a change listener which will get called by the database when ever this document changes,
+     *                       so that it updates the values with the once from the database
      */
-    public constructor(json: any, database: BoardDatabase, changeListener: PouchDbDocument.DocumentChangeListener) {
-        super(json, database);
+    public constructor(json: any, database: BoardDatabase, changeListener: PouchDbDocument.ChangeListener) {
+        super(json, database, changeListener);
     }
 
 /////////////////////////////////////////Getter and Setter/////////////////////////////////////////
@@ -62,8 +64,12 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
      * @param name the name of the board
      */
     public set name(name: string) {
-        this._name = name;
-        this.uploadToDatabase();
+        // check if the value is really a new value to avoid unnecessary updates
+            Logger.debug(name + " vs " + this.name);
+        if (name != this.name) {
+            this._name = name;
+            this.uploadToDatabase();
+        }
     }
 
     /**
@@ -81,8 +87,11 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
      * @param backgroundColor the background color of the board
      */
     public set backgroundColor(backgroundColor: string) {
-        this._backgroundColor = backgroundColor;
-        this.uploadToDatabase();
+        // check if the value is really a new value to avoid unnecessary updates
+        if (backgroundColor != this.backgroundColor) {
+            this._backgroundColor = backgroundColor;
+            this.uploadToDatabase();
+        }
     }
 
 ////////////////////////////////////////Inherited Methods//////////////////////////////////////////
@@ -100,8 +109,12 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
     protected deserializeJsonObject(json: any): void {
         super.deserializeJsonObject(json);
 
+        Logger.debug(json.name + "  TEST");
+        Logger.debug(json.name !== null);
+        Logger.debug(this._backgroundColor + "TRY");
+
         // if a value is provided from the json object use this value
-        if (json.name != null) this.name = json.name;
+        if (json.name !== null) {this.name = json.name;}
         if (json.backgroundColor != null) this.backgroundColor = json.backgroundColor;
     }
 }
