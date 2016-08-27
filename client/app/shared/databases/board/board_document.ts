@@ -11,10 +11,10 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
     /** the name of the board */
-    private _name: string = "";
+    private _name: string;
 
     /** the background color of the board */
-    private _backgroundColor: string = "#000099";
+    private _backgroundColor: string;
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
@@ -45,6 +45,13 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
      */
     public constructor(json: any, database: BoardDatabase, changeListener: PouchDbDocument.ChangeListener) {
         super(json, database, changeListener);
+
+        // set the default values of the fields
+        this._name = "";
+        this._backgroundColor = "#000099";
+
+        // update the fields if the JSON Object includes specific values for them
+        this.updateObjectFieldsWithDatabaseDocumentVersion(json);
     }
 
 /////////////////////////////////////////Getter and Setter/////////////////////////////////////////
@@ -65,8 +72,7 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
      */
     public set name(name: string) {
         // check if the value is really a new value to avoid unnecessary updates
-            Logger.debug(name + " vs " + this.name);
-        if (name != this.name) {
+        if (name !== this.name) {
             this._name = name;
             this.uploadToDatabase();
         }
@@ -88,7 +94,7 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
      */
     public set backgroundColor(backgroundColor: string) {
         // check if the value is really a new value to avoid unnecessary updates
-        if (backgroundColor != this.backgroundColor) {
+        if (backgroundColor !== this.backgroundColor) {
             this._backgroundColor = backgroundColor;
             this.uploadToDatabase();
         }
@@ -107,14 +113,8 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
     }
 
     protected deserializeJsonObject(json: any): void {
-        super.deserializeJsonObject(json);
-
-        Logger.debug(json.name + "  TEST");
-        Logger.debug(json.name !== null);
-        Logger.debug(this._backgroundColor + "TRY");
-
         // if a value is provided from the json object use this value
-        if (json.name !== null) {this.name = json.name;}
-        if (json.backgroundColor != null) this.backgroundColor = json.backgroundColor;
+        if (json.name !== null) this.name = json.name;
+        if (json.backgroundColor !== null) this.backgroundColor = json.backgroundColor;
     }
 }

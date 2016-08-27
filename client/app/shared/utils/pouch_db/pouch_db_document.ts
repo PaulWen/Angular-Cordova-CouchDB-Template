@@ -13,23 +13,27 @@ import {Logger} from "../logger";
  *
  * HOT TO EXTEND FROM THIS CLASS:
  *
- * 1) The classes which implement this class MUST have a public constructor with the two parameters
- * "json: any" and "database:<TypeOfDocumentDatabase>"! Inside the constructor the classes ONLY call the super constructor and pass them the parameters.
- * The super-constructor takes care that the "deserializeJsonObject"-function gets called in order to load the values of the json object
- * (given to the constructor as a parameter) into this object.
- * 2) The classes have to provide default values for all of there variables which represent a document value! This default value
- * has to get defined during the declaration!
+ * 1) The classes which implement this class MUST
+ *      a) have a public constructor with the three parameters
+ *         "json: any", "database:<TypeOfDocumentDatabase>" and "changeListener: {@link PouchDbDocument#ChangeListener}"!
+ *         Inside the constructor the classes ONLY calls the super constructor and passes them the parameters.
+ *      b) initialize ALL its custom variables with default values
+ *      c) to take care that the {@link PouchDbDocument#updateObjectFieldsWithDatabaseDocumentVersion}-function
+ *         gets called in order to load the values of the json object (given to the constructor as a parameter) into this object.
+ * 2) The classes should make their variables only available through getter and setter functions
+ *      a) Each setter function should call "this.uploadToDatabase();" as the last statement in order to upload a change to the database
+ *      b) The setter has always to check if the setter call really changes the value.
+ *         "this.uploadToDatabase();" should only be performed in case the call of the setter really changed the value.
+ *         If that does not get done on this way, and endless loop will be the result since the database always calls the documents onChange function
+ *         if the document got uploaded (this will cause all setters being called), and the document would always upload the document which would start the cycle again.
  * 3) The classes has to overwrite the functions "serializeToJsonObject" and "deserializeJsonObject"
- * in order to add also there custom class fields. When overriding the methods the classes to also have to call the super implementation
- * of those functions first!
+ * in order to add also there custom class fields.
  *      a) In the function {@link PouchDbDocument#deserializeJsonObject} the classes should always check if a specific property is included in the json object,
- *         if that is the cas use the value from the json object. if the json object does not provide any value, the variable has to stay unchanged.
- *         In addition to that the classes should call the super implementation of this function.
+ *         if that is the case, it has to set the variable to the value from the json object using the right setter function (to take advantage of input value checks
+ *         that might be implemented in the setter function).
+ *         If the json object does not provide any value, the variable has to stay unchanged.
  *      b) In the function {@link PouchDbDocument#serializeToJsonObject} the classes should first call the super implementation of
  *         this function and afterwards extends the returned json object with the custom properties of the document.
- * 4) The classes should make their variables only available through getter and setter functions
- * 5) Each setter function should call "this.uploadToDatabase();" as the last statement in order to upload a change to the database
- * ("this.uploadToDatabase();" should only be performed in case the call of the setter really changed the value)
  */
 export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<DocumentType>> {
 
@@ -58,18 +62,8 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
     /**
      * The constructor of the class "PouchDbDocument".
      *
-     * @param json  A JSON object which MUST include the properties:
-     *                  - "_id" (the id of the CouchDB document which this object is representing)
-     *                  - "_rev" (the revision code of the CouchDB document which this object is representing)
-     *
-     *              It CAN also include the property:
-     *                  - "_deleted" (indicates whether or not the document got deleted (optional, defaults to "false"))
-     *
-     *              If the JSON object does not include one of the optional properties listed above, a default value will be set.
-     *              If the JSON object includes properties which are not listed above, those values get ignored.
-     *              (The way this function deals with unknown attributes from the JSON object is for the purpose of changing
-     *              the document structure dynamically and making sure that all the documents which still have the old
-     *              structure will get updated eventually.)
+     * @param json  A JSON object FROM THE DATABASE which MUST include the property "_id"
+     *              (the id of the CouchDB document which this object is representing)
      * @param database the database where this document gets stored in, so it can upload itself in the database in the case of an change
      * @param changeListener a change listener which will get called by the database when ever this document changes,
      *                       so that it updates the values with the once from the database
@@ -79,22 +73,15 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
         this.database = database;
 
         // register the onChange function by the changeListener
-        changeListener.setOnChangeFunction(this.onChange);
-
-        // since @link{PouchDbDocument} should only get provided via @link{PouchDbDocumentLoaderInterface}
-        // the json object passed to this constructor should always be right from the database so there is
-        // no need for uploading those values to the database again
-        this.disableUpload = true;
+        changeListener.setOnChangeFunction(this.updateObjectFieldsWithDatabaseDocumentVersion.bind(this));
 
         // since the id cannot change, we do only have to set it here and not in the
         // function "deserializeJsonObject"
         this.__id = json._id;
 
-        // set all the values of the fields of this object to the values provided in the json object
-        this.deserializeJsonObject(json);
-
-        // enable upload again
-        this.disableUpload = false;
+        // set default values for the other fields
+        this.__rev = "";
+        this.__deleted= false;
     }
 
 /////////////////////////////////////////Getter and Setter/////////////////////////////////////////
@@ -135,32 +122,13 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
      */
     public set _deleted(deleted: boolean) {
         // check if the value is really a new value to avoid unnecessary updates
-        if (deleted != this._deleted) {
+        if (deleted !== this._deleted) {
             this.__deleted = deleted;
             this.uploadToDatabase();
         }
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
-
-    /**
-     * This function should get called by the change listener, whenever there are new changes for this
-     * document in the database. The function updates the values of this object with the new values of
-     * the database.
-     *
-     * @param json the new version of the json object that changed
-     */
-    private onChange(json: any): void {
-        // since this function should get only called by the database, if there are changes for the document
-        // in the database, we do not have to update the database
-        this.disableUpload = true;
-
-        // update all the values of the fields of this object to the values provided in the json object
-        this.deserializeJsonObject(json);
-
-        // enable upload again
-        this.disableUpload = false;
-    }
 
     /**
      * This function uploads this document into its database, so that the database has the current version.
@@ -174,6 +142,39 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
                 }
             });
         }
+    }
+
+    /**
+     * This function takes a JSON object FROM THE DATABASE and updates the fields of this object to the
+     * values provided bz the JSON object.
+     *
+     * COUTION: Since it gets assumed that the JSON object passed to this function is directly from the database,
+     *          all changes which the JSON object causes in this object, will not cause an upload of this object/document to the database.
+     *
+     * @param json  A JSON object FROM THE DATABASE which MUST include the properties:
+     *                  - "_id" (the id of the CouchDB document which this object is representing)
+     *                  - "_rev" (the revision code of the CouchDB document which this object is representing)
+     *
+     *              It CAN also include the property:
+     *                  - "_deleted" (indicates whether or not the document got deleted (optional, defaults to "false"))
+     *
+     *              If the JSON object does not include one of the optional properties listed above, a default value will be set.
+     *              If the JSON object includes properties which are not listed above, those values get ignored.
+     *              (The way this function deals with unknown attributes from the JSON object is for the purpose of changing
+     *              the document structure dynamically and making sure that all the documents which still have the old
+     *              structure will get updated eventually.)
+     */
+    protected updateObjectFieldsWithDatabaseDocumentVersion(json: any) {
+        // since JSON object should be the database document version, there is
+        // no need for uploading those values to the database again
+        this.disableUpload = true;
+
+        // set all the values of the fields of this object to the values provided in the json object
+        this.deserializeJsonObjectSuperImplementation(json);
+        this.deserializeJsonObject(json);
+
+        // enable upload again
+        this.disableUpload = false;
     }
 
     /**
@@ -196,30 +197,54 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
     }
 
     /**
-     * This function sets all the individual fields of a specific object by taking the values from the JSON input object.
+     * This function sets the following two variables of the specific object by taking the values from the JSON input object.
+     *   - (HAST TO BE INCLUDED IN THE JSON OBJECT) "_id" (the id of the CouchDB document which this object is representing)
+     *   - (OPTIONAL) "_rev" (the revision code of the CouchDB document which this object is representing)
+     *
      * If there is no property defined in the JSON object for a specific field of the class, the class field will be kept unchanged.
      *
-     * CAUTION: This function does not change the values of the object fields "_id" or "_rev" or "_deleted"!
-     *          The function only updates the custom fields of the class that is implementing this function.
+     * CAUTION: This function does not change the values of the object field "_id"!
      *
-     *
-     * See also: The document object can be converted into an JSON object using the "serializeToJsonObject" function.
+     * See also: The document object can be converted into an JSON object using the {@link PouchDbDocument#serializeToJsonObject} function.
+     *           This function should only be called indirectly by calling {@link PouchDbDocument#updateObjectFieldsWithDatabaseDocumentVersion}.
      *
      * @param json a JSON object which includes the values of the object
      */
-    protected deserializeJsonObject(json: any): void {
+    private deserializeJsonObjectSuperImplementation(json: any): void {
         // update the revision id
         this.__rev = json._rev;
 
         // if a value is provided from the json object use this value
-        if (json._deleted != null) this._deleted = json._deleted;
+        if (json._deleted !== null) this._deleted = json._deleted;
     }
+
+    /**
+     * This function sets the variables of the individual subclass implementing {@link PouchDbDocument}, by taking the values from the JSON input object.
+     * If no property is defined in the json object for a specific variable, the variable should stay unchanged.
+     *
+     * THIS FUNCTION SHOULD NOT GET CALLED FROM ANYBODY! IT JUST HAS TO GET IMPLEMENTED BY THE CLASS THAT EXTENDS THIS CLASS!
+     * THIS SUPER CLASS TAKES CARE OF CALLING THIS FUNCTION!
+     *
+     * See also: The document object can be converted into an JSON object using the {@link PouchDbDocument#serializeToJsonObject} function.
+     *           This function should only be called indirectly by calling {@link PouchDbDocument#updateObjectFieldsWithDatabaseDocumentVersion}.
+     *
+     * @param json a JSON object which includes the values of the object
+     */
+    protected abstract deserializeJsonObject(json: any): void;
 
 }
 
 //////////////////////////////////////////Inner Classes////////////////////////////////////////////
 
 export module PouchDbDocument {
+
+    /**
+     * This interface describes te function that should get called if a document in a database changed
+     * and the {@link PouchDbDocument} has to be notified.
+     */
+    export interface OnChangeFunction {
+       (json:any): void;
+    }
 
     /**
      * This class is a container for a change listener function.
@@ -234,7 +259,7 @@ export module PouchDbDocument {
         /** This variable stores the onChange function which gets set by an {@link PouchDbDocument}
          * and should get called in the case of an change. This variable has to be set by calling
          * {@link PouchDbDocument#ChangeListener#setOnChangeFunction}*/
-        private onChange:(json:any) => void;
+        private onChangeFunction: PouchDbDocument.OnChangeFunction;
 
         //////////////////////////////////////////Constructor//////////////////////////////////////////
 
@@ -251,10 +276,10 @@ export module PouchDbDocument {
          * This setter sets the function that should get called in case the function
          * {@link PouchDbDocument#ChangeListener#change} gets called.
          *
-         * @param onChange
+         * @param onChangeFunction
          */
-        public setOnChangeFunction(onChange:(json:any) => void):void {
-            this.onChange = onChange;
+        public setOnChangeFunction(onChangeFunction:PouchDbDocument.OnChangeFunction):void {
+            this.onChangeFunction = onChangeFunction;
         }
 
         /**
@@ -264,8 +289,11 @@ export module PouchDbDocument {
          *
          * @param json the new version of the json object that changed
          */
-        public change(json:any):void {
-            this.onChange(json);
+        public onChange(json:any):void {
+            // Unfortunately, WebStorm throws an error even though there is no mistake.
+            // With the following statement/comment we suppress the error message:
+            //noinspection TypeScriptValidateTypes
+            this.onChangeFunction(json);
         }
     }
 }

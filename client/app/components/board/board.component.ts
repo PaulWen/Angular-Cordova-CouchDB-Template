@@ -44,33 +44,6 @@ export class BoardComponent {
 
     constructor(boardDocumentLoader: BoardDocumentLoader) {
         this.boardDocumentLoader = boardDocumentLoader;
-        //
-        // this.boardDocumentLoader.getAllDocuments().then((data)=>{
-        //     Logger.debug(data);
-        // });
-
-        // this.boardDocumentLoader.newDocument().then((data)=>{
-        //     Logger.debug(data);
-        //
-        //     this.boardDocumentLoader.getDocument(data._id).then((data2)=>{
-        //         Logger.debug(data2);
-        //         data2._deleted = true;
-        //     });
-        // });
-
-
-
-        // this.boardDatabase.newDocument().then((data)=>{
-        //     Logger.debug(data);
-        // });
-
-        //
-        this.boardDocumentLoader.getDocument("13DC70F6-9939-DB6F-8B3C-13F7E7F73A6F").then((data)=>{
-            Logger.debug(data);
-            data.name = "Paul :)";
-        });
-
-        // this.boardDocumentLoader.getAllDocuments().then((data)=>{Logger.debug(data);});
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////

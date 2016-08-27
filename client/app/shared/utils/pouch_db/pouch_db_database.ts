@@ -131,7 +131,6 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
             // sync in real-time
             live: true
         }).on('change', function (change) {
-            Logger.debug("Something changed in the database.");
         }).on('error', function (error) {
             Logger.error(error);
         });
@@ -166,9 +165,6 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
         // create a new change listener for the new object
         let changeListener: PouchDbDocument.ChangeListener = new PouchDbDocument.ChangeListener();
 
-        Logger.debug(json._id);
-        Logger.debug(json._idd);
-
         // register a change listener at the database
         this.database.changes({
             live: true,
@@ -176,7 +172,7 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
             include_docs: true,
             doc_ids: [json._id]
         }).on('change', function(change) {
-            changeListener.change(change.doc);
+            changeListener.onChange(change.doc);
         }).on('error', function (error) {
             Logger.error(error);
             return null;
