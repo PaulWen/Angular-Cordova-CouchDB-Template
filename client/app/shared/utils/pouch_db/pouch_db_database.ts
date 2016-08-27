@@ -11,19 +11,35 @@ import {PouchDbDocumentLoaderInterface} from "./pouch_db_document_loader_interfa
  *
  * This class is based on "async/await" instead of promises. Doing so makes it possible for the class to already handel any errors or merge conflicts.
  * Furthermore, the class already provides the result documents in the correct data type.
+ *
+ *
+ *
+ * HOW TO EXTEND FROM THIS CLASS:
+ *
+ * Classes that implement this class should represent databases for a specific {@link PouchDbDocument}.
+ * They should implement a specific {@link PouchDbDocumentLoaderInterface} which describes, what functions
+ * the class that, implements this class, should provide.
+ *
+ * THEY ARE ONLY ALLOWED to provide functions for the purpose of GETTING documents out of the database and
+ * provide them in the form of a specific {@link PouchDbDocument}.
+ *
+ * THEY ARE NOT ALLOWED to functions for adding new documents
+ * or uploading documents to the database!! For those purposes the already implemented functions which this class
+ * provides should get used!!
  */
 export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<DocumentType>> implements PouchDbDocumentLoaderInterface<DocumentType> {
 
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
     /** the class of the <DocumentType> in order to be able to create objects of this class */
-    private documentCreator: {new (json: any): DocumentType;};
+    private documentCreator: {new (json: any, database: PouchDbDatabase<DocumentType>, changeListener: PouchDbDocument.ChangeListener): DocumentType;};
 
     // PouchDB objects representing the database
     /** object representing the original database on the server */
     private remoteDatabase: any;
-    /** object representing the local replication of the database on the server */
-    private localDatabase: any;
+    /** Object representing the database on the client side. This databse instance is
+     * an replication of the database on the server and gets synced with that in real-time. */
+    protected database: any;
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
@@ -33,14 +49,14 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
      * @param documentCreator the class of the <DocumentType> in order to be able to create objects of this class
      * @param url to the original database
      */
-    constructor(documentCreator: {new (json: any): DocumentType;}, url?:string) {
+    constructor(documentCreator: {new (json: any, database: PouchDbDatabase<DocumentType>, changeListener: PouchDbDocument.ChangeListener): DocumentType;}, url?:string) {
         this.documentCreator = documentCreator;
 
         if (url) {
             this.initializeDatabase(url);
         } else {
             this.remoteDatabase = null;
-            this.localDatabase = null;
+            this.database = null;
         }
     }
 ////////////////////////////////////////Inherited Methods//////////////////////////////////////////
@@ -48,7 +64,7 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
     public async getDocument(id: string): Promise<DocumentType> {
         try {
             // load the wanted document from the database and save it in the right DocumentType
-            return new this.documentCreator(await this.localDatabase.get(id));
+            return this.createNewDocumentInstance(await this.database.get(id));
         } catch (error) {
             Logger.error(error);
             return null;
@@ -60,14 +76,14 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
             let documentList: DocumentType[] = [];
 
             // load all the documents from the database
-            let databaseResponse = await this.localDatabase.allDocs({
+            let databaseResponse = await this.database.allDocs({
                 include_docs: true,
                 attachments: false
             });
 
             // put all the documents in a typed array
             for(let i: number = 0; i < databaseResponse.rows.length; i++) {
-                documentList[i] = new this.documentCreator(databaseResponse.rows[i].doc);
+                documentList[i] = this.createNewDocumentInstance(databaseResponse.rows[i].doc);
             }
 
             // return all the documents in an array
@@ -81,22 +97,17 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
     public async newDocument(): Promise<DocumentType> {
         try {
             // upload the updated user data
-            let newDocument = await this.localDatabase.post({});
+            let newDocument = await this.database.post({});
 
             // convert the new created document to the right object type
-            return new this.documentCreator(newDocument);
+            return await this.createNewDocumentInstance({
+                _id: newDocument.id,
+                _rev: newDocument.rev
+            });
         } catch (error) {
             Logger.error(error);
             return null;
         }
-    }
-
-    public deleteDocument(document: DocumentType) {
-        // delete document
-        document._deleted = false;
-
-        // upload document to the database
-        this.putDocument(document);
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
@@ -113,14 +124,13 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
     public initializeDatabase(url: string): void {
         // create PouchDB database objects
         this.remoteDatabase = new PouchDB(url);
-        this.localDatabase = new PouchDB('local');
+        this.database = new PouchDB('local');
 
         // sync the local and the remote database
-        this.localDatabase.sync(this.remoteDatabase, {
+        this.database.sync(this.remoteDatabase, {
             // sync in real-time
             live: true
         }).on('change', function (change) {
-            Logger.debug("Something changed in the database.");
         }).on('error', function (error) {
             Logger.error(error);
         });
@@ -129,18 +139,46 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
     /**
      * This method loads a document in the database.
      *
-     * @param document the document that should get loaded in the database
+     * @param json the document, which should get loaded in the database,  as an json object
      *
      * @return true if the operation was successfully or false in the case of an error
      */
-    public async putDocument(document: DocumentType): Promise<boolean> {
+    public async putDocument(json: any): Promise<boolean> {
         try {
             // upload the document
-            await this.localDatabase.put(document.serializeToJsonObject());
+            await this.database.put(json);
             return true;
         } catch (error) {
             Logger.error(error);
             return false;
         }
+    }
+
+    /**
+     * This function creates an new instance of {@link DocumentType} by taking a json object,
+     * which represents the data of the object, as the input.
+     *
+     * @param json the data of the {@link DocumentType} that should get created
+     * @return {DocumentType} the new document instance
+     */
+    private createNewDocumentInstance(json: any): DocumentType {
+        // create a new change listener for the new object
+        let changeListener: PouchDbDocument.ChangeListener = new PouchDbDocument.ChangeListener();
+
+        // register a change listener at the database
+        this.database.changes({
+            live: true,
+            since: "now",
+            include_docs: true,
+            doc_ids: [json._id]
+        }).on('change', function(change) {
+            changeListener.onChange(change.doc);
+        }).on('error', function (error) {
+            Logger.error(error);
+            return null;
+        });
+
+        // load the wanted document from the database and save it in the right DocumentType
+        return new this.documentCreator(json, this, changeListener);
     }
 }

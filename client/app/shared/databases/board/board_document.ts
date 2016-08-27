@@ -1,4 +1,6 @@
 import {PouchDbDocument} from "../../utils/pouch_db/pouch_db_document";
+import {BoardDatabase} from "./board_database";
+import {Logger} from "../../utils/logger";
 
 /**
  * This class represents the structure of an board document in the database.
@@ -36,16 +38,20 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
      *              (The way this function deals with unknown attributes from the JSON object is for the purpose of changing
      *              the document structure dynamically and making sure that all the documents which still have the old
      *              structure will get updated eventually.)
+     *
+     * @param database the database where this document gets stored in, so it can upload itself in the database in the case of an change
+     * @param changeListener a change listener which will get called by the database when ever this document changes,
+     *                       so that it updates the values with the once from the database
      */
-    public constructor(json: any) {
-        super(json);
+    public constructor(json: any, database: BoardDatabase, changeListener: PouchDbDocument.ChangeListener) {
+        super(json, database, changeListener);
 
         // set the default values of the fields
-        this.name = "";
-        this.backgroundColor = "#000099";
+        this._name = "";
+        this._backgroundColor = "#000099";
 
         // update the fields if the JSON Object includes specific values for them
-        this.deserializeJsonObject(json);
+        this.updateObjectFieldsWithDatabaseDocumentVersion(json);
     }
 
 /////////////////////////////////////////Getter and Setter/////////////////////////////////////////
@@ -65,7 +71,11 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
      * @param name the name of the board
      */
     public set name(name: string) {
-        this._name = name;
+        // check if the value is really a new value to avoid unnecessary updates
+        if (name !== this.name) {
+            this._name = name;
+            this.uploadToDatabase();
+        }
     }
 
     /**
@@ -83,12 +93,16 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
      * @param backgroundColor the background color of the board
      */
     public set backgroundColor(backgroundColor: string) {
-        this._backgroundColor = backgroundColor;
+        // check if the value is really a new value to avoid unnecessary updates
+        if (backgroundColor !== this.backgroundColor) {
+            this._backgroundColor = backgroundColor;
+            this.uploadToDatabase();
+        }
     }
 
 ////////////////////////////////////////Inherited Methods//////////////////////////////////////////
 
-    public serializeToJsonObject(): any {
+    protected serializeToJsonObject(): any {
         let json = super.serializeToJsonObject();
 
         // add the fields of this class
@@ -98,10 +112,9 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
         return json;
     }
 
-    public deserializeJsonObject(json: any): void {
-        super.deserializeJsonObject(json);
-
-        if (json.name) this.name = json.name;
-        if (json.backgroundColor) this.backgroundColor = json.backgroundColor;
+    protected deserializeJsonObject(json: any): void {
+        // if a value is provided from the json object use this value
+        if (json.name !== null) this.name = json.name;
+        if (json.backgroundColor !== null) this.backgroundColor = json.backgroundColor;
     }
 }

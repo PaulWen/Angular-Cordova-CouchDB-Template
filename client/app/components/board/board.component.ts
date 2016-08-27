@@ -3,6 +3,7 @@ import {MDL} from "../../shared/utils/mdl/MaterialDesignLiteUpgradeElement";
 import {SORTABLEJS_DIRECTIVES, SortablejsOptions} from "angular-sortablejs";
 import {Logger} from "../../shared/utils/logger";
 import {BoardDocumentLoader} from "../../shared/databases/board/board_document_loader";
+import {BoardDocument} from "../../shared/databases/board/board_document";
 
 @Component({
     selector: 'board-component',
@@ -43,19 +44,6 @@ export class BoardComponent {
 
     constructor(boardDocumentLoader: BoardDocumentLoader) {
         this.boardDocumentLoader = boardDocumentLoader;
-
-        // this.boardDatabase.newDocument().then((data)=>{
-        //     Logger.debug(data);
-        // });
-
-        //
-        // this.boardDocumentLoader.getDocument("f76e24668a9559d7e6490bfd22000e7d").then((data:any)=>{
-        //     Logger.debug(data);
-        //     data.name = "test";
-        //     this.boardDocumentLoader.putDocument(data);
-        // });
-        //
-        // this.boardDocumentLoader.getAllDocuments().then((data)=>{Logger.debug(data);});
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
