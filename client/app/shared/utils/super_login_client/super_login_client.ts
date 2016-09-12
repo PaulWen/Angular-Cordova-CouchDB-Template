@@ -83,6 +83,8 @@ export class SuperLoginClient implements CanActivate {
      * @returns true or false depending on if the user is already authenticated
      */
     public canActivate(): Observable<boolean> | boolean {
+        return true;
+
         // check if the user is already authenticated
         if (this.authenticated) {
             return true;
