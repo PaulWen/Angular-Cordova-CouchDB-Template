@@ -3,6 +3,10 @@ var prodOutputPathApp = "build/app";
 var devOutputPathApp = "dist/app";
 var prodOutputPathServer = "build";
 var devOutputPathServer = "dist";
+var cordovaProjectPath = "cordova";
+var cordovaWwwPath = "cordova/www";
+var cordovaPlatformsPath = "cordova/platforms";
+var cordovaOutputPathApp = "cordova/www/app";
 
 var appSrcFolderPath = "client/app";
 var appTypeScriptFiles = appSrcFolderPath + "/**/*.ts";
@@ -84,6 +88,23 @@ gulp.task('typescript-libs-dev', function(cb) {
     cb();
 });
 
+// the task bundles all the libraries that are used in the project into one
+// JavaScript file and saves them in the Cordova folder
+gulp.task('cordova-typescript-libs-dev', function(cb) {
+    systemJsBuilder.loadConfig('./systemjs.config.js')
+        .then(function(){
+            return systemJsBuilder.bundle(
+                appSrcFolderPath + ' - [' + appSrcFolderPath + '/**/*]', // build app and remove the app code - this leaves only 3rd party dependencies
+                cordovaOutputPathApp + '/libs-bundle.js', { minify: true, sourceMaps:true});
+        })
+        .then(function(){
+            console.log('library bundles built successfully!');
+        });
+
+    cb();
+});
+
+
 // the task compiles all the own TypeScript files of the project to JavaScript files
 gulp.task('typescript-own-dev', function(cb) {
     var tscResult = gulp.src(appTypeScriptCompilerFiles) // instead of "appTsProject.src()" because the other one slows down the transpiler process
@@ -94,6 +115,19 @@ gulp.task('typescript-own-dev', function(cb) {
     return tscResult.js
         .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
         .pipe(gulp.dest(devOutputPathApp, cb));
+});
+
+
+// the task compiles all the own TypeScript files of the project to JavaScript files and saves them in the Cordova folder
+gulp.task('cordova-typescript-own-dev', function(cb) {
+    var tscResult = gulp.src(appTypeScriptCompilerFiles) // instead of "appTsProject.src()" because the other one slows down the transpiler process
+        .pipe(removeCode({notWeb: true, notCordova: false}))
+        .pipe(sourcemaps.init()) // This means sourcemaps will be generated
+        .pipe(gulpTsc(appTsProject));
+
+    return tscResult.js
+        .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
+        .pipe(gulp.dest(cordovaOutputPathApp, cb));
 });
 
 // ////////////////////////////////////////////////
@@ -108,6 +142,16 @@ gulp.task('sass-dev', function() {
         .pipe(sass().on('error', sass.logError))
         .pipe(sourcemaps.write())
         .pipe(gulp.dest(devOutputPathApp, {overwrite: true}));
+});
+
+// the task compiles all the own SASS files to CSS files and saves them in the Cordova folder
+gulp.task('cordova-sass-dev', function() {
+    return gulp.src(appSassFiles)
+        .pipe(removeCode({notWeb: true, notCordova: false}))
+        .pipe(sourcemaps.init())
+        .pipe(sass().on('error', sass.logError))
+        .pipe(sourcemaps.write())
+        .pipe(gulp.dest(cordovaOutputPathApp, {overwrite: true}));
 });
 
 // the task compiles all the own SASS files to CSS files and saves them in the build folder
@@ -137,6 +181,13 @@ gulp.task('view-dev', function() {
         .pipe(gulp.dest(devOutputPathApp, {overwrite: true}));
 });
 
+// copies all HTML files into the Cordova folder
+gulp.task('cordova-view-dev', function() {
+    return gulp.src(appHtmlFiles)
+        .pipe(removeCode({notWeb: true, notCordova: false}))
+        .pipe(gulp.dest(cordovaOutputPathApp, {overwrite: true}));
+});
+
 // copies the index.html file in the dist folder after including the JavaScript
 gulp.task('index-dev', function() {
     // load the index-js-dev.html file
@@ -148,6 +199,20 @@ gulp.task('index-dev', function() {
             }))
             .pipe(removeCode({notWeb: false, notCordova: true}))
             .pipe(gulp.dest(devOutputPathApp + "/.."));
+    });
+});
+
+// copies the index.html file in the Cordova folder after including the JavaScript
+gulp.task('cordova-index-dev', function() {
+    // load the index-js-dev.html file
+    fileLoader.readFile(appSrcFolderPath + '/../index-js-dev.html', "utf-8", function(err, data) {
+        // place the content of the index-js-dev.html inside the index.html template
+        return gulp.src(appSrcFolderPath + '/../index.html')
+            .pipe(htmlreplace({
+                'js': data
+            }))
+            .pipe(removeCode({notWeb: true, notCordova: false}))
+            .pipe(gulp.dest(cordovaOutputPathApp + "/.."));
     });
 });
 
@@ -181,6 +246,12 @@ gulp.task('res-dev', function() {
         .pipe(gulp.dest(devOutputPathApp + '/res', {overwrite: true}));
 });
 
+// copies all resources into the Cordova development folder
+gulp.task('cordova-res-dev', function() {
+    return gulp.src(appResFiles)
+        .pipe(gulp.dest(cordovaOutputPathApp + '/res', {overwrite: true}));
+});
+
 // ////////////////////////////////////////////////
 // Server TypeScript Files Tasks
 // // /////////////////////////////////////////////
@@ -210,12 +281,27 @@ gulp.task('server-typescript-own-prod', function(cb) {
 // ////////////////////////////////////////////////
 // Cordova Build Tasks
 // // /////////////////////////////////////////////
-gulp.task("cordova-build", function () {
-    return cordovaBuild.buildProject("android", ["--release", "--gradleArg=--no-daemon"]);
+
+// configure cordova builder
+gulp.task("cordova-configure", function (cb) {
+    cordovaBuild.configure({
+        projectPath: cordovaWwwPath
+    });
+
+    cordovaBuild.setupCordova().done(function (cordova) {
+        cordova.plugin("add", "cordova-plugin-network-information", function () {
+            cb();
+        });
+    });
+});
+
+// this task builds the android application
+gulp.task("cordova-build-android", ['cordova-configure'], function () {
+    return cordovaBuild.buildProject("android", ["--device", "--gradleArg=--no-daemon"]);
 });
 
 // ////////////////////////////////////////////////
-// Deployment Tasks
+// Web Deployment Tasks
 // // /////////////////////////////////////////////
 
 // starts the node.js server to test the build
@@ -224,7 +310,7 @@ gulp.task('serve-prod', function () {
 });
 
 // ////////////////////////////////////////////////
-// Development Tasks
+// Web Development Tasks
 // ////////////////////////////////////////////////
 
 // starts the node.js server for development
@@ -309,26 +395,34 @@ gulp.task('dev-typescript', ['clear-dev'], function(cb) {
 // // /////////////////////////////////////////////
 
 // clean out all files and folders from build folder
-gulp.task('clear-prod', function (cb) {
+gulp.task('clear-web-prod', function (cb) {
     del([prodOutputPathApp + '/**']);
     del([prodOutputPathServer + '/**'], cb);
 });
 
 // clean out all files and folders from build folder
-gulp.task('clear-dev', function (cb) {
+gulp.task('clear-web-dev', function (cb) {
     del([devOutputPathApp + '/**']);
     del([devOutputPathServer + '/**'], cb);
 });
 
-// build process for production
-gulp.task('deploy', gulpSequence('clear-prod', 'typescript-prod', ['server-typescript-own-prod', 'view-prod', 'index-prod', 'sass-prod', 'res-prod'], 'serve-prod'));
+// clean out all files and folders from build folder
+gulp.task('clear-cordova', function (cb) {
+    del([cordovaWwwPath + '/**']);
+    del([cordovaPlatformsPath + '/**'], cb);
+});
 
 // build process for production
-gulp.task('develop', gulpSequence('clear-dev', 'typescript-own-dev', ['server-typescript-own-dev', 'typescript-libs-dev', 'view-dev', 'index-dev', 'sass-dev', 'res-dev'], 'serve-dev'));
+gulp.task('deploy', gulpSequence('clear-web-prod', 'typescript-prod', ['server-typescript-own-prod', 'view-prod', 'index-prod', 'sass-prod', 'res-prod'], 'serve-prod'));
 
+// build process for production
+gulp.task('develop-web', gulpSequence('clear-web-dev', 'typescript-own-dev', ['server-typescript-own-dev', 'typescript-libs-dev', 'view-dev', 'index-dev', 'sass-dev', 'res-dev'], 'serve-dev'));
+
+// build process for production
+gulp.task('develop-cordova-android', gulpSequence('clear-cordova', 'cordova-typescript-own-dev', ['cordova-typescript-libs-dev', 'cordova-view-dev', 'cordova-index-dev', 'cordova-sass-dev', 'cordova-res-dev'], 'cordova-build-android'));
 
 // ////////////////////////////////////////////////
 // Default Tasks
 // // /////////////////////////////////////////////
 
-gulp.task('default', ['develop']);
+gulp.task('default', ['develop-web']);

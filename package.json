@@ -7,8 +7,8 @@
     "update": "npm update -dev --save",
     "preinstall": "npm config set python python2.7 && npm config set msvs_version 2015 && npm install cordova -g",
     "postinstall": "typings install && npm run check-for-updates",
-    "git-pull": "git fetch --all",
-    "git-push": "git push --all origin"
+    "pull": "git fetch --all",
+    "push": "git push --all origin"
   },
   "keywords": [],
   "author": "Paul Wenzel <wenzel.pgb@googlemail.com>",

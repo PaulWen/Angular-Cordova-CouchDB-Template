@@ -48,3 +48,5 @@ dist/dist/maps/
 # Cordova #
 ######################
 cordova/www
+cordova/plugins
+cordova/platforms
