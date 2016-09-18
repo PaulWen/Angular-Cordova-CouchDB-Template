@@ -1,5 +1,6 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
+import {ServerConfig} from "./server-config";
 let SuperLogin = require("superlogin");
 
 
@@ -32,8 +33,8 @@ let config = {
     },
     dbServer: {
         // The CouchDB compatible server where all your databases are stored on
-        protocol: 'http://',
-        host: 'localhost:5984',
+        protocol: ServerConfig.DATABASE_PROTOCOL,
+        host: ServerConfig.DATABASE_HOST,
         user: '',
         password: '',
         // Set this to true if you are using Cloudant

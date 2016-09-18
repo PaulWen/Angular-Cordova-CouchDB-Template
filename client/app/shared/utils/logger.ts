@@ -1,4 +1,4 @@
-import {Config} from "../../config";
+import {AppConfig} from "../../app-config";
 import PouchDB from "pouchdb";
 
 /**
@@ -13,7 +13,7 @@ export class Logger {
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
 
     public static log(msg:any) {
-        if (Config.DEVELOPMENT) {
+        if (AppConfig.DEVELOPMENT) {
             console.log(msg);
             // PouchDB.debug.enable('*');
             PouchDB.debug.disable();

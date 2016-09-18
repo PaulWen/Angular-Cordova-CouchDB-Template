@@ -7,6 +7,7 @@ import {SuperLoginClientErrorResponse} from "./super_login_client_error_reponse"
 import {Logger} from "../logger";
 import {SuperLoginClientDatabaseInitializer} from "./super_login_client_database_initializer";
 import {Observable} from "rxjs/Rx";
+import {AppConfig} from "../../../app-config";
 
 /**
  * This class is a service which implements TypeScript methods to communicate
@@ -208,7 +209,7 @@ export class SuperLoginClient implements CanActivate {
      */
     public loginWithCredentials(email: string, password: string, stayAuthenticated: boolean, done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse)  {
         // log the user in
-        this.httpRequestor.postJsonData("http://localhost:3000/auth/login", null, {
+        this.httpRequestor.postJsonData(AppConfig.WEB_SERVER_DOMAIN + "/auth/login", null, {
             // since the username is not allowed to include Capital letters we have to make sure that it does not
             username: email.toLocaleLowerCase(),
             password: password
@@ -245,7 +246,7 @@ export class SuperLoginClient implements CanActivate {
      */
     private loginWithSessionToken(sessionToken: string, stayAuthenticated: boolean, done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse) {
         // check if the given session token is valid
-        this.httpRequestor.getJsonData("http://localhost:3000/auth/session", sessionToken).subscribe(
+        this.httpRequestor.getJsonData(AppConfig.WEB_SERVER_DOMAIN + "/auth/session", sessionToken).subscribe(
             // if session token is still valid
             (data: any) => {
                 // finish the authentication
@@ -293,7 +294,7 @@ export class SuperLoginClient implements CanActivate {
      */
     private initializeUserDatabases(done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse): void {
         // load the database names
-        this.httpRequestor.getJsonData("http://localhost:3000/auth/user-db/", this.getSessionToken()).subscribe(
+        this.httpRequestor.getJsonData(AppConfig.WEB_SERVER_DOMAIN + "/auth/user-db/", this.getSessionToken()).subscribe(
             // if the database names got loaded successfully
             (data: any) => {
                 // give the database names to the database initializer
@@ -327,7 +328,7 @@ export class SuperLoginClient implements CanActivate {
      * @param error callback function in case an error occurred
      */
     public register(firstName: string, email: string, password: string, done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse) {
-        this.httpRequestor.postJsonData("http://localhost:3000/auth/register", null, {
+        this.httpRequestor.postJsonData(AppConfig.WEB_SERVER_DOMAIN + "/auth/register", null, {
             firstName: firstName,
             // since the username is not allowed to include Capital letters we have to make sure that it does not
             email: email.toLocaleLowerCase(),
@@ -359,7 +360,7 @@ export class SuperLoginClient implements CanActivate {
      * @param error callback function in case an error occurred
      */
     public logout(done: SuperLoginClientDoneResponse, error: SuperLoginClientErrorResponse)  {
-        this.httpRequestor.postJsonData("http://localhost:3000/auth/logout", this.getSessionToken(), {}).subscribe(
+        this.httpRequestor.postJsonData(AppConfig.WEB_SERVER_DOMAIN + "/auth/logout", this.getSessionToken(), {}).subscribe(
             (data: any) => {
                 done();
                 this.authenticated = false;
@@ -385,7 +386,7 @@ export class SuperLoginClient implements CanActivate {
      * @param falseCallback gets called if the email is not yet in use
      */
     public isEmailInUse(email: string, trueCallback: SuperLoginClientDoneResponse, falseCallback: SuperLoginClientDoneResponse) {
-        this.httpRequestor.getJsonData("http://localhost:3000/auth/validateEmailUsername/" + email, null).subscribe(
+        this.httpRequestor.getJsonData(AppConfig.WEB_SERVER_DOMAIN + "/auth/validateEmailUsername/" + email, null).subscribe(
             (data: any) => {
                 trueCallback();
             },
@@ -407,7 +408,7 @@ export class SuperLoginClient implements CanActivate {
      * This method renews the current session token.
      */
     private extendSessionToken(): void {
-        this.httpRequestor.postJsonData("http://localhost:3000/auth/refresh/", this.getSessionToken(), {}).subscribe(
+        this.httpRequestor.postJsonData(AppConfig.WEB_SERVER_DOMAIN + "/auth/refresh/", this.getSessionToken(), {}).subscribe(
             (data: any) => {
                 // all done successfully
                 Logger.log("Session successfully extended.");
