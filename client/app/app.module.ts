@@ -18,7 +18,12 @@ import {PageNotFoundComponent} from "./components/page_not_found/page_not_found.
 import {SortablejsModule} from "angular-sortablejs";
 
 @NgModule({
-    imports: [BrowserModule, HttpModule, routing, SortablejsModule],
+    imports: [
+        BrowserModule,
+        HttpModule,
+        routing,
+        SortablejsModule
+    ],
     declarations: [
         AppComponent,
         BoardComponent,

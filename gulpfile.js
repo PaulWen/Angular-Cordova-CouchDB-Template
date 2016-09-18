@@ -40,7 +40,7 @@ var htmlreplace = require('gulp-html-replace');
 var fileLoader = require('fs');
 var sass = require('gulp-sass');
 var cordovaBuild = require("taco-team-build");
-var autopolyfiller = require('gulp-autopolyfiller');
+var removeCode = require('gulp-remove-code');
 
 // is used in order to control if tasks should be run parallel or in sequenze
 var gulpSequence = require('gulp-sequence');
@@ -49,9 +49,13 @@ var gulpSequence = require('gulp-sequence');
 // TypeScripts Tasks
 // ///////////////////////////////////////////////
 
-// the task bundles all the JavaScript files (including own TypeScript files, used libraries and polyfills)
+// the task bundles all the JavaScript files (including own TypeScript files and used libraries)
 // that are used in the project into one file. This file will also be minimized.
 // The output file is perfect for deploying the application.
+//
+// COUTION: This function does not work properly anymore!
+// (1) no support for removing the Cordova specific code
+// (2) does not seem to support ES6 and await/async (review notes in OneNote)
 gulp.task('typescript-prod', ['typescript-own-dev'], function(cb) {
     systemJsBuilder.loadConfig('./systemjs.config.js')
         .then(function() {
@@ -64,7 +68,7 @@ gulp.task('typescript-prod', ['typescript-own-dev'], function(cb) {
     cb();
 });
 
-// the task bundels all the libraries and pollyfills that are used in the project into one
+// the task bundles all the libraries that are used in the project into one
 // JavaScript file
 gulp.task('typescript-libs-dev', function(cb) {
     systemJsBuilder.loadConfig('./systemjs.config.js')
@@ -82,7 +86,8 @@ gulp.task('typescript-libs-dev', function(cb) {
 
 // the task compiles all the own TypeScript files of the project to JavaScript files
 gulp.task('typescript-own-dev', function(cb) {
-    var tscResult = gulp.src(appTypeScriptCompilerFiles) // instead of "appTsProject.src()" because the other one slows down the transpile process
+    var tscResult = gulp.src(appTypeScriptCompilerFiles) // instead of "appTsProject.src()" because the other one slows down the transpiler process
+        .pipe(removeCode({notWeb: false, notCordova: true}))
         .pipe(sourcemaps.init()) // This means sourcemaps will be generated
         .pipe(gulpTsc(appTsProject));
 
@@ -98,6 +103,7 @@ gulp.task('typescript-own-dev', function(cb) {
 // the task compiles all the own SASS files to CSS files and saves them in the dist folder
 gulp.task('sass-dev', function() {
     return gulp.src(appSassFiles)
+        .pipe(removeCode({notWeb: false, notCordova: true}))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
         .pipe(sourcemaps.write())
@@ -107,6 +113,7 @@ gulp.task('sass-dev', function() {
 // the task compiles all the own SASS files to CSS files and saves them in the build folder
 gulp.task('sass-prod', function() {
     return gulp.src(appSassFiles)
+        .pipe(removeCode({notWeb: false, notCordova: true}))
         .pipe(sass().on('error', sass.logError))
         .pipe(gulp.dest(prodOutputPathApp, {overwrite: true}));
 });
@@ -119,12 +126,14 @@ gulp.task('sass-prod', function() {
 // copies all HTML files into the build folder
 gulp.task('view-prod', function() {
     return gulp.src(appHtmlFiles)
+        .pipe(removeCode({notWeb: false, notCordova: true}))
         .pipe(gulp.dest(prodOutputPathApp, {overwrite: true}));
 });
 
 // copies all HTML files into the development folder
 gulp.task('view-dev', function() {
     return gulp.src(appHtmlFiles)
+        .pipe(removeCode({notWeb: false, notCordova: true}))
         .pipe(gulp.dest(devOutputPathApp, {overwrite: true}));
 });
 
@@ -137,6 +146,7 @@ gulp.task('index-dev', function() {
             .pipe(htmlreplace({
                 'js': data
             }))
+            .pipe(removeCode({notWeb: false, notCordova: true}))
             .pipe(gulp.dest(devOutputPathApp + "/.."));
     });
 });
@@ -150,6 +160,7 @@ gulp.task('index-prod', function() {
             .pipe(htmlreplace({
                 'js': data
             }))
+            .pipe(removeCode({notWeb: false, notCordova: true}))
             .pipe(gulp.dest(prodOutputPathApp + "/.."));
     });
 });
@@ -321,10 +332,3 @@ gulp.task('develop', gulpSequence('clear-dev', 'typescript-own-dev', ['server-ty
 // // /////////////////////////////////////////////
 
 gulp.task('default', ['develop']);
-
-
-gulp.task('autopolyfiller', function () {
-    return gulp.src('./dist/app/components/**/*.js')
-        .pipe(autopolyfiller('result_polyfill_file.js'))
-        .pipe(gulp.dest('./dist/app'));
-});
