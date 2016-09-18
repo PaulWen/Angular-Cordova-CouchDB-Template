@@ -59,19 +59,19 @@ export class LoginComponent {
     }
 
     private login(email: string, password: string, rememberLogin: boolean) {
-        this.router.navigate([AppRoutes.BOARD_ROUTE]);
-        // this.superLoginClient.loginWithCredentials(email, password, rememberLogin, () => {
-        //     // successfully loged-in
-        //
-        // }, (error: SuperLoginClientError) => {
-        //     // error
-        //     if (error.checkForError(SuperLoginClientError.LOGIN_ERR_1)) {
-        //         alert(SuperLoginClientError.LOGIN_ERR_1);
-        //     }
-        //     if (error.checkForError(SuperLoginClientError.LOGIN_ERR_2)) {
-        //         alert(SuperLoginClientError.LOGIN_ERR_2);
-        //     }
-        // });
+        this.superLoginClient.loginWithCredentials(email, password, rememberLogin, () => {
+            // successfully loged-in
+            this.router.navigate([AppRoutes.BOARD_ROUTE]);
+
+        }, (error: SuperLoginClientError) => {
+            // error
+            if (error.checkForError(SuperLoginClientError.LOGIN_ERR_1)) {
+                alert(SuperLoginClientError.LOGIN_ERR_1);
+            }
+            if (error.checkForError(SuperLoginClientError.LOGIN_ERR_2)) {
+                alert(SuperLoginClientError.LOGIN_ERR_2);
+            }
+        });
     }
 
     private validateEmail(email: string) {

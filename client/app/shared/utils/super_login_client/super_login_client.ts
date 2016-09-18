@@ -83,42 +83,40 @@ export class SuperLoginClient implements CanActivate {
      * @returns true or false depending on if the user is already authenticated
      */
     public canActivate(): Observable<boolean> | boolean {
-        return true;
+        // check if the user is already authenticated
+        if (this.authenticated) {
+            return true;
 
-        // // check if the user is already authenticated
-        // if (this.authenticated) {
-        //     return true;
-        //
-        // // if the user is not yet authenticated try to authenticate him by using the session/local storage data
-        // } else {
-        //    if (this.isSessionTokenStoredPersistent() != null) {
-        //        return Observable.create((observer) => {
-        //            this.loginWithSessionToken(this.getSessionToken(), this.isSessionTokenStoredPersistent(),
-        //                () => {
-        //                    // end the observable and return the result
-        //                    observer.next(true);
-        //                    observer.complete();
-        //                },
-        //                (error: SuperLoginClientError) => {
-        //                    // remove the invalid session token stored in the session/local storage
-        //                    this.deleteSessionToken();
-        //
-        //                    // end the observable and return the result
-        //                    observer.next(false);
-        //                    observer.complete();
-        //
-        //                    // route the user to the login page
-        //                    this.router.navigate([this.loginPageRoute]);
-        //                }
-        //            );
-        //        });
-        //    } else {
-        //        // route the user to the login page
-        //        this.router.navigate([this.loginPageRoute]);
-        //
-        //        return false;
-        //    }
-        // }
+        // if the user is not yet authenticated try to authenticate him by using the session/local storage data
+        } else {
+           if (this.isSessionTokenStoredPersistent() != null) {
+               return Observable.create((observer) => {
+                   this.loginWithSessionToken(this.getSessionToken(), this.isSessionTokenStoredPersistent(),
+                       () => {
+                           // end the observable and return the result
+                           observer.next(true);
+                           observer.complete();
+                       },
+                       (error: SuperLoginClientError) => {
+                           // remove the invalid session token stored in the session/local storage
+                           this.deleteSessionToken();
+
+                           // end the observable and return the result
+                           observer.next(false);
+                           observer.complete();
+
+                           // route the user to the login page
+                           this.router.navigate([this.loginPageRoute]);
+                       }
+                   );
+               });
+           } else {
+               // route the user to the login page
+               this.router.navigate([this.loginPageRoute]);
+
+               return false;
+           }
+        }
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
