@@ -1,0 +1,242 @@
+<!-- Always shows a header, even in smaller screens. -->
+<div mdl class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header class="mdl-layout__header">
+        <div class="mdl-layout__header-row">
+            <!-- Title -->
+            <span class="mdl-layout-title">Privat</span>
+            <!-- Add spacer, to align navigation to the right -->
+            <div class="mdl-layout-spacer"></div>
+            <!-- Search Bar. -->
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable
+                  mdl-textfield--floating-label mdl-textfield--align-left">
+                <label class="mdl-button mdl-js-button mdl-button--icon"
+                       for="search-bar">
+                    <i class="material-icons">search</i>
+                </label>
+                <div class="mdl-textfield__expandable-holder">
+                    <input class="mdl-textfield__input" type="text" name="sample"
+                           id="search-bar">
+                </div>
+            </div>
+            <!-- Right aligned menu below button -->
+            <button id="board-menu-button"
+                    class="mdl-button mdl-js-button mdl-button--icon">
+                <i class="material-icons">more_vert</i>
+            </button>
+            <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect"
+                for="board-menu-button">
+                <li class="mdl-menu__item">Some Action</li>
+                <li class="mdl-menu__item">Another Action</li>
+                <li disabled class="mdl-menu__item">Disabled Action</li>
+                <li class="mdl-menu__item">Yet Another Action</li>
+            </ul>
+        </div>
+    </header>
+    <div class="mdl-layout__drawer">
+        <span class="mdl-layout-title">Boards</span>
+        <nav class="mdl-navigation">
+            <a class="mdl-navigation__link" href="">Privat</a>
+            <a class="mdl-navigation__link" href="">Arbeit</a>
+            <a class="mdl-navigation__link" href="">Lessons Learned</a>
+        </nav>
+    </div>
+    <main class="mdl-layout__content page-content">
+        <div class="list-container">
+            <div class="mdl-card list">
+                <div class="mdl-card__title list-header">
+                    <!-- Header -->
+                    <h6 class="list-header-title">Auslandssemester</h6>
+
+                    <!-- Add spacer, to align navigation to the right -->
+                    <div class="mdl-layout-spacer"></div>
+
+                    <!-- Right aligned menu below button -->
+                    <button id="list-menu-button1"
+                            class="mdl-button mdl-js-button mdl-button--icon">
+                        <i class="material-icons">more_vert</i>
+                    </button>
+                    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect"
+                        for="list-menu-button1">
+                        <li class="mdl-menu__item">Some Action</li>
+                        <li class="mdl-menu__item">Another Action</li>
+                        <li disabled class="mdl-menu__item">Disabled Action</li>
+                        <li class="mdl-menu__item">Yet Another Action</li>
+                    </ul>
+                </div>
+
+                <div class="list-content" [sortablejs] [sortablejsOptions]="sortablejsOptions">
+                    <div class="mdl-card mdl-shadow--2dp list-task" *ngFor="let item of items1">
+                        {{ item }}
+                    </div>
+                </div>
+                <div class="list-footer center">
+                    <button class="mdl-button mdl-js-button mdl-button--icon">
+                        <i class="material-icons">add</i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mdl-card list">
+                <div class="mdl-card__title list-header">
+                    <!-- Header -->
+                    <h6 class="list-header-title">Auslandssemester Test dies ist ein langer Listenname und er wird immmmmer länger!!</h6>
+
+                    <!-- Add spacer, to align navigation to the right -->
+                    <div class="mdl-layout-spacer"></div>
+
+                    <!-- Right aligned menu below button -->
+                    <button id="list-menu-button2"
+                            class="mdl-button mdl-js-button mdl-button--icon">
+                        <i class="material-icons">more_vert</i>
+                    </button>
+                    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect"
+                        for="list-menu-button2">
+                        <li class="mdl-menu__item">Some Action</li>
+                        <li class="mdl-menu__item">Another Action</li>
+                        <li disabled class="mdl-menu__item">Disabled Action</li>
+                        <li class="mdl-menu__item">Yet Another Action</li>
+                    </ul>
+                </div>
+
+                <div class="list-content" [sortablejs] [sortablejsOptions]="sortablejsOptions">
+                    <div class="mdl-card mdl-shadow--2dp list-task" *ngFor="let item of items2">
+                        {{ item }}
+                    </div>
+                </div>
+
+                <div class="list-footer center">
+                    <button class="mdl-button mdl-js-button mdl-button--icon">
+                        <i class="material-icons">add</i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mdl-card list">
+                <div class="mdl-card__title list-header">
+                    <!-- Header -->
+                    <h6 class="list-header-title">Auslandssemester</h6>
+
+                    <!-- Add spacer, to align navigation to the right -->
+                    <div class="mdl-layout-spacer"></div>
+
+                    <!-- Right aligned menu below button -->
+                    <button id="list-menu-button3"
+                            class="mdl-button mdl-js-button mdl-button--icon">
+                        <i class="material-icons">more_vert</i>
+                    </button>
+                    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect"
+                        for="list-menu-button3">
+                        <li class="mdl-menu__item">Some Action</li>
+                        <li class="mdl-menu__item">Another Action</li>
+                        <li disabled class="mdl-menu__item">Disabled Action</li>
+                        <li class="mdl-menu__item">Yet Another Action</li>
+                    </ul>
+                </div>
+
+                <div class="list-content">
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test
+                    </div>
+                    <div class="mdl-card mdl-shadow--2dp list-task">
+                        Test<br/>
+                        Testtttt
+                    </div>
+                </div>
+                <div class="list-footer center">
+                    <button class="mdl-button mdl-js-button mdl-button--icon">
+                        <i class="material-icons">add</i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mdl-card__title new-list no-padding">
+                <div class="mdl-textfield mdl-js-textfield">
+                    <input class="mdl-textfield__input no-padding" type="text" id="new_list">
+                    <label class="mdl-textfield__label no-padding" for="new_list">New List...</label>
+                </div>
+            </div>
+
+            <!--<h2>Drag / drop the item</h2>-->
+
+            <!--<div [sortablejs]="items1" [sortablejsOptions]="sortablejsOptions1">-->
+                <!--<div *ngFor="let item of items1">{{ item }}</div>-->
+            <!--</div>-->
+            <!--<div [sortablejs]="items2" [sortablejsOptions]="sortablejsOptions2">-->
+                <!--<div *ngFor="let item of items2">{{ item }}</div>-->
+            <!--</div>-->
+
+            <!--<hr>-->
+
+            <!--<h2>See the result</h2>-->
+            <!--<div>-->
+                <!--<div *ngFor="let item of items1">{{ item }}</div>-->
+            <!--</div>-->
+        </div>
+    </main>
+</div>

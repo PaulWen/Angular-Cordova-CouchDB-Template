@@ -1,6 +1,6 @@
 // this file configures the SystemJS Loader
 // it is ONLY used during the build process to create the JavaScript File Bundles
-// to configure the SystemJS Loader of the actuall application please look
+// to configure the SystemJS Loader of the actual application please look
 // inside index-js-dev.html and index-js-prod.html in the source folder
 
 System.config({

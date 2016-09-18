@@ -5,9 +5,8 @@
   "scripts": {
     "check-for-updates": "npm outdated",
     "update": "npm update -dev --save",
-    "preinstall": "npm config set python python2.7 && npm config set msvs_version 2015",
+    "preinstall": "npm config set python python2.7 && npm config set msvs_version 2015 && npm install cordova -g",
     "postinstall": "typings install && npm run check-for-updates",
-
     "git-pull": "git fetch --all",
     "git-push": "git push --all origin"
   },
@@ -15,15 +14,14 @@
   "author": "Paul Wenzel <wenzel.pgb@googlemail.com>",
   "license": "ISC",
   "dependencies": {
-    "@angular/common":  "2.0.0-rc.5",
-    "@angular/compiler":  "2.0.0-rc.5",
-    "@angular/core":  "2.0.0-rc.5",
+    "@angular/common": "2.0.0-rc.5",
+    "@angular/compiler": "2.0.0-rc.5",
+    "@angular/core": "2.0.0-rc.5",
     "@angular/forms": "0.3.0",
-    "@angular/http":  "2.0.0-rc.5",
-    "@angular/platform-browser":  "2.0.0-rc.5",
-    "@angular/platform-browser-dynamic":  "2.0.0-rc.5",
-    "@angular/router":  "3.0.0-rc.1",
-
+    "@angular/http": "2.0.0-rc.5",
+    "@angular/platform-browser": "2.0.0-rc.5",
+    "@angular/platform-browser-dynamic": "2.0.0-rc.5",
+    "@angular/router": "3.0.0-rc.1",
     "angular-sortablejs": "*",
     "body-parser": "*",
     "es6-shim": "*",
@@ -43,6 +41,7 @@
     "del": "^1.1.1",
     "fs": "0.0.2",
     "gulp": "^3.8.11",
+    "gulp-autopolyfiller": "^1.2.1",
     "gulp-develop-server": "^0.5.2",
     "gulp-html-replace": "^1.5.5",
     "gulp-rename": "^1.2.2",
@@ -51,7 +50,8 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-typescript": "^2.13.4",
     "systemjs-builder": "^0.15.17",
-    "typings": "^0.8.1",
-    "typescript": "^1.8.10"
+    "taco-team-build": "^0.2.2",
+    "typescript": "^1.8.10",
+    "typings": "^0.8.1"
   }
 }

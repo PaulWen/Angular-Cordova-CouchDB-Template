@@ -44,3 +44,7 @@ dev/
 build/
 dist/
 dist/dist/maps/
+
+# Cordova #
+######################
+cordova/www

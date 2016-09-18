@@ -12,21 +12,20 @@ import {AppRoutes, routing} from "./app_routes";
 import {DatabaseInitializer} from "./shared/databases/database_initializer";
 import {BoardComponent} from "./components/board/board.component";
 import {MDL} from "./shared/utils/mdl/MaterialDesignLiteUpgradeElement";
-import {SORTABLEJS_DIRECTIVES} from "angular-sortablejs/index";
 import {ErrorComponent} from "./components/error/error.component";
 import {LoginComponent} from "./components/login/login.component";
 import {PageNotFoundComponent} from "./components/page_not_found/page_not_found.component";
+import {SortablejsModule} from "angular-sortablejs";
 
 @NgModule({
-    imports: [BrowserModule, HttpModule, routing],
+    imports: [BrowserModule, HttpModule, routing, SortablejsModule],
     declarations: [
         AppComponent,
         BoardComponent,
         LoginComponent,
         ErrorComponent,
         PageNotFoundComponent,
-        MDL,
-        SORTABLEJS_DIRECTIVES
+        MDL
     ],
     bootstrap: [AppComponent],
     providers: [

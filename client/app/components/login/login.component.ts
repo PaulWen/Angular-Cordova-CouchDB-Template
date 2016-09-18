@@ -10,7 +10,7 @@ import {Logger} from "../../shared/utils/logger";
 @Component({
     selector: 'login-component',
     templateUrl: 'app/components/login/login.component.html',
-    styleUrls: ['app/components/login/login.component.css'],
+    styleUrls: ['app/components/login/login.component.css']
 })
 export class LoginComponent {
 ////////////////////////////////////////////Properties////////////////////////////////////////////

@@ -39,6 +39,8 @@ var browserSync = require('browser-sync').create();
 var htmlreplace = require('gulp-html-replace');
 var fileLoader = require('fs');
 var sass = require('gulp-sass');
+var cordovaBuild = require("taco-team-build");
+var autopolyfiller = require('gulp-autopolyfiller');
 
 // is used in order to control if tasks should be run parallel or in sequenze
 var gulpSequence = require('gulp-sequence');
@@ -47,9 +49,9 @@ var gulpSequence = require('gulp-sequence');
 // TypeScripts Tasks
 // ///////////////////////////////////////////////
 
-// the task bundels all the JavaScript files that are used in the project into one file
-// this will is also mimimized
-// this will is perfect for deploying the application
+// the task bundles all the JavaScript files (including own TypeScript files, used libraries and polyfills)
+// that are used in the project into one file. This file will also be minimized.
+// The output file is perfect for deploying the application.
 gulp.task('typescript-prod', ['typescript-own-dev'], function(cb) {
     systemJsBuilder.loadConfig('./systemjs.config.js')
         .then(function() {
@@ -62,7 +64,7 @@ gulp.task('typescript-prod', ['typescript-own-dev'], function(cb) {
     cb();
 });
 
-// the task bundels all the libraries that are used in the project into one
+// the task bundels all the libraries and pollyfills that are used in the project into one
 // JavaScript file
 gulp.task('typescript-libs-dev', function(cb) {
     systemJsBuilder.loadConfig('./systemjs.config.js')
@@ -126,7 +128,7 @@ gulp.task('view-dev', function() {
         .pipe(gulp.dest(devOutputPathApp, {overwrite: true}));
 });
 
-// copies the index.html file in the dist folder after inculding the JavaScript
+// copies the index.html file in the dist folder after including the JavaScript
 gulp.task('index-dev', function() {
     // load the index-js-dev.html file
     fileLoader.readFile(appSrcFolderPath + '/../index-js-dev.html', "utf-8", function(err, data) {
@@ -139,11 +141,11 @@ gulp.task('index-dev', function() {
     });
 });
 
-// copies the index.html file in the build folder after inculding the JavaScript
+// copies the index.html file in the build folder after including the JavaScript
 gulp.task('index-prod', function() {
     // load the index-js-prod.html file
     fileLoader.readFile(appSrcFolderPath + '/../index-js-prod.html', "utf-8", function(err, data) {
-        // place the conent of the index-js-prod.html inside the inde.html template
+        // place the content of the index-js-prod.html inside the index.html template
         return gulp.src(appSrcFolderPath + '/../index.html')
             .pipe(htmlreplace({
                 'js': data
@@ -153,7 +155,7 @@ gulp.task('index-prod', function() {
 });
 
 // ////////////////////////////////////////////////
-// App Resourses Tasks
+// App Resources Tasks
 // // /////////////////////////////////////////////
 
 // copies all resources into the build folder
@@ -192,6 +194,13 @@ gulp.task('server-typescript-own-prod', function(cb) {
     return tscResult.js
         .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
         .pipe(gulp.dest(prodOutputPathServer, cb));
+});
+
+// ////////////////////////////////////////////////
+// Cordova Build Tasks
+// // /////////////////////////////////////////////
+gulp.task("cordova-build", function () {
+    return cordovaBuild.buildProject("android", ["--release", "--gradleArg=--no-daemon"]);
 });
 
 // ////////////////////////////////////////////////
@@ -312,3 +321,10 @@ gulp.task('develop', gulpSequence('clear-dev', 'typescript-own-dev', ['server-ty
 // // /////////////////////////////////////////////
 
 gulp.task('default', ['develop']);
+
+
+gulp.task('autopolyfiller', function () {
+    return gulp.src('./dist/app/components/**/*.js')
+        .pipe(autopolyfiller('result_polyfill_file.js'))
+        .pipe(gulp.dest('./dist/app'));
+});

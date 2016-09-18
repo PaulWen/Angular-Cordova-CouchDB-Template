@@ -1,6 +1,6 @@
 import {Component} from "@angular/core";
 import {MDL} from "../../shared/utils/mdl/MaterialDesignLiteUpgradeElement";
-import {SORTABLEJS_DIRECTIVES, SortablejsOptions} from "angular-sortablejs";
+import {SortablejsOptions} from "angular-sortablejs";
 import {Logger} from "../../shared/utils/logger";
 import {BoardDocumentLoader} from "../../shared/databases/board/board_document_loader";
 import {BoardDocument} from "../../shared/databases/board/board_document";
