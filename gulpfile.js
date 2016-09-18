@@ -23,6 +23,7 @@ var appIndexHtmlFilesDev = [
     appSrcFolderPath + "/../index-js-dev.html"
 ];
 var appResFiles = "client/app/res/**/*";
+var appLibsFiles = "client/libs/**/*";
 
 var serverSrcFolderPath = "server";
 var serverTypeScriptFiles = serverSrcFolderPath + "/**/*.ts";
@@ -79,7 +80,7 @@ gulp.task('typescript-libs-dev', function(cb) {
         .then(function(){
             return systemJsBuilder.bundle(
                 appSrcFolderPath + ' - [' + appSrcFolderPath + '/**/*]', // build app and remove the app code - this leaves only 3rd party dependencies
-                devOutputPathApp + '/libs-bundle.js', { minify: true, sourceMaps:true});
+                devOutputPathServer + '/libs' + '/libs-bundle.js', { minify: true, sourceMaps:true});
         })
         .then(function(){
             console.log('library bundles built successfully!');
@@ -95,7 +96,7 @@ gulp.task('cordova-typescript-libs-dev', function(cb) {
         .then(function(){
             return systemJsBuilder.bundle(
                 appSrcFolderPath + ' - [' + appSrcFolderPath + '/**/*]', // build app and remove the app code - this leaves only 3rd party dependencies
-                cordovaOutputPathApp + '/libs-bundle.js', { minify: true, sourceMaps:true});
+                cordovaWwwPath + '/libs' + '/libs-bundle.js', { minify: true, sourceMaps:true});
         })
         .then(function(){
             console.log('library bundles built successfully!');
@@ -250,6 +251,29 @@ gulp.task('res-dev', function() {
 gulp.task('cordova-res-dev', function() {
     return gulp.src(appResFiles)
         .pipe(gulp.dest(cordovaOutputPathApp + '/res', {overwrite: true}));
+});
+
+// ////////////////////////////////////////////////
+// Downloaded libraries Tasks
+// (libraries and polyfills add in the index.html)
+// // /////////////////////////////////////////////
+
+// copies all libraries into the build folder
+gulp.task('libs-prod', function() {
+    return gulp.src(appLibsFiles)
+        .pipe(gulp.dest(prodOutputPathServer + '/libs', {overwrite: true}));
+});
+
+// copies all libraries into the development folder
+gulp.task('libs-dev', function() {
+    return gulp.src(appLibsFiles)
+        .pipe(gulp.dest(devOutputPathServer + '/libs', {overwrite: true}));
+});
+
+// copies all libraries into the Cordova development folder
+gulp.task('cordova-libs-dev', function() {
+    return gulp.src(appLibsFiles)
+        .pipe(gulp.dest(cordovaWwwPath + '/libs', {overwrite: true}));
 });
 
 // ////////////////////////////////////////////////
@@ -413,13 +437,13 @@ gulp.task('clear-cordova', function (cb) {
 });
 
 // build process for production
-gulp.task('deploy', gulpSequence('clear-web-prod', 'typescript-prod', ['server-typescript-own-prod', 'view-prod', 'index-prod', 'sass-prod', 'res-prod'], 'serve-prod'));
+gulp.task('deploy', gulpSequence('clear-web-prod', 'typescript-prod', ['server-typescript-own-prod', 'view-prod', 'index-prod', 'sass-prod', 'res-prod', 'libs-prod'], 'serve-prod'));
 
 // build process for production
-gulp.task('develop-web', gulpSequence('clear-web-dev', 'typescript-own-dev', ['server-typescript-own-dev', 'typescript-libs-dev', 'view-dev', 'index-dev', 'sass-dev', 'res-dev'], 'serve-dev'));
+gulp.task('develop-web', gulpSequence('clear-web-dev', 'typescript-own-dev', ['server-typescript-own-dev', 'typescript-libs-dev', 'view-dev', 'index-dev', 'sass-dev', 'res-dev', 'libs-dev'], 'serve-dev'));
 
 // build process for production
-gulp.task('develop-cordova-android', gulpSequence('clear-cordova', 'cordova-typescript-own-dev', ['cordova-typescript-libs-dev', 'cordova-view-dev', 'cordova-index-dev', 'cordova-sass-dev', 'cordova-res-dev'], 'cordova-build-android'));
+gulp.task('develop-cordova-android', gulpSequence('clear-cordova', 'cordova-typescript-own-dev', ['cordova-typescript-libs-dev', 'cordova-view-dev', 'cordova-index-dev', 'cordova-sass-dev', 'cordova-res-dev', 'cordova-libs-dev'], 'cordova-build-android'));
 
 // ////////////////////////////////////////////////
 // Default Tasks

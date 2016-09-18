@@ -165,8 +165,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Mount SuperLogin's routes to the app
 app.use('/auth', superlogin.router);
 
-// define the static routes where just the files should get loaded from
+// define the static routes where just files should get loaded from
 app.use('/app', express.static(__dirname + '/app'));
+
+// define the static routes where just files should get loaded from
+app.use('/libs', express.static(__dirname + '/libs'));
 
 // all requests that could not be handled until this point get answered by returning the index.html
 app.get('/*', (req: express.Request, res: express.Response) => {
