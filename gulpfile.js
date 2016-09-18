@@ -409,7 +409,7 @@ gulp.task('clear-console', function(cb) {
 });
 
 // the tasks compiles all the own typescript files automatically, when ever they change
-gulp.task('dev-typescript', ['clear-dev'], function(cb) {
+gulp.task('dev-typescript', ['clear-web-dev'], function(cb) {
     gulp.watch(appTypeScriptFiles, ["clear-console", "typescript-own-dev"], cb);
     gulp.watch(serverTypeScriptFiles, ["clear-console", "server-typescript-own-dev"], cb);
 });
