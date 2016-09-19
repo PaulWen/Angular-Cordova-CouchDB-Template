@@ -2,7 +2,7 @@ import {Component} from "@angular/core";
 import {MDL} from "../../shared/utils/mdl/MaterialDesignLiteUpgradeElement";
 import {SortablejsOptions} from "angular-sortablejs";
 import {Logger} from "../../shared/utils/logger";
-import {BoardDocumentLoader} from "../../shared/databases/board/board_document_loader";
+import {BoardDatabaseLoader} from "../../shared/databases/board/board_database_loader";
 import {BoardDocument} from "../../shared/databases/board/board_document";
 
 @Component({
@@ -13,7 +13,7 @@ import {BoardDocument} from "../../shared/databases/board/board_document";
 export class BoardComponent {
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
-    private boardDocumentLoader: BoardDocumentLoader;
+    private boardDatabaseLoader: BoardDatabaseLoader;
 
     private items1 = [1, 2, 3, 4, 5];
     private items2 = [21, 22, 23, 24, 25];
@@ -42,8 +42,8 @@ export class BoardComponent {
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
-    constructor(boardDocumentLoader: BoardDocumentLoader) {
-        this.boardDocumentLoader = boardDocumentLoader;
+    constructor(boardDocumentLoader: BoardDatabaseLoader) {
+        this.boardDatabaseLoader = boardDocumentLoader;
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////

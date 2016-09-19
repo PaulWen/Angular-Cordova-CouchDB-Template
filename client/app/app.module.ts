@@ -2,7 +2,7 @@ import {NgModule, ExceptionHandler} from "@angular/core";
 import {BrowserModule} from "@angular/platform-browser";
 import {AppComponent} from "./app.component";
 import {BoardDatabase} from "./shared/databases/board/board_database";
-import {BoardDocumentLoader} from "./shared/databases/board/board_document_loader";
+import {BoardDatabaseLoader} from "./shared/databases/board/board_database_loader";
 import {AppExceptionHandler} from "./exception_handler";
 import {SuperLoginClient} from "./shared/utils/super_login_client/super_login_client";
 import {SuperloginHttpRequestor} from "./shared/utils/super_login_client/superlogin_http_requestor";
@@ -54,10 +54,10 @@ export class AppModule {
 ////////////////////////////////////////////Providers/////////////////////////////////////////////
 
     /**
-     * This provider provides a {@link BoardDocumentLoader}.
+     * This provider provides a {@link BoardDatabaseLoader}.
      */
     private static boardDocumentLoaderProvider = {
-        provide: BoardDocumentLoader,
+        provide: BoardDatabaseLoader,
         useValue: AppModule.boardDatabase
     };
 

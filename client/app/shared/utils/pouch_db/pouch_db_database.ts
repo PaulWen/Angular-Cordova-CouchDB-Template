@@ -1,7 +1,7 @@
 import {Logger} from "../logger";
 import PouchDB from "pouchdb";
 import {PouchDbDocument} from "./pouch_db_document";
-import {PouchDbDocumentLoaderInterface} from "./pouch_db_document_loader_interface";
+import {PouchDbLoaderInterface} from "./pouch_db_loader_interface";
 
 /**
  * This abstract class is based on PouchDB and represents one CouchDB database.
@@ -17,7 +17,7 @@ import {PouchDbDocumentLoaderInterface} from "./pouch_db_document_loader_interfa
  * HOW TO EXTEND FROM THIS CLASS:
  *
  * Classes that implement this class should represent databases for a specific {@link PouchDbDocument}.
- * They should implement a specific {@link PouchDbDocumentLoaderInterface} which describes, what functions
+ * They should implement a specific {@link PouchDbLoaderInterface} which describes, what functions
  * the class that, implements this class, should provide.
  *
  * THEY ARE ONLY ALLOWED to provide functions for the purpose of GETTING documents out of the database and
@@ -27,7 +27,7 @@ import {PouchDbDocumentLoaderInterface} from "./pouch_db_document_loader_interfa
  * or uploading documents to the database!! For those purposes the already implemented functions which this class
  * provides should get used!!
  */
-export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<DocumentType>> implements PouchDbDocumentLoaderInterface<DocumentType> {
+export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<DocumentType>> implements PouchDbLoaderInterface<DocumentType> {
 
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 

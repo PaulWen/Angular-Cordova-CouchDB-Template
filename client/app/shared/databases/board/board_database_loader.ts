@@ -1,5 +1,5 @@
 import {PouchDbDocument} from "../../utils/pouch_db/pouch_db_document";
-import {PouchDbDocumentLoaderInterface} from "../../utils/pouch_db/pouch_db_document_loader_interface";
+import {PouchDbLoaderInterface} from "../../utils/pouch_db/pouch_db_loader_interface";
 import {BoardDocument} from "./board_document";
 
 /**
@@ -12,16 +12,16 @@ import {BoardDocument} from "./board_document";
  * ONLY define abstract classes as if it would be an interface.
  *
  *
- * This interface is the BoardDocumentLoader and defines the functions which will be provided for the controllers to get Board-Document-Objects.
+ * This interface is the {@link BoardDatabaseLoader} and defines the functions which will be provided for the controllers to get Board-Document-Objects.
  *
- * A Document-Loader enables a controller to get Document-Objects from a database. A Document-Loader only implements
+ * A {@link PouchDbLoaderInterface} enables a controller to get Document-Objects from a database. A {@link PouchDbLoaderInterface} only implements
  * functions for getting, deleting or creating new documents. (e.g. a function for retrieving all documents with the property dueDate=today)
  *
  * This interface calls gets implemented by the {@link BoardDatabase}. The controllers should only access the {@link BoardDatabase} by using the functions
  * of this interface. Doing so prevents a controller form setting the URL of a database or uploading documents to the database. Uploading documents
  * to the database is not necessary since the Document-Objects retrieved from a database do automatically sync in both directions with the database.
  */
-export abstract class BoardDocumentLoader extends PouchDbDocumentLoaderInterface<BoardDocument> {
+export abstract class BoardDatabaseLoader extends PouchDbLoaderInterface<BoardDocument> {
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
 

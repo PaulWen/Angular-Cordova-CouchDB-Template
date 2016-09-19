@@ -10,9 +10,9 @@ import {PouchDbDocument} from "./pouch_db_document";
  * ONLY define abstract classes as if it would be an interface.
  *
  *
- * This interface defines the basic functions, which a Document-Loader should provide a controller with.
+ * This interface defines the basic functions, which a {@link PouchDbLoaderInterface} should provide a controller with.
  *
- * A Document-Loader enables a controller to get Document-Objects from a database. For each database there should be a
+ * A {@link PouchDbLoaderInterface} enables a controller to get Document-Objects from a database. For each database there should be a
  * specific interface implemented which extends this interface by database specific document loader functions. Those interfaces only implement
  * functions for getting, deleting or creating new documents. (e.g. a function for retrieving all documents with the property dueDate=today)
  *
@@ -20,7 +20,7 @@ import {PouchDbDocument} from "./pouch_db_document";
  * of the interfaces. Doing so prevents a controller form setting the URL of a database or uploading documents to the database. Uploading documents
  * to the database is not necessary since the Document-Objects retrieved from a database do automatically sync in both directions with the database.
  */
-export abstract class PouchDbDocumentLoaderInterface<DocumentType extends PouchDbDocument<DocumentType>> {
+export abstract class PouchDbLoaderInterface<DocumentType extends PouchDbDocument<DocumentType>> {
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
 
