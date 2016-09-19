@@ -1,9 +1,10 @@
-import {Component} from "@angular/core";
+import {Component, Inject} from "@angular/core";
 import {MDL} from "../../shared/utils/mdl/MaterialDesignLiteUpgradeElement";
 import {SortablejsOptions} from "angular-sortablejs";
 import {Logger} from "../../shared/utils/logger";
-import {BoardDocumentLoader} from "../../shared/databases/board/board_document_loader";
 import {BoardDocument} from "../../shared/databases/board/board_document";
+import {PouchDbDatabase} from "../../shared/utils/pouch_db/pouch_db_database";
+import {AppModule} from "../../app.module";
 
 @Component({
     selector: 'board-component',
@@ -13,7 +14,7 @@ import {BoardDocument} from "../../shared/databases/board/board_document";
 export class BoardComponent {
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
-    private boardDocumentLoader: BoardDocumentLoader;
+    private boardDatabase: PouchDbDatabase;
 
     private items1 = [1, 2, 3, 4, 5];
     private items2 = [21, 22, 23, 24, 25];
@@ -42,8 +43,8 @@ export class BoardComponent {
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
-    constructor(boardDocumentLoader: BoardDocumentLoader) {
-        this.boardDocumentLoader = boardDocumentLoader;
+    constructor(@Inject(AppModule.BOARD_DATABASE)boardDatabase:PouchDbDatabase) {
+        this.boardDatabase = boardDatabase;
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////

@@ -40,7 +40,7 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
     /** the database where this document gets stored in, so it can upload itself in the database in the case of an change */
-    private database: PouchDbDatabase<DocumentType>;
+    private database: PouchDbDatabase;
 
     /** If this variable gets set to true, a call of the function {@link PouchDbDocument#uploadToDatabase}
      * has any effect. This is useful if the document object gets updated with the current values retrieved
@@ -62,22 +62,18 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
     /**
      * The constructor of the class "PouchDbDocument".
      *
-     * @param json  A JSON object FROM THE DATABASE which MUST include the property "_id"
-     *              (the id of the CouchDB document which this object is representing)
+     * @param _id  the id of the CouchDB document which this object is representing
      * @param database the database where this document gets stored in, so it can upload itself in the database in the case of an change
-     * @param changeListener a change listener which will get called by the database when ever this document changes,
-     *                       so that it updates the values with the once from the database
-     *
      */
-    constructor(json: any, database: PouchDbDatabase<DocumentType>, changeListener: PouchDbDocument.ChangeListener) {
+    constructor(_id: string, database: PouchDbDatabase) {
         this.database = database;
 
-        // register the onChange function by the changeListener
-        changeListener.setOnChangeFunction(this.updateObjectFieldsWithDatabaseDocumentVersion.bind(this));
+        // register a change listener at the database for this document
+        database.registerChangeListener(_id, this.updateObjectFieldsWithDatabaseDocumentVersion.bind(this));
 
         // since the id cannot change, we do only have to set it here and not in the
         // function "deserializeJsonObject"
-        this.__id = json._id;
+        this.__id = _id;
 
         // set default values for the other fields
         this.__rev = "";
@@ -232,68 +228,9 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
      */
     protected abstract deserializeJsonObject(json: any): void;
 
-}
 
-//////////////////////////////////////////Inner Classes////////////////////////////////////////////
-
-export module PouchDbDocument {
-
-    /**
-     * This interface describes te function that should get called if a document in a database changed
-     * and the {@link PouchDbDocument} has to be notified.
-     */
-    export interface OnChangeFunction {
-       (json:any): void;
+    public static newInstance(): Promise<DocumentType> {
+        return null;
     }
 
-    /**
-     * This class is a container for a change listener function.
-     * It gets only used for setting a change listener for objects of {@link PouchDbDocument}.
-     * It is used for setting a change listener function in an anonymous way that that only objects of this
-     * class and the class that is notifying, in case of an change, knows about this function.
-     */
-    export class ChangeListener {
-
-        ///////////////////////////////////////////Properties//////////////////////////////////////////
-
-        /** This variable stores the onChange function which gets set by an {@link PouchDbDocument}
-         * and should get called in the case of an change. This variable has to be set by calling
-         * {@link PouchDbDocument#ChangeListener#setOnChangeFunction}*/
-        private onChangeFunction: PouchDbDocument.OnChangeFunction;
-
-        //////////////////////////////////////////Constructor//////////////////////////////////////////
-
-        /**
-         * Constructor of the inner class {@link PouchDbDocument#ChangeListener}
-         */
-        constructor() {
-
-        }
-
-        ///////////////////////////////////////////Methods/////////////////////////////////////////////
-
-        /**
-         * This setter sets the function that should get called in case the function
-         * {@link PouchDbDocument#ChangeListener#change} gets called.
-         *
-         * @param onChangeFunction
-         */
-        public setOnChangeFunction(onChangeFunction:PouchDbDocument.OnChangeFunction):void {
-            this.onChangeFunction = onChangeFunction;
-        }
-
-        /**
-         * This function should get called if a change occurred. The function
-         * calls then calls the right function of the listener to notify him about
-         * the change.
-         *
-         * @param json the new version of the json object that changed
-         */
-        public onChange(json:any):void {
-            // Unfortunately, WebStorm throws an error even though there is no mistake.
-            // With the following statement/comment we suppress the error message:
-            //noinspection TypeScriptValidateTypes
-            this.onChangeFunction(json);
-        }
-    }
 }
