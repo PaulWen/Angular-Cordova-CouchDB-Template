@@ -228,9 +228,4 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
      */
     protected abstract deserializeJsonObject(json: any): void;
 
-
-    public static newInstance(): Promise<DocumentType> {
-        return null;
-    }
-
 }

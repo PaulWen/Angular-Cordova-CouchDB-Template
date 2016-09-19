@@ -97,7 +97,7 @@ export class PouchDbDatabase {
             let newDocument = await this.database.post({});
 
             // convert the new created document to the right object type
-            return await {
+            return {
                 _id: newDocument.id,
                 _rev: newDocument.rev
             };

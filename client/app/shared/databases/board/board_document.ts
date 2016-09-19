@@ -21,24 +21,52 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
     /**
      * The constructor of the class "BoardDocument".
      *
+     * @param json  A JSON object which MUST include the properties:
+     *                  - "_id" (the id of the CouchDB document which this object is representing)
+     *                  - "_rev" (the revision code of the CouchDB document which this object is representing)
+     *
+     *              It CAN also include the property:
+     *                  - "_deleted" (indicates whether or not the document got deleted (optional, defaults to "false"))
+     *
+     *              Furthermore, it CAN include the properties:
+     *                  - "name" (the name of the board)
+     *                  - "backgroundColor" (the background color of the board)
+     *
+     *
+     *              If the JSON object does not include one of the optional properties listed above, a default value will be set.
+     *              If the JSON object includes properties which are not listed above, those values get ignored.
+     *              (The way this function deals with unknown attributes from the JSON object is for the purpose of changing
+     *              the document structure dynamically and making sure that all the documents which still have the old
+     *              structure will get updated eventually.)
+     *
      * @param database the database where this document gets stored in, so it can upload itself in the database in the case of an change
-     * @param _id  the id of the CouchDB document which this object is representing
      */
-    public constructor(database: PouchDbDatabase, _id?: string) {
-        if (_id !== null) {
-            super(_id, database);
-        } else {
-            super("test", database);
-        }
-
-
+    private constructor(json: any, database: PouchDbDatabase) {
+        super(json._id, database);
 
         // set the default values of the fields
         this._name = "";
         this._backgroundColor = "#000099";
 
         // update the fields if the JSON Object includes specific values for them
-        this.updateObjectFieldsWithDatabaseDocumentVersion(database.getDocument(_id));
+        this.updateObjectFieldsWithDatabaseDocumentVersion(json);
+    }
+
+    /**
+     * This function creates a new instance of this document type.
+     *
+     * @param database the database where this document gets stored in, so it can upload itself in the database in the case of an change
+     * @param _id  the id of the CouchDB document which this object is representing
+     */
+    public static async newInstance(database: PouchDbDatabase, _id?: string): Promise<BoardDocument> {
+        // load the wanted document from the database
+        if (_id !== null) {
+            return new BoardDocument((await database.getDocument(_id)), database);
+
+            // create a new document in the database
+        } else {
+            return new BoardDocument((await database.newDocument())._id, database);
+        }
     }
 
 /////////////////////////////////////////Getter and Setter/////////////////////////////////////////
