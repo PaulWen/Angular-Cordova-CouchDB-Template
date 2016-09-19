@@ -162,7 +162,7 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
      * @param _id id of the document the listener wants to be notified about whenever it changes
      * @param onChange the function which will be called whenever the specific document changes
      */
-    public registerChangeListener(_id: string, onChange: PouchDbDatabase.OnChange) {
+    public registerIdChangeListener(_id: string, onChange: PouchDbDatabase.OnChange) {
         // register a change listener at the database
         this.database.changes({
             live: true,
@@ -175,6 +175,26 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
             Logger.error(error);
         });
     }
+
+    /**
+     * This function allows to register a change listener which will be called whenever
+     * any document in this database changes.
+     *
+     * @param onChange the function which will be called whenever the specific document changes
+     */
+    public registerAllChangeListener(onChange: PouchDbDatabase.OnChange) {
+        // register a change listener at the database
+        this.database.changes({
+            live: true,
+            since: "now",
+            include_docs: true,
+        }).on('change', function (change) {
+            //TODO return Array of DocumentType
+            onChange(change.doc);
+        }).on('error', function (error) {
+            Logger.error(error);
+        });
+    }
 }
 
 //////////////////////////////////////////Inner Classes////////////////////////////////////////////
@@ -182,11 +202,11 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
 export module PouchDbDatabase {
 
     /**
-     * This interface describes te function that should get called if a document in a database changed
+     * This interface describes the function that should get called if a document in a database changed
      * and the {@link PouchDbDocument} has to be notified.
      */
     export interface OnChange {
-        (json: any): void;
+        (data: any): void;
     }
 
 }

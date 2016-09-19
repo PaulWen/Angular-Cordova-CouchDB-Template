@@ -65,15 +65,12 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
      * @param json  A JSON object FROM THE DATABASE which MUST include the property "_id"
      *              (the id of the CouchDB document which this object is representing)
      * @param database the database where this document gets stored in, so it can upload itself in the database in the case of an change
-     * @param changeListener a change listener which will get called by the database when ever this document changes,
-     *                       so that it updates the values with the once from the database
-     *
      */
     constructor(json: any, database: PouchDbDatabase<DocumentType>) {
         this.database = database;
 
         // register a change listener at the database for this document
-        database.registerChangeListener(json._id, this.updateObjectFieldsWithDatabaseDocumentVersion.bind(this));
+        database.registerIdChangeListener(json._id, this.updateObjectFieldsWithDatabaseDocumentVersion.bind(this));
 
         // since the id cannot change, we do only have to set it here and not in the
         // function "deserializeJsonObject"
