@@ -32,7 +32,7 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
     /** the class of the <DocumentType> in order to be able to create objects of this class */
-    private documentCreator: {new (json: any, database: PouchDbDatabase<DocumentType>, changeListener: PouchDbDocument.ChangeListener): DocumentType;};
+    private documentCreator: {new (json: any, database: PouchDbDatabase<DocumentType>): DocumentType;};
 
     // PouchDB objects representing the database
     /** object representing the original database on the server */
@@ -49,7 +49,7 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
      * @param documentCreator the class of the <DocumentType> in order to be able to create objects of this class
      * @param url to the original database
      */
-    constructor(documentCreator: {new (json: any, database: PouchDbDatabase<DocumentType>, changeListener: PouchDbDocument.ChangeListener): DocumentType;}, url?:string) {
+    constructor(documentCreator: {new (json: any, database: PouchDbDatabase<DocumentType>): DocumentType;}, url?: string) {
         this.documentCreator = documentCreator;
 
         if (url) {
@@ -59,12 +59,13 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
             this.database = null;
         }
     }
+
 ////////////////////////////////////////Inherited Methods//////////////////////////////////////////
 
     public async getDocument(id: string): Promise<DocumentType> {
         try {
             // load the wanted document from the database and save it in the right DocumentType
-            return this.createNewDocumentInstance(await this.database.get(id));
+            return new this.documentCreator(await this.database.get(id), this);
         } catch (error) {
             Logger.error(error);
             return null;
@@ -82,8 +83,8 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
             });
 
             // put all the documents in a typed array
-            for(let i: number = 0; i < databaseResponse.rows.length; i++) {
-                documentList[i] = this.createNewDocumentInstance(databaseResponse.rows[i].doc);
+            for (let i: number = 0; i < databaseResponse.rows.length; i++) {
+                documentList[i] = new this.documentCreator(databaseResponse.rows[i].doc, this);
             }
 
             // return all the documents in an array
@@ -100,10 +101,10 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
             let newDocument = await this.database.post({});
 
             // convert the new created document to the right object type
-            return await this.createNewDocumentInstance({
+            return new this.documentCreator({
                 _id: newDocument.id,
                 _rev: newDocument.rev
-            });
+            }, this);
         } catch (error) {
             Logger.error(error);
             return null;
@@ -155,30 +156,37 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
     }
 
     /**
-     * This function creates an new instance of {@link DocumentType} by taking a json object,
-     * which represents the data of the object, as the input.
+     * This function allows to register a change listener which will be called whenever
+     * a document in this database with a specific id changes.
      *
-     * @param json the data of the {@link DocumentType} that should get created
-     * @return {DocumentType} the new document instance
+     * @param _id id of the document the listener wants to be notified about whenever it changes
+     * @param onChange the function which will be called whenever the specific document changes
      */
-    private createNewDocumentInstance(json: any): DocumentType {
-        // create a new change listener for the new object
-        let changeListener: PouchDbDocument.ChangeListener = new PouchDbDocument.ChangeListener();
-
+    public registerChangeListener(_id: string, onChange: PouchDbDatabase.OnChange) {
         // register a change listener at the database
         this.database.changes({
             live: true,
             since: "now",
             include_docs: true,
-            doc_ids: [json._id]
-        }).on('change', function(change) {
-            changeListener.onChange(change.doc);
+            doc_ids: [_id]
+        }).on('change', function (change) {
+            onChange(change.doc);
         }).on('error', function (error) {
             Logger.error(error);
-            return null;
         });
-
-        // load the wanted document from the database and save it in the right DocumentType
-        return new this.documentCreator(json, this, changeListener);
     }
+}
+
+//////////////////////////////////////////Inner Classes////////////////////////////////////////////
+
+export module PouchDbDatabase {
+
+    /**
+     * This interface describes te function that should get called if a document in a database changed
+     * and the {@link PouchDbDocument} has to be notified.
+     */
+    export interface OnChange {
+        (json: any): void;
+    }
+
 }

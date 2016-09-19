@@ -40,11 +40,9 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
      *              structure will get updated eventually.)
      *
      * @param database the database where this document gets stored in, so it can upload itself in the database in the case of an change
-     * @param changeListener a change listener which will get called by the database when ever this document changes,
-     *                       so that it updates the values with the once from the database
      */
-    public constructor(json: any, database: BoardDatabase, changeListener: PouchDbDocument.ChangeListener) {
-        super(json, database, changeListener);
+    public constructor(json: any, database: BoardDatabase) {
+        super(json, database);
 
         // set the default values of the fields
         this._name = "";
