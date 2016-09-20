@@ -31,19 +31,19 @@ export abstract class PouchDbLoaderInterface<DocumentType extends PouchDbDocumen
      *
      * @return the wanted document or null if an error occurred
      */
-    public abstract getDocument(id:string):Promise<DocumentType>;
+    public abstract async getDocument(id:string):Promise<DocumentType>;
 
     /**
      * This function returns all the documents included in the database listed in an array.
      *
      * @return all the documents included in the database listed in an array or null if an error occurred
      */
-    public abstract getAllDocuments():Promise<DocumentType[]>;
+    public abstract async getAllDocuments():Promise<DocumentType[]>;
 
     /**
      * This function creates an new document from the type <DocumentType> in the database.
      *
      * @return the new created document or null if an error occurred
      */
-    public abstract newDocument():Promise<DocumentType>;
+    public abstract async newDocument():Promise<DocumentType>;
 }

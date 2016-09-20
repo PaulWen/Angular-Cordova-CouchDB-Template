@@ -112,7 +112,7 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
 
     protected deserializeJsonObject(json: any): void {
         // if a value is provided from the json object use this value
-        if (json.name !== null) this.name = json.name;
-        if (json.backgroundColor !== null) this.backgroundColor = json.backgroundColor;
+        if (json.name !== undefined) this.name = json.name;
+        if (json.backgroundColor !== undefined) this.backgroundColor = json.backgroundColor;
     }
 }

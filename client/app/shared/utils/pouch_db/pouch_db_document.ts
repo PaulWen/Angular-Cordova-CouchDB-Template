@@ -55,7 +55,7 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
     private __rev: string;
 
     /** indicates whether or not the document got deleted */
-    private __deleted: boolean = false;
+    private __deleted: boolean;
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
@@ -78,7 +78,7 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
 
         // set default values for the other fields
         this.__rev = "";
-        this.__deleted= false;
+        this.__deleted = false;
     }
 
 /////////////////////////////////////////Getter and Setter/////////////////////////////////////////
@@ -212,7 +212,7 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
         this.__rev = json._rev;
 
         // if a value is provided from the json object use this value
-        if (json._deleted !== null) this._deleted = json._deleted;
+        if (json._deleted !== undefined) this._deleted = json._deleted;
     }
 
     /**

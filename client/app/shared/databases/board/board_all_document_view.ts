@@ -2,6 +2,7 @@ import {PouchDbDocument} from "../../utils/pouch_db/pouch_db_document";
 import {PouchDbDocumentView} from "../../utils/pouch_db/pouch_db_document_view";
 import {BoardDocument} from "./board_document";
 import {PouchDbDatabase} from "../../utils/pouch_db/pouch_db_database";
+import {Logger} from "../../utils/logger";
 
 /**
  * This class represents a {@link PouchDbDocumentView} over a {@link BoardDatabase}.
@@ -39,12 +40,12 @@ export class BoardAllDocumentView extends PouchDbDocumentView<BoardDocument> {
             // --> all documents from the database which are not deleted should be in this view
             if (document._deleted == false) {
                 // check if the document is not yet in this view present and has to be included
-                if (!this.isDocumentIncluded(document)) {
+                if (!this.isDocumentIncluded(document._id)) {
                     this.documents[document._id] = document;
                 }
             } else {
                 // check if the document is present in this view and has to be removed
-                if (this.isDocumentIncluded(document)) {
+                if (this.isDocumentIncluded(document._id)) {
                     this.documents[document._id] = document;
                     delete this.documents["document._id"];
                 }

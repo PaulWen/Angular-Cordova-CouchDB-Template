@@ -39,18 +39,43 @@ export abstract class PouchDbDocumentView<DocumentType extends PouchDbDocument<D
 
 /////////////////////////////////////////Getter and Setter/////////////////////////////////////////
 
+    /**
+     * This function returns an array including all the {@link DocumentType} objects
+     * that are currently present in this view.
+     *
+     * @return {DocumentType[]} array of all {@link DocumentType} objects that are currently present in this view
+     */
     public getCurrentStateOfDocumentViewAsArray(): DocumentType[] {
-        return null;
+        let documents = new Array<DocumentType>();
+
+        for (var key in this.documents) {
+            documents.push(this.documents[key]);
+        }
+
+        return documents;
     }
 
 
-    public isDocumentIncluded(document: DocumentType) : boolean {
-        return typeof this.documents[document._id] !== null;
+    /**
+     * This function tells if a specific document is currently present in this view
+     * based on the document id.
+     *
+     * @param _id the id of the document
+     * @return {boolean} true if the document is present, false if not
+     */
+    public isDocumentIncluded(_id: string) : boolean {
+        return this.documents[_id] !== undefined;
     }
 
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
 
+    /**
+     * This function takes an array of {@link DocumentType} objects and determines if those
+     * have to be included in or excluded from this view.
+     *
+     * @param changedDocuments array of {@link DocumentType} objects
+     */
     protected abstract onChange(changedDocuments: DocumentType[]);
 
 }

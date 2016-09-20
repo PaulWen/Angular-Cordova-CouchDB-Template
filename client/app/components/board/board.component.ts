@@ -4,6 +4,7 @@ import {SortablejsOptions} from "angular-sortablejs";
 import {Logger} from "../../shared/utils/logger";
 import {BoardDatabaseLoader} from "../../shared/databases/board/board_database_loader";
 import {BoardDocument} from "../../shared/databases/board/board_document";
+import {BoardAllDocumentView} from "../../shared/databases/board/board_all_document_view";
 
 @Component({
     selector: 'board-component',
@@ -42,8 +43,22 @@ export class BoardComponent {
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
-    constructor(boardDocumentLoader: BoardDatabaseLoader) {
-        this.boardDatabaseLoader = boardDocumentLoader;
+    constructor(boardDatabaseLoader: BoardDatabaseLoader) {
+        this.boardDatabaseLoader = boardDatabaseLoader;
+
+        boardDatabaseLoader.getAllDocumentsView().then((allDocumentsView: BoardAllDocumentView) => {
+            Logger.debug(allDocumentsView.getCurrentStateOfDocumentViewAsArray().length);
+
+            // boardDatabaseLoader.newDocument().then(()=>{
+            //     boardDatabaseLoader.newDocument().then(()=>{
+            //         Logger.debug(allDocumentsView.getCurrentStateOfDocumentViewAsArray().length);
+            //
+            //     });
+            //
+            // });
+
+
+        });
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////

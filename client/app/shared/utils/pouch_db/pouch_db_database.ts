@@ -168,7 +168,8 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
             live: true,
             since: "now",
             include_docs: true,
-            doc_ids: [_id]
+            doc_ids: [_id],
+            limit: 1
         }).on('change', function (change) {
             onChange(change.doc);
         }).on('error', function (error) {
@@ -188,9 +189,9 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
             live: true,
             since: "now",
             include_docs: true,
+            limit: 1
         }).on('change', function (change) {
-            //TODO return Array of DocumentType
-            onChange(change.doc);
+            onChange([change.doc]);
         }).on('error', function (error) {
             Logger.error(error);
         });
