@@ -1,7 +1,6 @@
 import {PouchDbDocument} from "../../utils/pouch_db/pouch_db_document";
 import {PouchDbLoaderInterface} from "../../utils/pouch_db/pouch_db_loader_interface";
 import {BoardDocument} from "./board_document";
-import {BoardAllDocumentView} from "./board_all_document_view";
 
 /**
  * COUTION: This abstract class is supposed to be an interface! It will eventually get implemented
@@ -26,11 +25,5 @@ export abstract class BoardDatabaseLoader extends PouchDbLoaderInterface<BoardDo
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
 
-    /**
-     * This method returns an {@link BoardAllDocumentView} with a specific id.
-     *
-     * @return a {@link BoardAllDocumentView}
-     */
-    public abstract async getAllDocumentsView():Promise<BoardAllDocumentView>;
 
 }

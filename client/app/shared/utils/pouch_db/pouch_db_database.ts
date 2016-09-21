@@ -2,6 +2,7 @@ import {Logger} from "../logger";
 import PouchDB from "pouchdb";
 import {PouchDbDocument} from "./pouch_db_document";
 import {PouchDbLoaderInterface} from "./pouch_db_loader_interface";
+import {PouchDbAllDocumentsView} from "./pouch_db_all_documents_view";
 
 /**
  * This abstract class is based on PouchDB and represents one CouchDB database.
@@ -72,27 +73,8 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
         }
     }
 
-    public async getAllDocuments(): Promise<DocumentType[]> {
-        try {
-            let documentList: DocumentType[] = [];
-
-            // load all the documents from the database
-            let databaseResponse = await this.database.allDocs({
-                include_docs: true,
-                attachments: false
-            });
-
-            // put all the documents in a typed array
-            for (let i: number = 0; i < databaseResponse.rows.length; i++) {
-                documentList[i] = new this.documentCreator(databaseResponse.rows[i].doc, this);
-            }
-
-            // return all the documents in an array
-            return documentList;
-        } catch (error) {
-            Logger.error(error);
-            return null;
-        }
+    public async getAllDocumentsView():Promise<PouchDbAllDocumentsView<DocumentType>> {
+        return new PouchDbAllDocumentsView(await this.getAllDocuments(), this);
     }
 
     public async newDocument(): Promise<DocumentType> {
@@ -135,6 +117,34 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
         }).on('error', function (error) {
             Logger.error(error);
         });
+    }
+
+    /**
+     * This function returns all the documents included in the database listed in an array.
+     *
+     * @return all the documents included in the database listed in an array or null if an error occurred
+     */
+    private async getAllDocuments(): Promise<DocumentType[]> {
+        try {
+            let documentList: DocumentType[] = [];
+
+            // load all the documents from the database
+            let databaseResponse = await this.database.allDocs({
+                include_docs: true,
+                attachments: false
+            });
+
+            // put all the documents in a typed array
+            for (let i: number = 0; i < databaseResponse.rows.length; i++) {
+                documentList[i] = new this.documentCreator(databaseResponse.rows[i].doc, this);
+            }
+
+            // return all the documents in an array
+            return documentList;
+        } catch (error) {
+            Logger.error(error);
+            return null;
+        }
     }
 
     /**

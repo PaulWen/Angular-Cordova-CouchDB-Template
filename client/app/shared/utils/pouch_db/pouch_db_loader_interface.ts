@@ -1,4 +1,5 @@
 import {PouchDbDocument} from "./pouch_db_document";
+import {PouchDbAllDocumentsView} from "./pouch_db_all_documents_view";
 
 /**
  * COUTION: This abstract class is supposed to be an interface! It will eventually get implemented
@@ -34,11 +35,13 @@ export abstract class PouchDbLoaderInterface<DocumentType extends PouchDbDocumen
     public abstract async getDocument(id:string):Promise<DocumentType>;
 
     /**
-     * This function returns all the documents included in the database listed in an array.
+     * This function returns a {@link PouchDbAllDocumentsView} which lists all the documents
+     * present in the database.
      *
-     * @return all the documents included in the database listed in an array or null if an error occurred
+     * @return a {@link PouchDbAllDocumentsView} which lists all the documents present in the database
+     *         or null if an error occurred
      */
-    public abstract async getAllDocuments():Promise<DocumentType[]>;
+    public abstract async getAllDocumentsView():Promise<PouchDbAllDocumentsView<DocumentType>>;
 
     /**
      * This function creates an new document from the type <DocumentType> in the database.
