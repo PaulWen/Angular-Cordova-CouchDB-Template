@@ -16,7 +16,7 @@ export abstract class PouchDbDocumentView<DocumentType extends PouchDbDocument<D
     private database: PouchDbDatabase<DocumentType>;
 
     /** dictionary which lists all documents currently present in this view */
-    protected documents: { [id: string] : DocumentType; } = {};
+    protected documents: { [id: string] : DocumentType; };
 
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
@@ -28,6 +28,7 @@ export abstract class PouchDbDocumentView<DocumentType extends PouchDbDocument<D
      * @param database the database where this document gets stored in, so it can upload itself in the database in the case of an change
      */
     constructor(allDocumentsFromDatabase: DocumentType[], database: PouchDbDatabase<DocumentType>) {
+        this.documents = {};
         this.database = database;
 
         // register a change listener at the database for this document

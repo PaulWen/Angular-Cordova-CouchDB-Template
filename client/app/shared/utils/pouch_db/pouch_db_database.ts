@@ -3,6 +3,7 @@ import PouchDB from "pouchdb";
 import {PouchDbDocument} from "./pouch_db_document";
 import {PouchDbLoaderInterface} from "./pouch_db_loader_interface";
 import {PouchDbAllDocumentsView} from "./pouch_db_all_documents_view";
+import OnChange = PouchDbDatabase.OnChange;
 
 /**
  * This abstract class is based on PouchDB and represents one CouchDB database.
@@ -42,6 +43,12 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
      * an replication of the database on the server and gets synced with that in real-time. */
     protected database: any;
 
+    // lists of listeners
+    /** dictionary which lists all the listeners listening to specific documents */
+    private documentChangeListener: { [id: string] : PouchDbDatabase.OnChange[]};
+    /** array of all listeners which wants to be notified if any document in the database changes */
+    private allDocumentsChangeListener: PouchDbDatabase.OnChange[];
+
 ////////////////////////////////////////////Constructor////////////////////////////////////////////
 
     /**
@@ -51,6 +58,8 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
      * @param url to the original database
      */
     constructor(documentCreator: {new (json: any, database: PouchDbDatabase<DocumentType>): DocumentType;}, url?: string) {
+        this.documentChangeListener = {};
+        this.allDocumentsChangeListener = [];
         this.documentCreator = documentCreator;
 
         if (url) {
@@ -113,8 +122,19 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
         this.database.sync(this.remoteDatabase, {
             // sync in real-time
             live: true
-        }).on('change', function (change) {
         }).on('error', function (error) {
+            Logger.error(error);
+        });
+
+        // register a change listener at the database that listens for ALL changes
+        this.database.changes({
+            live: true,
+            since: "now",
+            include_docs: true,
+            limit: 1
+        }).on('change', (function (change) {
+            this.onChange(change.doc);
+        }).bind(this)).on('error', function (error) {
             Logger.error(error);
         });
     }
@@ -173,18 +193,12 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
      * @param onChange the function which will be called whenever the specific document changes
      */
     public registerDocumentChangeListener(_id: string, onChange: PouchDbDatabase.OnChange) {
-        // register a change listener at the database
-        this.database.changes({
-            live: true,
-            since: "now",
-            include_docs: true,
-            doc_ids: [_id],
-            limit: 1
-        }).on('change', function (change) {
-            onChange(change.doc);
-        }).on('error', function (error) {
-            Logger.error(error);
-        });
+        // check if the document is not yet in this view present and has to be included
+        if (this.documentChangeListener[_id] == undefined) {
+            this.documentChangeListener[_id] = [onChange];
+        } else {
+            this.documentChangeListener[_id].push(onChange);
+        }
     }
 
     /**
@@ -194,17 +208,28 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
      * @param onChange the function which will be called whenever the specific document changes
      */
     public registerAllDocumentsChangeListener(onChange: PouchDbDatabase.OnChange) {
-        // register a change listener at the database
-        this.database.changes({
-            live: true,
-            since: "now",
-            include_docs: true,
-            limit: 1
-        }).on('change', function (change) {
-            onChange(change.doc);
-        }).on('error', function (error) {
-            Logger.error(error);
-        });
+        this.allDocumentsChangeListener.push(onChange);
+    }
+
+    /**
+     * This function gets called when ever any document in the database changes.
+     * It notifies all registered change listeners.
+     *
+     * @param json a JSON object from the database which changed
+     */
+    private onChange(json: any) {
+        // check if any listener is listening to this specific document
+        if (this.documentChangeListener[json._id] !== undefined) {
+            // notify all listeners that are specifically listening to the current document
+            for (let listener of this.documentChangeListener[json._id]) {
+                listener(json);
+            }
+        }
+
+        // notify all listeners that are listening to all changes
+        for (let listener of this.allDocumentsChangeListener) {
+            listener(json);
+        }
     }
 }
 

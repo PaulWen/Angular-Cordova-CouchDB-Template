@@ -1,6 +1,7 @@
 import {PouchDbDocument} from "../../utils/pouch_db/pouch_db_document";
 import {PouchDbDocumentView} from "../../utils/pouch_db/pouch_db_document_view";
 import {PouchDbDatabase} from "../../utils/pouch_db/pouch_db_database";
+import {Logger} from "../logger";
 
 /**
  * This class represents a {@link PouchDbDocumentView} over a {@link PouchDbDatabase}.
@@ -35,6 +36,8 @@ export class PouchDbAllDocumentsView<DocumentType extends PouchDbDocument<Docume
 ////////////////////////////////////////Inherited Methods//////////////////////////////////////////
 
     protected onChange(changedDocument: DocumentType) {
+        Logger.debug(changedDocument);
+
         // check if the document meets the condition to be present in this view
         // --> all documents from the database which are not deleted should be in this view
         if (changedDocument._deleted == false) {
