@@ -70,7 +70,7 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
         this.database = database;
 
         // register a change listener at the database for this document
-        database.registerIdChangeListener(json._id, this.updateObjectFieldsWithDatabaseDocumentVersion.bind(this));
+        database.registerDocumentChangeListener(json._id, this.updateObjectFieldsWithDatabaseDocumentVersion.bind(this));
 
         // since the id cannot change, we do only have to set it here and not in the
         // function "deserializeJsonObject"

@@ -162,7 +162,7 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
      * @param _id id of the document the listener wants to be notified about whenever it changes
      * @param onChange the function which will be called whenever the specific document changes
      */
-    public registerIdChangeListener(_id: string, onChange: PouchDbDatabase.OnChange) {
+    public registerDocumentChangeListener(_id: string, onChange: PouchDbDatabase.OnChange) {
         // register a change listener at the database
         this.database.changes({
             live: true,
@@ -183,7 +183,7 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
      *
      * @param onChange the function which will be called whenever the specific document changes
      */
-    public registerAllChangeListener(onChange: PouchDbDatabase.OnChange) {
+    public registerAllDocumentsChangeListener(onChange: PouchDbDatabase.OnChange) {
         // register a change listener at the database
         this.database.changes({
             live: true,
@@ -191,7 +191,7 @@ export abstract class PouchDbDatabase<DocumentType extends PouchDbDocument<Docum
             include_docs: true,
             limit: 1
         }).on('change', function (change) {
-            onChange([change.doc]);
+            onChange(change.doc);
         }).on('error', function (error) {
             Logger.error(error);
         });

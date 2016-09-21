@@ -30,11 +30,8 @@ export abstract class PouchDbDocumentView<DocumentType extends PouchDbDocument<D
     constructor(allDocumentsFromDatabase: DocumentType[], database: PouchDbDatabase<DocumentType>) {
         this.database = database;
 
-        // load the initial documents
-        this.onChange(allDocumentsFromDatabase);
-
         // register a change listener at the database for this document
-        database.registerAllChangeListener(this.onChange.bind(this));
+        database.registerAllDocumentsChangeListener(this.onChange.bind(this));
     }
 
 /////////////////////////////////////////Getter and Setter/////////////////////////////////////////
@@ -71,11 +68,11 @@ export abstract class PouchDbDocumentView<DocumentType extends PouchDbDocument<D
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
 
     /**
-     * This function takes an array of {@link DocumentType} objects and determines if those
-     * have to be included in or excluded from this view.
+     * This function takes a {@link DocumentType} object which changed and determines if it
+     * has to be included in or excluded from this view.
      *
-     * @param changedDocuments array of {@link DocumentType} objects
+     * @param changedDocument the {@link DocumentType} object which changed in the database
      */
-    protected abstract onChange(changedDocuments: DocumentType[]);
+    protected abstract onChange(changedDocument: DocumentType);
 
 }
