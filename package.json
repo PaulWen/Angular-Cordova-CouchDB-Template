@@ -6,9 +6,10 @@
     "check-for-updates": "npm outdated",
     "update": "npm update -dev --save",
     "preinstall": "npm config set python python2.7 && npm config set msvs_version 2015 && npm install cordova -g",
-    "postinstall": "typings install && npm run check-for-updates",
+    "postinstall": "typings install && npm run config-couchdb-cors && npm run check-for-updates",
     "pull": "git fetch --all",
-    "push": "git push --all origin"
+    "push": "git push --all origin",
+    "config-couchdb-cors": "npm install add-cors-to-couchdb && add-cors-to-couchdb"
   },
   "keywords": [],
   "author": "Paul Wenzel <wenzel.pgb@googlemail.com>",
