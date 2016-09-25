@@ -9,17 +9,17 @@ import {Logger} from "../logger";
  * Using this class makes it possible that objects of the Document-Class get synced easily with
  * the CouchDB database in real-time.
  *
- *
+ * When ever an object of this class is not needed anymore it should be closed to free resources by calling
+ * {@link PouchDbDocument#close}.
  *
  * HOT TO EXTEND FROM THIS CLASS:
  *
- * 1) The classes which implement this class MUST
- *      a) have a public constructor with the three parameters
- *         "json: any" and "database:<TypeOfDocumentDatabase>"!
- *         Inside the constructor the classes ONLY calls the super constructor and passes them the parameters.
- *      b) initialize ALL its custom variables with default values
- *      c) to take care that the {@link PouchDbDocument#updateObjectFieldsWithDatabaseDocumentVersion}-function
- *         gets called in order to load the values of the json object (given to the constructor as a parameter) into this object.
+ * 1) The classes which implement this class MUST implement a public constructor...
+ *      a) ...which has the two parameters "json: any" and "database:<TypeOfDocumentDatabase>"!
+ *         Inside the constructor the classes call the super constructor and passe them the parameters.
+ *      b) ...which initialize ALL its custom variables with default values
+ *      c) ...which takes care of calling the {@link PouchDbDocument#onChange}-function in order to load
+ *            the values of the json object (given to the constructor as a parameter) into this object.
  * 2) The classes should make their variables only available through getter and setter functions
  *      a) Each setter function should call "this.uploadToDatabase();" as the last statement in order to upload a change to the database
  *      b) The setter has always to check if the setter call really changes the value.
@@ -35,7 +35,7 @@ import {Logger} from "../logger";
  *      b) In the function {@link PouchDbDocument#serializeToJsonObject} the classes should first call the super implementation of
  *         this function and afterwards extends the returned json object with the custom properties of the document.
  */
-export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<DocumentType>> {
+export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<DocumentType>> implements PouchDbDatabase.ChangeListener {
 
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
@@ -70,7 +70,7 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
         this.database = database;
 
         // register a change listener at the database for this document
-        database.registerDocumentChangeListener(json._id, this.updateObjectFieldsWithDatabaseDocumentVersion.bind(this));
+        database.registerDocumentChangeListener(json._id, this);
 
         // since the id cannot change, we do only have to set it here and not in the
         // function "deserializeJsonObject"
@@ -124,6 +124,11 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
             this.uploadToDatabase();
         }
     }
+////////////////////////////////////////Inherited Methods//////////////////////////////////////////
+
+    public onChange(json: any): void {
+        this.updateObjectFieldsWithDatabaseDocumentVersion(json);
+    }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
 
@@ -161,7 +166,7 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
      *              the document structure dynamically and making sure that all the documents which still have the old
      *              structure will get updated eventually.)
      */
-    protected updateObjectFieldsWithDatabaseDocumentVersion(json: any) {
+    private updateObjectFieldsWithDatabaseDocumentVersion(json: any) {
         // since JSON object should be the database document version, there is
         // no need for uploading those values to the database again
         this.disableUpload = true;
@@ -228,5 +233,13 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
      * @param json a JSON object which includes the values of the object
      */
     protected abstract deserializeJsonObject(json: any): void;
+
+    /**
+     * This function should be called whenever this object is not needed anymore to free resources.
+     * It will stop this object listening to its database.
+     */
+    public close() {
+        this.database.unregisterChangeListener(this);
+    }
 
 }

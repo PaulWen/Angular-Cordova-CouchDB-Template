@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, SimpleChanges} from "@angular/core";
 import {MDL} from "../../shared/utils/mdl/MaterialDesignLiteUpgradeElement";
 import {SortablejsOptions} from "angular-sortablejs";
 import {Logger} from "../../shared/utils/logger";
@@ -15,6 +15,7 @@ export class BoardComponent {
 ////////////////////////////////////////////Properties////////////////////////////////////////////
 
     private boardDatabaseLoader: BoardDatabaseLoader;
+    private allBoardDocumentsView: PouchDbAllDocumentsView<BoardDocument>;
 
     private items1 = [1, 2, 3, 4, 5];
     private items2 = [21, 22, 23, 24, 25];
@@ -45,22 +46,17 @@ export class BoardComponent {
 
     constructor(boardDatabaseLoader: BoardDatabaseLoader) {
         this.boardDatabaseLoader = boardDatabaseLoader;
+    }
 
-        boardDatabaseLoader.getAllDocumentsView().then((allDocumentsView: PouchDbAllDocumentsView<BoardDocument>) => {
-            Logger.debug(allDocumentsView.getCurrentStateOfDocumentViewAsArray().length);
+    private async ngOnInit() {
+        this.allBoardDocumentsView = await this.boardDatabaseLoader.getAllDocumentsView();
+    }
 
-            // boardDatabaseLoader.newDocument().then(()=>{
-            //     boardDatabaseLoader.newDocument().then(()=>{
-            //         Logger.debug(allDocumentsView.getCurrentStateOfDocumentViewAsArray().length);
-            //
-            //     });
-            //
-            // });
-
-
-        });
+    private ngOnDestroy() {
+        this.allBoardDocumentsView.close();
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
+
 
 }
