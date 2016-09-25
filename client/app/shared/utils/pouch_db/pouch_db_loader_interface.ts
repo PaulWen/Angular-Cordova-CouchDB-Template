@@ -30,7 +30,7 @@ export abstract class PouchDbLoaderInterface<DocumentType extends PouchDbDocumen
      *
      * @param id the id of the wanted document
      *
-     * @return the wanted document or null if an error occurred
+     * @return the wanted document or null if the documented got already deleted or an error occurred
      */
     public abstract async getDocument(id:string):Promise<DocumentType>;
 

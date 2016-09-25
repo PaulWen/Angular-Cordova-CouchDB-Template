@@ -26,7 +26,7 @@ export class PouchDbAllDocumentsView<DocumentType extends PouchDbDocument<Docume
 
         // load the initial documents
         for (let document of allDocumentsFromDatabase) {
-            this.onChange(document);
+            this.update(document);
         }
     }
 
@@ -35,22 +35,16 @@ export class PouchDbAllDocumentsView<DocumentType extends PouchDbDocument<Docume
 
 ////////////////////////////////////////Inherited Methods//////////////////////////////////////////
 
-    protected onChange(changedDocument: DocumentType) {
-        Logger.debug(changedDocument);
-
+    protected update(changedDocument: DocumentType) {
         // check if the document meets the condition to be present in this view
         // --> all documents from the database which are not deleted should be in this view
-        if (changedDocument._deleted == false) {
-            // check if the document is not yet in this view present and has to be included
-            if (!this.isDocumentIncluded(changedDocument._id)) {
-                this.documents[changedDocument._id] = changedDocument;
-            }
+
+        // check if the document is not yet in this view present and has to be included
+        if (!this.isDocumentIncluded(changedDocument._id)) {
+            this.documents[changedDocument._id] = changedDocument;
         } else {
-            // check if the document is present in this view and has to be removed
-            if (this.isDocumentIncluded(changedDocument._id)) {
-                this.documents[changedDocument._id] = changedDocument;
-                delete this.documents["changedDocument._id"];
-            }
+            // close the document since it is not needed
+            changedDocument.close();
         }
     }
 }

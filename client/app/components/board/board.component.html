@@ -238,5 +238,12 @@
                 <!--<div *ngFor="let item of items1">{{ item }}</div>-->
             <!--</div>-->
         </div>
+
+
     </main>
+    <div class="mdl-card mdl-shadow--2dp" *ngFor="let item of allBoardDocumentsView?.getCurrentStateOfDocumentViewAsArray()">
+        {{ item.name }}
+    </div>
 </div>
+
+

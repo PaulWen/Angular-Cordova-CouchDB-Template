@@ -48,8 +48,8 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
         this._name = "";
         this._backgroundColor = "#000099";
 
-        // update the fields if the JSON Object includes specific values for them
-        this.updateObjectFieldsWithDatabaseDocumentVersion(json);
+        // initialize the fields if the JSON object includes specific values for them
+        this.onChange(json);
     }
 
 /////////////////////////////////////////Getter and Setter/////////////////////////////////////////
