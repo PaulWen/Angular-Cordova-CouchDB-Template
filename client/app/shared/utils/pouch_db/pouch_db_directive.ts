@@ -52,7 +52,7 @@ export class PouchDbModel implements OnChanges {
      *
      * @param changes describes the changes
      */
-    private ngOnChanges(changes: SimpleChanges) {
+    public ngOnChanges(changes: SimpleChanges) {
        Logger.debug("UPDATE VIEW (if user is not editing this HTML tag)");
        Logger.debug(changes);
     }

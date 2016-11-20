@@ -1,14 +1,14 @@
-import {NgModule, ExceptionHandler} from "@angular/core";
+import {NgModule, ErrorHandler} from "@angular/core";
 import {BrowserModule} from "@angular/platform-browser";
 import {AppComponent} from "./app.component";
 import {BoardDatabase} from "./shared/databases/board/board_database";
 import {BoardDatabaseLoader} from "./shared/databases/board/board_database_loader";
-import {AppExceptionHandler} from "./exception_handler";
+import {AppErrorHandler} from "./exception_handler";
 import {SuperLoginClient} from "./shared/utils/super_login_client/super_login_client";
 import {SuperloginHttpRequestor} from "./shared/utils/super_login_client/superlogin_http_requestor";
-import {Router} from "@angular/router";
+import {Router, RouterModule} from "@angular/router";
 import {HttpModule} from "@angular/http";
-import {AppRoutes, routing} from "./app_routes";
+import {AppRoutes, AppRoutesConfig} from "./app_routes";
 import {DatabaseInitializer} from "./shared/databases/database_initializer";
 import {BoardComponent} from "./components/board/board.component";
 import {MDL} from "./shared/utils/mdl/MaterialDesignLiteUpgradeElement";
@@ -22,7 +22,7 @@ import {PouchDbModel} from "./shared/utils/pouch_db/pouch_db_directive";
     imports: [
         BrowserModule,
         HttpModule,
-        routing,
+        RouterModule.forRoot(AppRoutesConfig),
         SortablejsModule
     ],
     declarations: [
@@ -36,7 +36,7 @@ import {PouchDbModel} from "./shared/utils/pouch_db/pouch_db_directive";
     ],
     bootstrap: [AppComponent],
     providers: [
-        AppModule.exceptionHandlerProvider,
+        AppModule.errorHandlerProvider,
         SuperloginHttpRequestor,
         AppModule.boardDocumentLoaderProvider,
         AppModule.superLoginClientProvider
@@ -75,10 +75,10 @@ export class AppModule {
     };
 
     /**
-     * This provider provides a {@link ExceptionHandler}.
+     * This provider provides a {@link ErrorHandler}.
      */
-    private static exceptionHandlerProvider = {
-        provide:ExceptionHandler,
-        useClass: AppExceptionHandler
+    private static errorHandlerProvider = {
+        provide: ErrorHandler,
+        useClass: AppErrorHandler
     }
 }
