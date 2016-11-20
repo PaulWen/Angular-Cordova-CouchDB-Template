@@ -16,6 +16,7 @@ import {ErrorComponent} from "./components/error/error.component";
 import {LoginComponent} from "./components/login/login.component";
 import {PageNotFoundComponent} from "./components/page_not_found/page_not_found.component";
 import {SortablejsModule} from "angular-sortablejs";
+import {PouchDbModel} from "./shared/utils/pouch_db/pouch_db_directive";
 
 @NgModule({
     imports: [
@@ -30,7 +31,8 @@ import {SortablejsModule} from "angular-sortablejs";
         LoginComponent,
         ErrorComponent,
         PageNotFoundComponent,
-        MDL
+        MDL,
+        PouchDbModel
     ],
     bootstrap: [AppComponent],
     providers: [

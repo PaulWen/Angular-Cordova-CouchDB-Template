@@ -69,6 +69,8 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
      * @param name the name of the board
      */
     public set name(name: string) {
+        Logger.debug("set-name");
+
         // check if the value is really a new value to avoid unnecessary updates
         if (name !== this.name) {
             this._name = name;
