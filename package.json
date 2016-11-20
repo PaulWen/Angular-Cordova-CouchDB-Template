@@ -9,7 +9,9 @@
     "postinstall": "typings install && npm run config-couchdb-cors && npm run check-for-updates",
     "pull": "git fetch --all",
     "push": "git push --all origin",
-    "config-couchdb-cors": "npm install add-cors-to-couchdb && add-cors-to-couchdb"
+    "config-couchdb-cors": "npm install add-cors-to-couchdb && add-cors-to-couchdb",
+    "test": "typings install",
+    "test2": "tsc"
   },
   "keywords": [],
   "author": "Paul Wenzel <wenzel.pgb@googlemail.com>",
@@ -49,10 +51,10 @@
     "gulp-sass": "^2.3.1",
     "gulp-sequence": "^0.4.5",
     "gulp-sourcemaps": "^1.6.0",
-    "gulp-typescript": "^2.13.4",
+    "gulp-typescript": "^3.1.3",
     "systemjs-builder": "^0.15.31",
     "taco-team-build": "^0.2.2",
-    "typescript": "^2.0.3",
-    "typings": "^1.0.4"
+    "typescript": "^2.1.1",
+    "typings": "^2.0.0"
   }
 }

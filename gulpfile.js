@@ -10,7 +10,7 @@ var cordovaOutputPathApp = "cordova/www/app";
 
 var appSrcFolderPath = "client/app";
 var appTypeScriptFiles = appSrcFolderPath + "/**/*.ts";
-var appTypeScriptCompilerFiles = [appTypeScriptFiles, 'typings_own/**/*.ts', 'typings/browser/**/*.ts', 'typings/browser.d.ts'];
+var appTypeScriptCompilerFiles = [appTypeScriptFiles, 'typings_own/**/*.ts', 'typings/**/*.ts'];
 var appSassFiles = appSrcFolderPath + "/**/*.scss";
 var appHtmlFiles = [
     appSrcFolderPath + "/**/*.+(htm|html)",
@@ -27,7 +27,7 @@ var appLibsFiles = "client/libs/**/*";
 
 var serverSrcFolderPath = "server";
 var serverTypeScriptFiles = serverSrcFolderPath + "/**/*.ts";
-var serverTypeScriptCompilerFiles = [serverTypeScriptFiles, 'typings_own/**/*.ts', 'typings/browser/**/*.ts', 'typings/browser.d.ts'];
+var serverTypeScriptCompilerFiles = [serverTypeScriptFiles, 'typings_own/**/*.ts', 'typings/**/*.ts'];
 
 // Gulp Tools
 var gulp = require('gulp');
@@ -111,7 +111,7 @@ gulp.task('typescript-own-dev', function(cb) {
     var tscResult = gulp.src(appTypeScriptCompilerFiles) // instead of "appTsProject.src()" because the other one slows down the transpiler process
         .pipe(removeCode({notWeb: false, notCordova: true}))
         .pipe(sourcemaps.init()) // This means sourcemaps will be generated
-        .pipe(gulpTsc(appTsProject));
+        .pipe(appTsProject());
 
     return tscResult.js
         .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
@@ -124,7 +124,7 @@ gulp.task('cordova-typescript-own-dev', function(cb) {
     var tscResult = gulp.src(appTypeScriptCompilerFiles) // instead of "appTsProject.src()" because the other one slows down the transpiler process
         .pipe(removeCode({notWeb: true, notCordova: false}))
         .pipe(sourcemaps.init()) // This means sourcemaps will be generated
-        .pipe(gulpTsc(appTsProject));
+        .pipe(appTsProject());
 
     return tscResult.js
         .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
@@ -282,9 +282,9 @@ gulp.task('cordova-libs-dev', function() {
 
 // the task compiles all the own TypeScript files of the project to JavaScript files
 gulp.task('server-typescript-own-dev', function(cb) {
-    var tscResult = gulp.src(serverTypeScriptCompilerFiles) // instead of "appTsProject.src()" because the other one slows down the transpile process
+    var tscResult = gulp.src(serverTypeScriptCompilerFiles) // instead of "serverTsProject.src()" because the other one slows down the transpile process
         .pipe(sourcemaps.init()) // This means sourcemaps will be generated
-        .pipe(gulpTsc(serverTsProject));
+        .pipe(serverTsProject());
 
     return tscResult.js
         .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
@@ -295,7 +295,7 @@ gulp.task('server-typescript-own-dev', function(cb) {
 gulp.task('server-typescript-own-prod', function(cb) {
     var tscResult = gulp.src(serverTypeScriptCompilerFiles) // instead of "appTsProject.src()" because the other one slows down the transpile process
         .pipe(sourcemaps.init()) // This means sourcemaps will be generated
-        .pipe(gulpTsc(serverTsProject));
+        .pipe(serverTsProject());
 
     return tscResult.js
         .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
