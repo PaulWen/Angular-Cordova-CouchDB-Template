@@ -12,8 +12,6 @@
   },
 
   "exclude": [
-    "./node_modules/",
-    "./typings/main", // gets included twice by the typings tool so we can exclude one file
-    "./typings/main.d.ts"  // gets included twice by the typings tool so we can exclude one file
+    "./node_modules/"
   ]
 }

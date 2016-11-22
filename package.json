@@ -9,9 +9,7 @@
     "postinstall": "typings install && npm run config-couchdb-cors && npm run check-for-updates",
     "pull": "git fetch --all",
     "push": "git push --all origin",
-    "config-couchdb-cors": "npm install add-cors-to-couchdb && add-cors-to-couchdb",
-    "test": "typings install",
-    "test2": "tsc"
+    "config-couchdb-cors": "npm install add-cors-to-couchdb && add-cors-to-couchdb"
   },
   "keywords": [],
   "author": "Paul Wenzel <wenzel.pgb@googlemail.com>",
