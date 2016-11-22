@@ -5,11 +5,12 @@
   "scripts": {
     "check-for-updates": "npm outdated",
     "update": "npm update -dev --save",
+    "install-package-json": "npm install --no-shrinkwrap",
     "preinstall": "npm config set python python2.7 && npm config set msvs_version 2015 && npm install cordova -g",
-    "postinstall": "typings install && npm run config-couchdb-cors && npm run check-for-updates",
+    "postinstall": "typings install && npm shrinkwrap --dev",
     "pull": "git fetch --all",
     "push": "git push --all origin",
-    "config-couchdb-cors": "npm install add-cors-to-couchdb && add-cors-to-couchdb"
+    "config-couchdb-cors": "add-cors-to-couchdb"
   },
   "keywords": [],
   "author": "Paul Wenzel <wenzel.pgb@googlemail.com>",
@@ -31,11 +32,11 @@
     "material-design-lite": "*",
     "pouchdb": "*",
     "reflect-metadata": "*",
-    "rxjs": "*",
+    "rxjs": "5.0.0-beta.12",
     "sortablejs": "*",
     "superlogin": "*",
     "systemjs": "*",
-    "zone.js": "*"
+    "zone.js": "0.6.21"
   },
   "devDependencies": {
     "browser-sync": "^2.12.8",
@@ -53,6 +54,7 @@
     "systemjs-builder": "^0.15.31",
     "taco-team-build": "^0.2.2",
     "typescript": "^2.1.1",
-    "typings": "^2.0.0"
+    "typings": "^2.0.0",
+    "add-cors-to-couchdb": "*"
   }
 }
