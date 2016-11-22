@@ -6,7 +6,14 @@
 System.config({
   map: {
     'rxjs': 'node_modules/rxjs',
-    '@angular': 'node_modules/@angular',
+    '@angular/core': 'node_modules/@angular/core/bundles/core.umd.js',
+    '@angular/common': 'node_modules/@angular/common/bundles/common.umd.js',
+    '@angular/compiler': 'node_modules/@angular/compiler/bundles/compiler.umd.js',
+    '@angular/platform-browser': 'node_modules/@angular/platform-browser/bundles/platform-browser.umd.js',
+    '@angular/platform-browser-dynamic': 'node_modules/@angular/platform-browser-dynamic/bundles/platform-browser-dynamic.umd.js',
+    '@angular/http': 'node_modules/@angular/http/bundles/http.umd.js',
+    '@angular/router': 'node_modules/@angular/router/bundles/router.umd.js',
+    '@angular/forms': 'node_modules/@angular/forms/bundles/forms.umd.js',
     'jquery-param' : 'node_modules/jquery-param',
     'angular-sortablejs': 'node_modules/angular-sortablejs',
     'pouchdb': 'node_modules/pouchdb/dist',
@@ -15,38 +22,6 @@ System.config({
   },
   
   packages: {
-    '@angular/core': {
-      main: 'index.js',
-      defaultExtension: 'js'
-    },
-    '@angular/compiler': {
-      main: 'index.js',
-      defaultExtension: 'js'
-    },
-    '@angular/common': {
-      main: 'index.js',
-      defaultExtension: 'js'
-    },
-    '@angular/platform-browser': {
-      main: 'index.js',
-      defaultExtension: 'js'
-    },
-    '@angular/platform-browser-dynamic': {
-      main: 'index.js',
-      defaultExtension: 'js'
-    },
-    '@angular/forms': {
-      main: 'index.js',
-      defaultExtension: 'js'
-    },
-    '@angular/router': {
-      main: 'index.js',
-      defaultExtension: 'js'
-    },
-    '@angular/http': {
-      main: 'index.js',
-      defaultExtension: 'js'
-    },
     'rxjs': {
       main: 'index.js',
       defaultExtension: 'js'
