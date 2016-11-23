@@ -43,11 +43,9 @@ remove the folder in "node_modules" and install them manually using
 
 
 ##################################################################
-#   Using shrinkwrapped packages
+#   Update package.json to new versions
 ##################################################################
-https://docs.npmjs.com/cli/shrinkwrap#using-shrinkwrapped-packages
+https://www.npmjs.com/package/npm-check-updates
 
-It can be the case, that if the file "npm-shrinkwrap.json" exists a
-"npm install" does not look up the dependencies inside the "package.json"
-file but instead inside the "npm-shrinkwrap.json" file! Therefor, to install
-from the "package.json" run "npm install --no-shrinkwrap".
+1) look for updates: "npm run check-for-updates"
+2) update if necessary: "npm run update"
