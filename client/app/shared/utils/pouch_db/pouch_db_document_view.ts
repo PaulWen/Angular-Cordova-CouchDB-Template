@@ -1,6 +1,7 @@
 import {PouchDbDatabase} from "./pouch_db_database";
 import {Logger} from "../logger";
 import {PouchDbDocument} from "./pouch_db_document";
+import {BoardDocument} from "../../databases/board/board_document";
 
 /**
  * This abstract class is based on PouchDB and represents a view over multiple {@link PouchDbDocument} from one

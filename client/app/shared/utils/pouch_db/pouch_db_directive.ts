@@ -16,9 +16,11 @@ import {
     NG_ASYNC_VALIDATORS,
     Validator,
     ValidatorFn,
-    AsyncValidatorFn
+    AsyncValidatorFn, ControlValueAccessor, DefaultValueAccessor, CheckboxControlValueAccessor,
+    SelectControlValueAccessor, SelectMultipleControlValueAccessor, RadioControlValueAccessor
 } from "@angular/forms";
 import {Logger} from "../logger";
+import {NumberValueAccessor} from "@angular/forms/src/directives/number_value_accessor";
 
 @Directive({
     selector: '[pouchDbModel]:not([formControlName]):not([formControl])',
@@ -32,6 +34,9 @@ export class PouchDbModel implements OnChanges {
     private validators: Array<Validator|ValidatorFn>;
     private asyncValidators: Array<Validator|AsyncValidatorFn>;
 
+    /** gets used for accessing and setting the value of the input field */
+    private valueAccessor: ControlValueAccessor;
+
     @Input('disabled') isDisabled: boolean;
     @Input('pouchDbModel') model: any;
 
@@ -39,12 +44,17 @@ export class PouchDbModel implements OnChanges {
 
     constructor(element: ElementRef, renderer: Renderer,
                 @Optional() @Self() @Inject(NG_VALIDATORS) validators: Array<Validator|ValidatorFn>,
-                @Optional() @Self() @Inject(NG_ASYNC_VALIDATORS) asyncValidators: Array<Validator|AsyncValidatorFn>) {
+                @Optional() @Self() @Inject(NG_ASYNC_VALIDATORS) asyncValidators: Array<Validator|AsyncValidatorFn>,
+                valueAccessors: ControlValueAccessor[]) {
         this.validators = validators || [];
         this.asyncValidators = asyncValidators || [];
+        this.valueAccessor = this.selectValueAccessor(valueAccessors);
+        Logger.debug(this.model);
     }
 
     /**
+     * Sync Model to View
+     *
      * This function gets called whenever any input variable changes.
      * If the value of the HTML tag this directive is attached to changes,
      * and the user is not currently editing the content of this HTML tag,
@@ -58,6 +68,8 @@ export class PouchDbModel implements OnChanges {
     }
 
     /**
+     * Sync View to Model
+     *
      * This function updates the value in the model with the current value in the HTML tag
      * this directive is attached to.
      *
@@ -74,8 +86,51 @@ export class PouchDbModel implements OnChanges {
         // TODO for accessing the value and also changing the value a value accessor should be used
         // TODO toing so also makes it later on possible to use this directive with any component
         // TODO (especially the NgMaterial components)
-        this.update.emit("VALUE");
+        this.update.emit("hallo");
 
     }
+
+    /**
+     * Method originally implemented by: https://github.com/angular/angular/blob/33340dbbd156d45e50b886f05095551f41c38600/modules/%40angular/forms/src/directives/shared.ts
+     * I modified it so that this method does not depend on any other functions anymore.
+     *
+     * @param valueAccessors
+     * @return {any}
+     */
+    private selectValueAccessor(valueAccessors: ControlValueAccessor[]): ControlValueAccessor {
+        let defaultAccessor: ControlValueAccessor;
+        let builtinAccessor: ControlValueAccessor;
+        let customAccessor: ControlValueAccessor;
+
+        valueAccessors.forEach((valueAccessor: ControlValueAccessor) => {
+            if (valueAccessor.constructor === DefaultValueAccessor) {
+                defaultAccessor = valueAccessor;
+
+            } else if (
+                valueAccessor.constructor === CheckboxControlValueAccessor ||
+                valueAccessor.constructor === NumberValueAccessor ||
+                valueAccessor.constructor === SelectControlValueAccessor ||
+                valueAccessor.constructor === SelectMultipleControlValueAccessor ||
+                valueAccessor.constructor === RadioControlValueAccessor
+            ) {
+                if (builtinAccessor !== undefined && builtinAccessor !== null)
+                    Logger.error('More than one built-in value accessor matches form control with');
+                builtinAccessor = valueAccessor;
+
+            } else {
+                if (customAccessor !== undefined && customAccessor !== null)
+                    Logger.error('More than one custom value accessor matches form control with');
+                customAccessor = valueAccessor;
+            }
+        });
+
+        if (customAccessor !== undefined && customAccessor !== null) return customAccessor;
+        if (builtinAccessor !== undefined && builtinAccessor !== null) return builtinAccessor;
+        if (defaultAccessor !== undefined && defaultAccessor !== null) return defaultAccessor;
+
+        Logger.error('No valid value accessor for form control with');
+        return null;
+    }
+
 
 }
