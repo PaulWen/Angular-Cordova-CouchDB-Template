@@ -244,20 +244,7 @@
     </main>
 
     <div class="mdl-textfield mdl-js-textfield" *ngFor="let item of allBoardDocumentsView?.getCurrentStateOfDocumentViewAsArray()">
-        <!--<input #input [value]="!true ? item.name : input.value" (blur)="item.name=input.value"-->
-        <!--class="mdl-textfield__input no-padding" type="text">-->
-        <input [(pouchDbModel)]=item.name
-        class="mdl-textfield__input no-padding" type="text">
-        <!--<input value="{{item.name}}" class="mdl-textfield__input no-padding" type="text">-->
-        <label class="mdl-textfield__label no-padding" for="new_list"></label>
-    </div>
-
-    <div class="mdl-textfield mdl-js-textfield" *ngFor="let item of allBoardDocumentsView?.getCurrentStateOfDocumentViewAsArray()">
-        <!--<input #input [value]="!true ? item.name : input.value" (blur)="item.name=input.value"-->
-        <!--class="mdl-textfield__input no-padding" type="text">-->
-        <input [value]=item.name
-        class="mdl-textfield__input no-padding" type="text">
-        <!--<input value="{{item.name}}" class="mdl-textfield__input no-padding" type="text">-->
+        <input [(ngModel)]="item.name" [pouchDbModel]="item" class="mdl-textfield__input no-padding">
         <label class="mdl-textfield__label no-padding" for="new_list"></label>
     </div>
 </div>

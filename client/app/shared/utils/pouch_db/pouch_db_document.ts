@@ -12,7 +12,7 @@ import {Logger} from "../logger";
  * When ever an object of this class is not needed anymore it should be closed to free resources by calling
  * {@link PouchDbDocument#close}.
  *
- * HOT TO EXTEND FROM THIS CLASS:
+ * HOW TO EXTEND FROM THIS CLASS:
  *
  * 1) The classes which implement this class MUST implement a public constructor...
  *      a) ...which has the two parameters "json: any" and "database:<TypeOfDocumentDatabase>"!
@@ -26,6 +26,8 @@ import {Logger} from "../logger";
  *         "this.uploadToDatabase();" should only be performed in case the call of the setter really changed the value.
  *         If that does not get done on this way, and endless loop will be the result since the database always calls the documents onChange function
  *         if the document got uploaded (this will cause all setters being called), and the document would always upload the document which would start the cycle again.
+ *      c) Furthermore, each setter has to check if the variable {@link PouchDbDocument#lockDocument} ist set to false. If the variable is true,
+ *         the setter is not allowed to modified the value. No error should be thrown either - the change gets just ignored.
  * 3) The classes has to overwrite the functions "serializeToJsonObject" and "deserializeJsonObject"
  * in order to add also there custom class fields.
  *      a) In the function {@link PouchDbDocument#deserializeJsonObject} the classes should always check if a specific property is included in the json object,
@@ -34,6 +36,21 @@ import {Logger} from "../logger";
  *         If the json object does not provide any value, the variable has to stay unchanged.
  *      b) In the function {@link PouchDbDocument#serializeToJsonObject} the classes should first call the super implementation of
  *         this function and afterwards extends the returned json object with the custom properties of the document.
+ *
+ *
+ *
+ * HOW TO USE THIS CLASS IN FORMS:
+ *
+ * In the Component:
+ *  1) get the needed @link{PouchDbLoaderInterface} objects via dependency injection
+ *  2) insight the ngOnInit-function: Load the needed documents via the corresponding @link{PouchDbLoaderInterface}
+ *  3) insight the ngOnDestroy-function: Close all loaded documents to free resources
+ *
+ * In the View:
+ *  for each input element:
+ *      1) add the ngModel directive linking the value that should be shown and updated by the element: e.g. [(ngModel)]="item.name"
+ *      2) add the pouchDBModel directive linking the document that tha attribute belongs to: e.g. [pouchDbModel]="item"
+ *
  */
 export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<DocumentType>> implements PouchDbDatabase.ChangeListener {
 
@@ -46,6 +63,10 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
      * has any effect. This is useful if the document object gets updated with the current values retrieved
      * from the database, so that for those changes the document does not get uploaded again. */
     private disableUpload: boolean;
+
+    /** If this variable gets set to true, no value of this document can be modified.
+     * On changes that get applied will be ignored without any error. */
+    private _lockDocument: boolean;
 
 
     /** the id of the CouchDB document which this object is representing */
@@ -84,13 +105,23 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
 /////////////////////////////////////////Getter and Setter/////////////////////////////////////////
 
     /**
+     * This function tells if this @link{PouchDbDocument} object is locked and
+     * can not be edited currently or not.
+     *
+     * @return {boolean} true = it is locked and all changes will have any effect (no error will be thrown)
+     */
+    protected get lockDocument(): boolean {
+        return this._lockDocument;
+    }
+
+    /**
      * This function returns the id of the CouchDB document which this object is representing.
      *
      * @return {string} the  of the CouchDB document which this object is representing
      */
-    public get _id(): string {
-        return this.__id;
-    }
+        public get _id(): string {
+    return this.__id;
+}
 
     /**
      * This function returns the revision code of the CouchDB document which this object is representing.
@@ -118,12 +149,14 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
      * @param deleted true if the document should get marked as deleted, false if not
      */
     public set _deleted(deleted: boolean) {
-        // check if the value is really a new value to avoid unnecessary updates
-        if (deleted !== this._deleted) {
+        // check if the document is currently not locked and if the
+        // value is really a new value to avoid unnecessary updates
+        if (!this.lockDocument && deleted !== this._deleted) {
             this.__deleted = deleted;
             this.uploadToDatabase();
         }
     }
+
 ////////////////////////////////////////Inherited Methods//////////////////////////////////////////
 
     public onChange(json: any): void {
@@ -131,6 +164,24 @@ export abstract class PouchDbDocument<DocumentType extends PouchDbDocument<Docum
     }
 
 /////////////////////////////////////////////Methods///////////////////////////////////////////////
+
+    /**
+     * This function locks this @link{PouchDbDocument} object so that
+     * it is not possible anymore to change the value of this object.
+     */
+    public lock() {
+        // lock the model
+        this._lockDocument = true;
+    }
+
+    /**
+     * This function unlocks this @link{PouchDbDocument} object so that
+     * it is again possible to change the value of this object.
+     */
+    public unlock() {
+        // unlock the model
+        this._lockDocument = false;
+    }
 
     /**
      * This function uploads this document into its database, so that the database has the current version.

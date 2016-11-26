@@ -69,10 +69,11 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
      * @param name the name of the board
      */
     public set name(name: string) {
-        Logger.debug("set-name");
 
-        // check if the value is really a new value to avoid unnecessary updates
-        if (name !== this.name) {
+        // check if the document is currently not locked and if the
+        // value is really a new value to avoid unnecessary updates
+        if (!this.lockDocument && name !== this.name) {
+            Logger.debug("set-name");
             this._name = name;
             this.uploadToDatabase();
         }
@@ -93,8 +94,9 @@ export class BoardDocument extends PouchDbDocument<BoardDocument> {
      * @param backgroundColor the background color of the board
      */
     public set backgroundColor(backgroundColor: string) {
-        // check if the value is really a new value to avoid unnecessary updates
-        if (backgroundColor !== this.backgroundColor) {
+        // check if the document is currently not locked and if the
+        // value is really a new value to avoid unnecessary updates
+        if (!this.lockDocument && backgroundColor !== this.backgroundColor) {
             this._backgroundColor = backgroundColor;
             this.uploadToDatabase();
         }
